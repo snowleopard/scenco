@@ -1,3 +1,5 @@
 module Library (Library) where
 
-data Library
+import System.FilePath
+
+data Library = Library FilePath
