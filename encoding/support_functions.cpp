@@ -6,17 +6,6 @@ int getEventID(string name)
 	return V - 1;
 }
 
-int getPredicateID(int event, string name)
-{
-	if (eventPredicates[event].count(name) == 0)
-	{
-		int new_id = eventPredicates[event].size() + 1;
-		eventPredicates[event][name] = new_id;	
-	}
-
-	return eventPredicates[event][name];
-}
-
 string getPredicateName(int event, int id)
 {
 	map<string, int>::iterator p = eventPredicates[event].begin(), q = eventPredicates[event].end();
@@ -27,6 +16,30 @@ string getPredicateName(int event, int id)
 		p++;
 	}
 	return "";
+}
+
+bool ME(int scenario, int event1, int event2)
+{
+	if (!g[scenario].v[event1]) return true;
+	if (!g[scenario].v[event2]) return true;
+	if (!g[scenario].pred[event1]) return false;
+	if (!g[scenario].pred[event2]) return false;
+	string p1 = getPredicateName(event1, g[scenario].pred[event1]);
+	string p2 = getPredicateName(event2, g[scenario].pred[event2]);
+	if (p1 == "!" + p2) return true;
+	if (p2 == "!" + p1) return true;
+	return false;
+}
+
+int getPredicateID(int event, string name)
+{
+	if (eventPredicates[event].count(name) == 0)
+	{
+		int new_id = eventPredicates[event].size() + 1;
+		eventPredicates[event][name] = new_id;	
+	}
+
+	return eventPredicates[event][name];
 }
 
 bool check(string s)
@@ -120,4 +133,67 @@ bool readScenario()
 	
 	n++;
 	return true;
+}
+
+/*It concatenates two strings creating the right portion in the memory.*/
+char* catMem(char *str1, char *str2){
+
+	char *newStr;
+
+	newStr = (char *) malloc(sizeof(char) * (strlen(str1) + strlen(str2) + 1));
+	sprintf(newStr, "%s%s", str1, str2);
+	
+	free(str1);
+
+	return newStr;
+}
+
+/*It concatenates one string with a character creating the right portion in 
+the memory.*/
+char* catChar(char *str1, char c){
+
+	char *newStr;
+
+	newStr = (char *) malloc(sizeof(char) * (strlen(str1) + 2));
+	sprintf(newStr, "%s%c", str1, c);
+	
+	free(str1);
+
+	return newStr;
+}
+
+// removing temporary files from the HDD
+void removeTempFiles(){
+	char *command;
+
+	command = strdup("rm -f ");
+	command = catMem(command, TMP_FILE);
+	if (system(command) == -1){
+		printf("Error on removing %s.\n", TMP_FILE);
+		return;
+	}
+	free(command);
+    	command = strdup("rm -f ");
+	command = catMem(command, SCRIPT_PATH);
+	if (system(command) == -1){
+		printf("Error on removing %s.\n", SCRIPT_PATH);
+		return;
+	}
+	free(command);
+	command = strdup("rm -f ");
+	command = catMem(command, TRIVIAL_ENCODING_FILE);
+	if (system(command) == -1){
+		printf("Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
+		return;
+	}
+	free(command);
+	command = strdup("rm -f ");
+	command = catMem(command, CONSTRAINTS_FILE);
+	if (system(command) == -1){
+		printf("Error on removing %s.\n", CONSTRAINTS_FILE);
+		return;
+	}
+	free(command);
+
+	return;
 }

@@ -17,10 +17,22 @@
 #include <map>
 //#include <set>
 
+// encodings available
+enum encodingType
+{ 
+	single_literal,
+	sequential,
+	satBased,
+	random_encoding,
+	heuristic,
+	exhaustive
+}; 
+
 using namespace std;
 
 // constant definition
 #define MAX_VERT	10000	//Max number of vertices of CPOG
+#define FILENAME_LENGTH	300	// Max length of file names
 
 #define stringLimit	1000
 #define eventsLimit	1000
@@ -30,6 +42,11 @@ using namespace std;
 // global variables
 char **name_cond; 
 char **vertices;
+
+char TRIVIAL_ENCODING_FILE[FILENAME_LENGTH] = "/tmp/trivial.XXXXXX";
+char CONSTRAINTS_FILE[FILENAME_LENGTH] = "/tmp/constraints.XXXXXX";
+char TMP_FILE[FILENAME_LENGTH] = "/tmp/tmpfile.XXXXXX";
+char SCRIPT_PATH[FILENAME_LENGTH] = "/tmp/synth.XXXXXX";
 
 // type definition
 typedef enum {FALSE, TRUE} boolean;

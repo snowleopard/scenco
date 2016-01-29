@@ -10,7 +10,7 @@ import Foreign.C.Types
 import Foreign.C.String
 
 foreign import ccall unsafe "encoding_graphs"
-    encoding_graphs :: CString -> IO Int
+    encoding_graphs :: CString -> Int -> IO Int
 
 main = do
     putStrLn "SCENCO v.0.1"
@@ -27,5 +27,5 @@ main = do
 
     putStrLn "Printing from c.."
     fileName <- newCString "arm.cpog"
-    encoding_graphs fileName
+    encoding_graphs fileName 1
     putStrLn "Done!"
