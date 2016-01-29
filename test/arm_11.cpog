@@ -1,0 +1,47 @@
+.scenario LDR_STRIMM
+PCIU IFU ALU MAU PCIU_2 IFU_2
+.end
+
+.scenario STR_LDRREG_PUSH_POP
+PCIU IFU
+ALU MAU
+.end
+
+.scenario LDM_STM
+PCIU IFU
+MAU
+.end
+
+.scenario LDR_STR_PC
+PCIU IFU ALU MAU IFU_2
+.end
+
+.scenario LDR
+ALU MAU IFU
+.end
+
+.scenario LDM
+MAU IFU
+.end
+
+.scenario RN_TO_RN
+PCIU IFU
+ALU
+.end
+
+.scenario COND_BRANCH
+PCIU PCIU_2 IFU
+.end
+
+.scenario #123_TO_PC_BRANCH_BL_BLX
+PCIU IFU ALU IFU_2
+.end
+
+.scenario #123_TO_RN
+PCIU IFU PCIU_2 IFU_2
+IFU ALU IFU_2
+.end
+
+.scenario RN_TO_PC
+ALU IFU
+.end
