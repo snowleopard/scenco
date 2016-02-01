@@ -9,11 +9,23 @@ import Foreign
 import Foreign.C.Types
 import Foreign.C.String
 
+data EncodingType = Single_literal |
+                    Sequential |
+                    SatBased |
+                    Random_encoding |
+                    Heuristic |
+                    Exhaustive deriving (Enum)
+
 foreign import ccall unsafe "encoding_graphs"
     encoding_graphs :: CString -> Int -> IO Int
 
 main = do
     putStrLn "SCENCO v.0.1"
+
+    putStrLn "Printing from c.."
+    fileName <- newCString "arm.cpog"
+    encoding_graphs fileName (fromEnum SatBased)
+    putStrLn "Done!"
 
     -- how to spawn a process, reading the ouput
     --let tool = "./a.out"
@@ -24,8 +36,3 @@ main = do
     --putStrLn exitCode
     --output <- hGetContents hOut
     --putStrLn output
-
-    putStrLn "Printing from c.."
-    fileName <- newCString "arm.cpog"
-    encoding_graphs fileName 1
-    putStrLn "Done!"
