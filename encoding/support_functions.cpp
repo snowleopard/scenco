@@ -197,3 +197,36 @@ void removeTempFiles(){
 
 	return;
 }
+
+int temporary_files_creation(){
+#ifdef __linux
+	if (mkstemp(TRIVIAL_ENCODING_FILE) == -1){
+		fprintf(stderr,"Error on opening trivial temporary file: %s.\n",
+			TRIVIAL_ENCODING_FILE);
+		removeTempFiles();
+		return -1;
+	}
+	if (mkstemp(CONSTRAINTS_FILE) == -1){
+		fprintf(stderr,"Error on opening constraint temporary file: %s.\n",
+			CONSTRAINTS_FILE);
+		removeTempFiles();
+		return -1;
+	}
+	if (mkstemp(TMP_FILE) == -1){
+		fprintf(stderr,"Error on opening temporary file: %s.\n", TMP_FILE);
+		removeTempFiles();
+		return -1;
+	}
+	if (mkstemp(SCRIPT_PATH) == -1){
+		fprintf(stderr,"Error on opening temporary file: %s.\n", SCRIPT_PATH);
+		removeTempFiles();
+		return -1;
+	}
+#else
+	tmpnam (TRIVIAL_ENCODING_FILE);
+	tmpnam (CONSTRAINTS_FILE);
+	tmpnam (TMP_FILE);
+	tmpnam (SCRIPT_PATH);
+#endif
+	return 0;
+}

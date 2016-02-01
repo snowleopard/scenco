@@ -1,5 +1,10 @@
-#include "encoding.h"
-#include "support_functions.cpp"
+#ifdef __linux
+	#include "encoding.h"
+	#include "support_functions.cpp"
+#else
+	#include "[absolute_path]\encoding.h"
+	#include "[absolute_path]\support_functions.cpp"
+#endif
 
 extern "C" int encoding_graphs(char *file_in, encodingType encoding){
 
@@ -13,9 +18,13 @@ extern "C" int encoding_graphs(char *file_in, encodingType encoding){
 	printf("DONE\n");
 	fflush(stdout);
 
-	/*************************************************************************
-	****************************BUILDING CPOG*********************************
-	*************************************************************************/
+	if(temporary_files_creation() != 0){
+		return -1;
+	}
+
+	/***********************************************************************
+	****************************BUILDING CPOG*******************************
+	***********************************************************************/
 
 	puts("\nOptimal scenarios encoding and CPOG synthesis.\n");	
 
@@ -83,7 +92,8 @@ extern "C" int encoding_graphs(char *file_in, encodingType encoding){
 			puts("\nList of predicates:");
 		}
 		printf("%s:", eventNames_str[i].c_str());
-		map<string, int>::iterator p = eventPredicates[i].begin(), q = eventPredicates[i].end();
+		map<string, int>::iterator p = eventPredicates[i].begin(), 
+			q = eventPredicates[i].end();
 		while(p != q)
 		{
 			string pr = p->first;

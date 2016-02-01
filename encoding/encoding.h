@@ -43,10 +43,18 @@ using namespace std;
 char **name_cond; 
 char **vertices;
 
-char TRIVIAL_ENCODING_FILE[FILENAME_LENGTH] = "/tmp/trivial.XXXXXX";
-char CONSTRAINTS_FILE[FILENAME_LENGTH] = "/tmp/constraints.XXXXXX";
-char TMP_FILE[FILENAME_LENGTH] = "/tmp/tmpfile.XXXXXX";
-char SCRIPT_PATH[FILENAME_LENGTH] = "/tmp/synth.XXXXXX";
+//TEMPORARY FILES
+#ifdef __linux
+	char TRIVIAL_ENCODING_FILE[FILENAME_LENGTH] = "/tmp/trivial.XXXXXX";
+	char CONSTRAINTS_FILE[FILENAME_LENGTH] = "/tmp/constraints.XXXXXX";
+	char TMP_FILE[FILENAME_LENGTH] = "/tmp/tmpfile.XXXXXX";
+	char SCRIPT_PATH[FILENAME_LENGTH] = "/tmp/synth.XXXXXX";
+#else
+	char TRIVIAL_ENCODING_FILE[FILENAME_LENGTH];
+	char CONSTRAINTS_FILE[FILENAME_LENGTH];
+	char TMP_FILE[FILENAME_LENGTH];
+	char SCRIPT_PATH[FILENAME_LENGTH];
+#endif
 
 // type definition
 typedef enum {FALSE, TRUE} boolean;
