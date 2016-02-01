@@ -435,3 +435,66 @@ int nonTrivialConstraints(FILE *fp, int *total, int *trivial){
 
 	return 0;
 }
+
+int conflictGraph(int *total){
+
+	for(int i = 0; i < (*total); i++)
+	if (!encodings[i].trivial)
+	{
+		string s = encodings[i].constraint;
+		cgv.push_back(s);
+		for(int j = 0; j < n; j++) if (s[j] == '0') s[j] = '1'; else if (s[j] == '1') s[j] = '0';
+		cgv.push_back(s);
+	}
+	
+	cge.resize(cgv.size());
+	literal.resize(cgv.size());
+	bestLiteral.resize(cgv.size());
+	for(unsigned int i = 0; i < cgv.size(); i += 2) { bestLiteral[i] = i / 2; bestLiteral[i + 1] = -1;}
+	
+	for(unsigned int i = 0; i < cgv.size(); i++)
+	for(unsigned int j = 0; j < cgv.size(); j++)
+	{
+		string a = cgv[i];
+		string b = cgv[j];
+		
+		bool conflict = false;
+		
+		for(int k = 0; k < n; k++)
+			if ((a[k] == '0' && b[k] == '1') || (a[k] == '1' && b[k] == '0'))
+			{
+				conflict = true;
+				break;
+			}
+		
+		if (conflict) cge[i].push_back(1); else cge[i].push_back(0);
+	}
+	
+
+	return 0;
+}
+
+bool encode(int vertex, int limit, int next)
+{
+	if (next > limit) return false;
+	
+	if (vertex == ((int)cgv.size()) ) return true;
+	
+	for(int select = 0; select < 2; select++)
+	{
+		for(int i = 0; i <= next; i++)
+		{
+			int j;
+			for(j = 0; j < vertex; j++)
+			if (cge[vertex + select][j] && literal[j] == i) break;
+			
+			if (j == vertex)
+			{
+				literal[vertex + select] = i;
+				if (encode(vertex + 2, limit, next + (i == next))) return true;
+				literal[vertex + select] = -1;
+			}
+		}
+	}
+	return false;
+}
