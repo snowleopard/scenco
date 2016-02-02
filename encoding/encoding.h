@@ -35,6 +35,8 @@ using namespace std;
 #define FILENAME_LENGTH	300	// Max length of file names
 #define MAX_LOG		10000	//2^(MAX_LOG) as max number of log_2 computable
 #define MAX_NAME	100	//Max length name for each node
+#define MAX_CPOG	1000	//Max number of graphs of CPOG
+#define MAX_WEIGHT	100000000//Used for finding min weight
 
 #define stringLimit	1000
 #define eventsLimit	1000
@@ -115,6 +117,20 @@ typedef struct Encoding_st
 
 // Alex's tool
 char *numb;
+char **manual_file;
+char **manual_file_back;
+int *custom_perm;
+int *custom_perm_back;
+boolean *DC_custom = NULL;
+int tot_enc;
+boolean DC = FALSE;
+long long int num_perm;
+int **opt_diff = NULL;
+int counter = 0;
+int **perm = NULL;
+
+boolean SET =FALSE;
+boolean unfix = FALSE;
 
 // Andrey's tool
 GRAPH_TYPE *g;
