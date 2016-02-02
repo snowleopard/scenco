@@ -76,7 +76,7 @@ extern "C" int encoding_graphs(char *file_in, encodingType encoding){
 			if(singleLiteralEncoding(total) != 0){
 				fprintf(stderr,"Single-literal encoding failed.\n");
 				return -1;
-			}
+			}			
 			break;
 		case sequential:
 			printf("Running Sequential encoding.\n");
@@ -121,7 +121,8 @@ extern "C" int encoding_graphs(char *file_in, encodingType encoding){
 	fflush(stdout);
 
 	printf("\nOpcodes assigned to the graphs:\n");
-	for(int i = 0; i < n; i++) printf("%s\n",scenarioOpcodes[i].c_str());
+	for(int i = 0; i < n; i++)
+		printf("%s\n",scenarioOpcodes[i].c_str());
 
 	return 0;
 }

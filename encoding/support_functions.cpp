@@ -498,3 +498,59 @@ bool encode(int vertex, int limit, int next)
 	}
 	return false;
 }
+
+/*LOGARITHM2 FUNCTION*/
+/*Following function simply computes logarithm base 2 of input parameter.*/
+int logarithm2(int n){
+	int logval = 0, i = 1,j;
+
+	for(j=0;j<MAX_LOG;j++){
+		i *= 2;
+		if (n == i)
+			logval = -1;
+	}
+
+	/*DEBUG PRINTING*/
+	//printf("logval: %d", logval);
+
+	while(n){
+		logval++;
+		n >>= 1;
+	}
+	return logval;
+}
+
+/*PRINT BINARY FUNCTION*/
+/*Following function print the binary representation of an integer number.*/
+void print_binary(FILE *fp,int n, int bits){
+	int i, *vett,j;
+	vett = (int*)calloc(bits, sizeof(int));
+	//char *number;
+
+	numb = (char*) malloc(sizeof(char) * MAX_NAME);
+	//printf("%d - ",n);
+	/*DEBUG PRINTING: int number*/
+	//if(fp == stdout)	
+	//	fprintf(fp,"(%d) ", n);
+
+	for(i=0;i<bits; i++){
+		if(n & 1) vett[i] = 1;
+		n >>=1;
+	}
+	j = 0;
+	for(i=bits-1; i>= 0;i--){
+		if(fp != NULL)
+			fprintf(fp,"%d", vett[i]);
+		if(vett[i]) numb[j++] = '1';
+		else	numb[j++] = '0';
+	}
+	numb[bits] = '\0';
+
+	//printf("%s\n",number);
+
+	if (fp != NULL)
+		fprintf(fp," ");
+
+	return;
+}
+

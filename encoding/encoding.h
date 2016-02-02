@@ -33,6 +33,8 @@ using namespace std;
 // constant definition
 #define MAX_VERT	10000	//Max number of vertices of CPOG
 #define FILENAME_LENGTH	300	// Max length of file names
+#define MAX_LOG		10000	//2^(MAX_LOG) as max number of log_2 computable
+#define MAX_NAME	100	//Max length name for each node
 
 #define stringLimit	1000
 #define eventsLimit	1000
@@ -110,6 +112,9 @@ typedef struct Encoding_st
 	int literal;
 	bool inverted;
 }Encoding;
+
+// Alex's tool
+char *numb;
 
 // Andrey's tool
 GRAPH_TYPE *g;

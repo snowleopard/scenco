@@ -1,7 +1,6 @@
 /*******************************************************************************
 *                          single-literal encoding                             *
 *******************************************************************************/
-
 int singleLiteralEncoding(int total){
 
 	int L = 0, R = cgv.size() / 2, cnt = 1;
@@ -124,7 +123,17 @@ int singleLiteralEncoding(int total){
 	return 0;
 }
 
+/*******************************************************************************
+*                             sequential encoding                              *
+*******************************************************************************/
 int sequentialEncoding(){
+	int bits = logarithm2(n);
+	scenarioOpcodes.resize(n);
+	
+	for(int i = 0; i < n; i++){
+		print_binary(NULL, i, bits);
+		scenarioOpcodes[i] = string(numb);
+	}
 
 	return 0;
 }
