@@ -35,30 +35,33 @@ extern "C" int encoding_graphs(	char *file_in,
 	int gen_perm = 1000;
 	int *sol;
 
-	// memory allocation
-	printf("Allocating memory for vertex names and graphs...");
-	fflush(stdout);
-	name_cond = (char**) malloc(sizeof(char*) * MAX_VERT);
-	vertices = (char**) malloc(sizeof(char*) * MAX_VERT);
-	g = (GRAPH_TYPE *) malloc(sizeof(GRAPH_TYPE) * scenariosLimit);
-	printf("DONE\n");
-	fflush(stdout);
-
 	if(temporary_files_creation() != 0){
 		return -1;
 	}
+	if( (fpLOG = fopen(LOG,"w")) == NULL){
+		fprintf(stderr,"Error on opening LOG file for writing.\n");
+	}
+	fprintf(fpLOG,WELCOME_STRING);	
+
+	// memory allocation
+	fprintf(fpLOG,"Allocating memory for vertex names and graphs...");
+	name_cond = (char**) malloc(sizeof(char*) * MAX_VERT);
+	vertices = (char**) malloc(sizeof(char*) * MAX_VERT);
+	g = (GRAPH_TYPE *) malloc(sizeof(GRAPH_TYPE) * scenariosLimit);
+	fprintf(fpLOG,"DONE\n");
+	fflush(stdout);
 
 	//**********************************************************************
 	// Building CPOG Part
 	//**********************************************************************
 
 	// loading scenarios
-	puts("\nOptimal scenarios encoding and CPOG synthesis.\n");	
+	fprintf(fpLOG,"\nOptimal scenarios encoding and CPOG synthesis.\n");	
 	if(loadScenarios(file_in, fp) != 0){
 		fprintf(stderr,"Loading scenarios failed.\n");
 		return -1;
 	}
-	printf("\n%d scenarios have been loaded.\n", n);
+	fprintf(fpLOG,"\n%d scenarios have been loaded.\n", n);
 	
 	// looking for predicates
 	if(predicateSearch() != 0){
@@ -75,7 +78,7 @@ extern "C" int encoding_graphs(	char *file_in,
 		fprintf(stderr,"Non-trivial constraints searching failed.\n");
 		return -1;
 	}
-	printf("\n%d non-trivial encoding constraints found:\n\n", total - trivial);
+	fprintf(fpLOG,"\n%d non-trivial encoding constraints found:\n\n", total - trivial);
 
 	// writing non-trivial constraints into a file
 	if( (fp = fopen(TRIVIAL_ENCODING_FILE,"w")) == NULL){
@@ -88,35 +91,32 @@ extern "C" int encoding_graphs(	char *file_in,
 	}
 	fclose(fp);
 	
-	printf("\nBuilding conflict graph... ");
+	fprintf(fpLOG,"\nBuilding conflict graph... ");
 	if(conflictGraph(&total) != 0){
 		fprintf(stderr,"Building conflict graph failed.\n");
 		return -1;
 	}
-	printf("DONE.\n");
-	fflush(stdout);
+	fprintf(fpLOG,"DONE.\n");
 
 	//**********************************************************************
 	// Reading encoding set by the user
 	//**********************************************************************
 
-	printf("Reading encodings set... ");
+	fprintf(fpLOG,"Reading encodings set... ");
 	fflush(stdout);
 	if(read_set_encoding(custom_file_name,n,&bits) != 0){
 		fprintf(stderr,"Error on reading encoding set.\n");
 		removeTempFiles();
 		return -1;
 	}
-	printf("DONE\n");
+	fprintf(fpLOG,"DONE\n");
 
-	printf("Check correcteness of encoding set... ");
-	fflush(stdout);
+	fprintf(fpLOG,"Check correcteness of encoding set... ");
 	if(check_correctness(custom_file_name,n,tot_enc,bits) != 0){
 		removeTempFiles();
 		return -1;
 	}
-	printf("DONE\n");
-	fflush(stdout);
+	fprintf(fpLOG,"DONE\n");
 
 	//**********************************************************************
 	// Variable preparation for encoding
@@ -125,15 +125,13 @@ extern "C" int encoding_graphs(	char *file_in,
 	file_cons = strdup(CONSTRAINTS_FILE);
 
 	/*READ NON-TRIVIAL ENCODING FILE*/
-	printf("Reading non-trivial encoding file... ");
-	fflush(stdout);
+	fprintf(fpLOG,"Reading non-trivial encoding file... ");
 	if( (err = read_file(file_in, &cpog_count, &len_sequence)) ){
 		fprintf(stderr,"Error occured while reading non-trivial encoding file, error code: %d", err);
 		removeTempFiles();
 		return -1;
 	}
-	printf("DONE\n");
-	fflush(stdout);
+	fprintf(fpLOG,"DONE\n");
 
 	/*SEED FOR RAND*/
 	srand(time(NULL));
@@ -158,7 +156,7 @@ extern "C" int encoding_graphs(	char *file_in,
 			for(int i = 1; i<= tot_enc; i++)
 				num_perm *= i;
 		}
-		printf("Number of possible permutations by fixing first element: %lld\n", num_perm);
+		fprintf(fpLOG,"Number of possible permutations by fixing first element: %lld\n", num_perm);
 	}
 	else{
 		/*DISPOSITION*/
@@ -172,7 +170,7 @@ extern "C" int encoding_graphs(	char *file_in,
 			num_perm = 1;
 		for(int i=elements; i>= min_disp; i--)
 			num_perm *= i;
-		printf("Number of possible dispositions by fixing first element: %lld\n", num_perm);
+		fprintf(fpLOG,"Number of possible dispositions by fixing first element: %lld\n", num_perm);
 	}
 
 	if(encoding == exhaustive){
@@ -215,15 +213,13 @@ extern "C" int encoding_graphs(	char *file_in,
 	weights = (float*) calloc(num_perm, sizeof(float));
 
 	/*BUILDING DIFFERENCE MATRIX*/
-	printf("Building DM (=Difference Matrix)... ");
-	fflush(stdout);
+	fprintf(fpLOG,"Building DM (=Difference Matrix)... ");
 	if( (err = difference_matrix(n, len_sequence)) ){
 		fprintf(stderr,"Error occurred while building difference matrix, error code: %d", err);
 		removeTempFiles();
 		return 3;
 	}
-	printf("DONE\n");
-	fflush(stdout);
+	fprintf(fpLOG,"DONE\n");
 
 	//**********************************************************************
 	// Encoding part
@@ -231,28 +227,28 @@ extern "C" int encoding_graphs(	char *file_in,
 
 	switch(encoding){
 		case single_literal:
-			printf("Running single-literal encoding.\n");
+			fprintf(fpLOG,"Running single-literal encoding.\n");
 			if(singleLiteralEncoding(total) != 0){
 				fprintf(stderr,"Single-literal encoding failed.\n");
 				return -1;
 			}			
 			break;
 		case sequential:
-			printf("Running Sequential encoding.\n");
+			fprintf(fpLOG,"Running Sequential encoding.\n");
 			if(sequentialEncoding() != 0){
 				fprintf(stderr,"Sequential encoding failed.\n");
 				return -1;
 			}
 			break;
 		case satBased:
-			printf("Running Sat-Based encoding.\n");
+			fprintf(fpLOG,"Running Sat-Based encoding.\n");
 			if(satBasedEncoding() != 0){
 				fprintf(stderr,"Sat-based encoding failed.\n");
 				return -1;
 			}
 			break;
 		case random_encoding:
-			printf("Running Random encoding.\n");
+			fprintf(fpLOG,"Running Random encoding.\n");
 			num_perm = 1;
 			if(randomEncoding(n, tot_enc, bits) != 0){
 				fprintf(stderr,"Random encoding failed.\n");
@@ -260,52 +256,51 @@ extern "C" int encoding_graphs(	char *file_in,
 			}
 			break;
 		case heuristic:
-			printf("Running Random generation... ");
+			fprintf(fpLOG,"Running Random generation... ");
 			num_perm = 1;
 			if(randomEncoding(n, tot_enc, bits) != 0){
 				fprintf(stderr,"Random encoding failed.\n");
 				return -1;
 			}
-			printf("DONE.\n");
-			printf("Running Heuristic optimisation.\n");
+			fprintf(fpLOG,"DONE.\n");
+			fprintf(fpLOG,"Running Heuristic optimisation.\n");
 			if(start_simulated_annealing(n,tot_enc,bits) != 0){
 				fprintf(stderr,"Heuristic optimisation failed.\n");
 				return -1;
 			}
 			break;
 		case exhaustive:
-			printf("Running Exhaustive encoding.\n");
+			fprintf(fpLOG,"Running Exhaustive encoding.\n");
 
 			if(!unfix && !SET){
 				//permutation_stdalgo(cpog_count,tot_enc);
-				printf("Permutation algorithm unconstrained... ");
-				fflush(stdout);
+				fprintf(fpLOG,"Permutation algorithm unconstrained... ");
 				exhaustiveEncoding(sol,0,enc,cpog_count, tot_enc);
-				printf("DONE\n");
-				fflush(stdout);
+				fprintf(fpLOG,"DONE\n");
 			}else{
-				printf("Permutation algorithm constrained... ");
-				fflush(stdout);
+				fprintf(fpLOG,"Permutation algorithm constrained... ");
 				exhaustiveEncoding(sol,-1,enc,cpog_count, tot_enc);
-				printf("DONE\n");
+				fprintf(fpLOG,"DONE\n");
 
-				printf("Filtering encoding... ");
-				fflush(stdout);
+				fprintf(fpLOG,"Filtering encoding... ");
 				filter_encodings(cpog_count, bits, tot_enc);
-				printf("DONE\n");
-				fflush(stdout);
+				fprintf(fpLOG,"DONE\n");
 			}
 			break;
 		default:
 			fprintf(stderr, "Undefined encoding method selected.\n");
 			return -1;
 	}
-	printf("DONE.\n");
-	fflush(stdout);
+	fprintf(fpLOG,"DONE.\n");
 
-	printf("\nOpcodes assigned to the graphs:\n");
+	encodingReformat(cpog_count);
+
+	fprintf(fpLOG,"\nOpcodes assigned to the graphs:\n");
 	for(int i = 0; i < cpog_count; i++)
-		printf("%s\n",scenarioOpcodes[i].c_str());
+		fprintf(fpLOG,"%s\n",scenarioOpcodes[i].c_str());
+
+	fclose(fpLOG);
+	removeTempFiles();
 
 	return 0;
 }

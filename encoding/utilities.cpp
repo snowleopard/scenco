@@ -33,28 +33,28 @@ void removeTempFiles(){
 	command = strdup("rm -f ");
 	command = catMem(command, TMP_FILE);
 	if (system(command) == -1){
-		printf("Error on removing %s.\n", TMP_FILE);
+		fprintf(stderr,"Error on removing %s.\n", TMP_FILE);
 		return;
 	}
 	free(command);
     	command = strdup("rm -f ");
 	command = catMem(command, SCRIPT_PATH);
 	if (system(command) == -1){
-		printf("Error on removing %s.\n", SCRIPT_PATH);
+		fprintf(stderr,"Error on removing %s.\n", SCRIPT_PATH);
 		return;
 	}
 	free(command);
 	command = strdup("rm -f ");
 	command = catMem(command, TRIVIAL_ENCODING_FILE);
 	if (system(command) == -1){
-		printf("Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
+		fprintf(stderr,"Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
 		return;
 	}
 	free(command);
 	command = strdup("rm -f ");
 	command = catMem(command, CONSTRAINTS_FILE);
 	if (system(command) == -1){
-		printf("Error on removing %s.\n", CONSTRAINTS_FILE);
+		fprintf(stderr,"Error on removing %s.\n", CONSTRAINTS_FILE);
 		return;
 	}
 	free(command);
@@ -62,28 +62,28 @@ void removeTempFiles(){
     	command = strdup("del ");
 	command = catMem(command, TMP_FILE);
 	if (system(command) == -1){
-		printf("Error on removing %s.\n", TMP_FILE);
+		fprintf(stderr,"Error on removing %s.\n", TMP_FILE);
 		return;
 	}
 	free(command);
     	command = strdup("del ");
 	command = catMem(command, SCRIPT_PATH);
 	if (system(command) == -1){
-		printf("Error on removing %s.\n", SCRIPT_PATH);
+		fprintf(stderr,"Error on removing %s.\n", SCRIPT_PATH);
 		return;
 	}
 	free(command);
 	command = strdup("del ");
 	command = catMem(command, TRIVIAL_ENCODING_FILE);
 	if (system(command) == -1){
-		printf("Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
+		fprintf(stderr,"Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
 		return;
 	}
 	free(command);
 	command = strdup("del ");
 	command = catMem(command, CONSTRAINTS_FILE);
 	if (system(command) == -1){
-		printf("Error on removing %s.\n", CONSTRAINTS_FILE);
+		fprintf(stderr,"Error on removing %s.\n", CONSTRAINTS_FILE);
 		return;
 	}
 	free(command);
@@ -120,6 +120,7 @@ int temporary_files_creation(){
 	tmpnam (CONSTRAINTS_FILE);
 	tmpnam (TMP_FILE);
 	tmpnam (SCRIPT_PATH);
+	tmpnam (LOG);
 #endif
 	return 0;
 }
@@ -238,3 +239,16 @@ void int_to_string_DC(int bits, int index, int val, char *str){
 	return;
 }
 
+void encodingReformat(int cpog_count){
+
+	for(int i = 0; i < cpog_count; i++){
+		int len = strlen(manual_file_back[i]);
+		for(int j=0; j<len; j++){
+			if(manual_file_back[i][j] == '-'){
+				scenarioOpcodes[i][j] = '-';
+			}
+		}
+	}
+
+	return;
+}

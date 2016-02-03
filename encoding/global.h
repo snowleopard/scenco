@@ -4,14 +4,17 @@
 	char CONSTRAINTS_FILE[FILENAME_LENGTH] = "/tmp/constraints.XXXXXX";
 	char TMP_FILE[FILENAME_LENGTH] = "/tmp/tmpfile.XXXXXX";
 	char SCRIPT_PATH[FILENAME_LENGTH] = "/tmp/synth.XXXXXX";
+	char LOG[FILENAME_LENGTH] = "encoding.log";
 #else
 	char TRIVIAL_ENCODING_FILE[FILENAME_LENGTH];
 	char CONSTRAINTS_FILE[FILENAME_LENGTH];
 	char TMP_FILE[FILENAME_LENGTH];
 	char SCRIPT_PATH[FILENAME_LENGTH];
+	char LOG[FILENAME_LENGTH];
 #endif
 
 // Alex's tool
+FILE *fpLOG;
 char *numb;
 char **manual_file;
 char **manual_file_back;

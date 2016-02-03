@@ -10,7 +10,7 @@ int singleLiteralEncoding(int total){
 	
 		for(unsigned int i = 0; i < cgv.size(); i++) literal[i] = -1;
 	
-		printf(" [%d]", cnt++);
+		fprintf(fpLOG," [%d]", cnt++);
 	
 		bool res = false;
 		res = encode(0, limit, 0);
@@ -23,8 +23,7 @@ int singleLiteralEncoding(int total){
 		else L = limit;
 	}
 
-	printf("DONE.\nThe best encoding uses %d operational variables:\n", R);
-	fflush(stdout);
+	fprintf(fpLOG,"DONE.\nThe best encoding uses %d operational variables:\n", R);
 
 	scenarioOpcodes.resize(n);
 
@@ -39,9 +38,9 @@ int singleLiteralEncoding(int total){
 	
 		if (bestLiteral[id] == -1) inv = 1;
 	
-		printf("%s        ", cgv[id].c_str());
-		if (inv) printf("!");
-		printf("x[%d]\n", bestLiteral[id + inv]);
+		fprintf(fpLOG,"%s        ", cgv[id].c_str());
+		if (inv) fprintf(fpLOG,"!");
+		fprintf(fpLOG,"x[%d]\n", bestLiteral[id + inv]);
 	
 		encodings[i].literal = bestLiteral[id + inv];
 		encodings[i].inverted = inv;
@@ -78,7 +77,7 @@ int singleLiteralEncoding(int total){
 		}
 	}
 
-	puts("\nVertex conditions:\n");
+	fprintf(fpLOG,"\nVertex conditions:\n");
 
 	for(int i = 0; i < V; i++)
 	{
@@ -105,10 +104,10 @@ int singleLiteralEncoding(int total){
 		}
 		if (f.find("0 + ") == 0) f.erase(0, 4);
 		if (f.find("1 * ") == 0) f.erase(0, 4);
-		printf("%10s: %s\n", eventNames_str[i].c_str(), f.c_str());
+		fprintf(fpLOG,"%10s: %s\n", eventNames_str[i].c_str(), f.c_str());
 	}
 
-	puts("\nArc conditions:\n");
+	fprintf(fpLOG,"\nArc conditions:\n");
 
 	for(int i = 0; i < V; i++)
 	for(int j = 0; j < V; j++)
@@ -117,7 +116,7 @@ int singleLiteralEncoding(int total){
 		string f = aConditions[i][j];
 		if (f == "0") continue;
 
-		printf("%10s -> %-10s: %s\n", eventNames_str[i].c_str(), eventNames_str[j].c_str(), f.c_str());
+		fprintf(fpLOG,"%10s -> %-10s: %s\n", eventNames_str[i].c_str(), eventNames_str[j].c_str(), f.c_str());
 	}
 
 	return 0;
@@ -494,7 +493,7 @@ int randomEncoding(int cpog_count, int tot_enc,int bits){
 		//STOP ENCODINGS GENERATION
 		if(fails > MAX_FAILS){
 			num_perm = c;
-			printf("\nFunction was able to generate just %lld permutations.\n",num_perm);
+			fprintf(fpLOG,"\nFunction was able to generate just %lld permutations.\n",num_perm);
 			out = TRUE;
 		}
 #endif

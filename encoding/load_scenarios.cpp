@@ -54,7 +54,7 @@ bool readScenario()
 	while(1)
 	{
 		if(fgets(s, sizeof(s), stdin) == NULL){
-			printf("error on reading the file\n");
+			fprintf(stderr,"error on reading the file\n");
 			return false;
 		}
 		istringstream str(s);
@@ -66,13 +66,13 @@ bool readScenario()
 		{
 			if (!(str >> to))
 			{
-				printf("Cannot parse predicate '%s'\n", s);
+				fprintf(stderr,"Cannot parse predicate '%s'\n", s);
 				return false;
 			}
 			int vid = getEventID(to);
 			if (!g[n].v[vid] || g[n].pred[vid])
 			{
-				printf("Incorrect predicate '%s'\n", to.c_str());
+				fprintf(stderr,"Incorrect predicate '%s'\n", to.c_str());
 				return false;
 			}
 			from.erase(0, 1);
@@ -81,7 +81,7 @@ bool readScenario()
 		}
 		if (!check(from))
 		{
-			printf("Cannot parse event '%s'\n", from.c_str());
+			fprintf(stderr,"Cannot parse event '%s'\n", from.c_str());
 			return false;
 		}
 		if (!(str >> to))
@@ -97,7 +97,7 @@ bool readScenario()
 		{
 			if (!check(to))
 			{
-				printf("Cannot parse event '%s'\n", to.c_str());
+				fprintf(stderr,"Cannot parse event '%s'\n", to.c_str());
 				return false;
 			}
 			
@@ -111,7 +111,7 @@ bool readScenario()
 	
 	if (!g[n].transitiveClosure())
 	{
-		puts("a cyclic event dependency detected!");
+		fprintf(stderr,"a cyclic event dependency detected!");
 		return false;
 	}
 	
@@ -129,7 +129,7 @@ bool readScenario()
 		if (g[n].e[i][j] == 2) ntran++;
 	}
 	
-	printf("%d events, %d dependencies (%d non-transitive, %d transitive), %d predicates\n", nv, ntran + nnontran, nnontran, ntran, npred);
+	fprintf(fpLOG,"%d events, %d dependencies (%d non-transitive, %d transitive), %d predicates\n", nv, ntran + nnontran, nnontran, ntran, npred);
 	
 	n++;
 	return true;
@@ -137,9 +137,9 @@ bool readScenario()
 
 int loadScenarios(char* file_in, FILE *fp){
 	if (!alternative)
-		puts("Using 'f = x + y * predicate' to deal with predicates.\n");
+		fprintf(fpLOG,"Using 'f = x + y * predicate' to deal with predicates.\n");
 	else
-		puts("Using 'f = x * (y + predicate)' to deal with predicates.\n");
+		fprintf(fpLOG,"Using 'f = x * (y + predicate)' to deal with predicates.\n");
 
 	fp = freopen(file_in, "r", stdin);
 	if (fp == NULL){
@@ -170,7 +170,7 @@ int loadScenarios(char* file_in, FILE *fp){
 				removeTempFiles();
 				return -1;
 			}
-			printf("Loading scenario '%s'... ", s);
+			fprintf(fpLOG,"Loading scenario '%s'... ", s);
 			scenarioNames.push_back(s);
 			if (!readScenario()) {
 				fprintf(stderr,"Error reading scenario.\n");
@@ -202,20 +202,20 @@ int predicateSearch(){
 		if (!predicates_found)
 		{
 			predicates_found = true;
-			puts("\nList of predicates:");
+			fprintf(fpLOG,"\nList of predicates:");
 		}
-		printf("%s:", eventNames_str[i].c_str());
+		fprintf(fpLOG,"%s:", eventNames_str[i].c_str());
 		map<string, int>::iterator p = eventPredicates[i].begin(), 
 			q = eventPredicates[i].end();
 		while(p != q)
 		{
 			string pr = p->first;
-			printf(" %s", pr.c_str());
+			fprintf(fpLOG," %s", pr.c_str());
 			p++;
 		}
-		puts("");
+		//fprintf(fpLOG,"");
 	}
-	if (!predicates_found) puts("\nNo predicates found.");
+	if (!predicates_found) fprintf(fpLOG,"\nNo predicates found.");
 
 	return 0;
 }
@@ -439,8 +439,8 @@ int read_file(char *file_in,int *cpog_count, int *len_sequence){
 
 	fp = fopen(file_in, "r");
 	if( fscanf(fp,"%s", string) == EOF){
-		printf("File is empty. Please, introduce another file.\n");
-		return 1;
+		fprintf(stderr,"File is empty. Please, introduce another file.\n");
+		return -1;
 	}
 	*len_sequence = 1;
 	(*cpog_count) = strlen(string);
@@ -460,7 +460,7 @@ int read_file(char *file_in,int *cpog_count, int *len_sequence){
 	for(i = 0; i< (*len_sequence);i++){
 		for(j = 0; j< (*cpog_count); j++){
 			if(fscanf(fp, "%c", &diff[i][j]) == EOF){
-				printf("Error on reading custom encodings.\n");
+				fprintf(stderr,"Error on reading custom encodings.\n");
 				return 3;
 			}
 		}
