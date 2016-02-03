@@ -7,7 +7,14 @@ enum encodingType
 	random_encoding,
 	heuristic,
 	exhaustive
-}; 
+};
+
+typedef enum BitType
+{
+	ZERO,
+	ONE,
+	DONT_USE
+} BitType;
 
 // type definition
 typedef enum {FALSE, TRUE} boolean;

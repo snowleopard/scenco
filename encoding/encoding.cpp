@@ -18,6 +18,10 @@
 	#include "[absolute_path]\encoding_methods.cpp"
 #endif
 
+extern "C" int get_bit(int row, int col){
+	return ((int)opcodes[row][col]);
+}
+
 extern "C" int encoding_graphs(	char *file_in,
 				char *custom_file_name,
 				encodingType encoding){
@@ -298,6 +302,33 @@ extern "C" int encoding_graphs(	char *file_in,
 	fprintf(fpLOG,"\nOpcodes assigned to the graphs:\n");
 	for(int i = 0; i < cpog_count; i++)
 		fprintf(fpLOG,"%s\n",scenarioOpcodes[i].c_str());
+
+	opcodes = (BitType **) malloc (sizeof(BitType *) * cpog_count);
+	for(int i=0; i<cpog_count; i++){
+		opcodes[i] = (BitType *) malloc(sizeof(BitType) * bits);
+		for(int j=0; j<bits; j++){
+			switch(scenarioOpcodes[i][j]){
+				case '0':
+					opcodes[i][j] = ZERO;
+					break;
+				case '1':
+					opcodes[i][j] = ONE;
+					break;
+				case '-':
+					opcodes[i][j] = DONT_USE;
+					break;
+				default :
+					fprintf(stderr,"Conversion into BitType failed.\n");
+					return -1;
+			}
+		}
+	}
+
+	for(int i=0; i<cpog_count; i++){
+		for(int j=0; j<bits; j++)
+			printf("%d", opcodes[i][j]);
+		printf("\n");
+	}
 
 	fclose(fpLOG);
 	removeTempFiles();

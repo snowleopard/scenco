@@ -34,6 +34,7 @@ boolean unfix = FALSE;
 char **name_cond; 
 char **vertices;
 char **diff = NULL; 
+BitType **opcodes = NULL;
 
 // Andrey's tool
 GRAPH_TYPE *g;

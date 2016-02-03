@@ -5,12 +5,12 @@ import Synthesis
 import TechnologyMapping
 
 main = do
-
     -- encoding test
     poFile <- getPartialOrderFilename
     customOp <- getCustomEncodingFilename
     algorithm <- getEncodingAlgorithm
-    encodeGraphs poFile customOp algorithm
+    result <- encodeGraphs poFile customOp algorithm
+    --if result = 0 then get the matrix
 
     -- how to spawn a process, reading the ouput
     --let tool = "./a.out"

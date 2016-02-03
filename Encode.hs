@@ -14,12 +14,17 @@ testFolder = "test/"
 foreign import ccall unsafe "encoding_graphs"
     encoding_graphs :: CString -> CString -> Int -> IO Int
 
+foreign import ccall unsafe "get_bit"
+    get_bit :: CInt -> CInt -> IO Int
+
 data EncodingType = Single_literal |
                     Sequential |
                     SatBased |
                     Random_encoding |
                     Heuristic |
                     Exhaustive deriving (Enum)
+
+data BitType = ZERO | ONE | UNKNOWN | DONT_USE deriving (Enum)
 
 -- Guarantees:
 -- 1) Turn unknowns to knowns:
@@ -68,12 +73,17 @@ getEncodingAlgorithm = do
     return (encodingNumber - 1)
 
 -- uses c++ function to encode the partial orders
-encodeGraphs :: String -> String -> Int -> IO ()
+encodeGraphs :: String -> String -> Int -> IO Int
 encodeGraphs graphsPath encodingSetPath encoding = do
     graphs <- newCString graphsPath
     encodingSet <- newCString encodingSetPath
-    encoding_graphs graphs encodingSet encoding
+    result <- encoding_graphs graphs encodingSet encoding
     putStrLn "Graphs encoded."
+    return result
+
+getOpcodes :: IO [[Int]]
+getOpcodes = do
+    
 
 encode :: [(Graph, CodeWithUnknowns)] -> Either String [CodeWithoutUnknowns]
 encode = undefined
