@@ -293,7 +293,7 @@ extern "C" int encoding_graphs(	char *file_in,
 	}
 	fprintf(fpLOG,"DONE.\n");
 
-	encodingReformat(cpog_count);
+	encodingReformat(cpog_count, encoding);
 
 	fprintf(fpLOG,"\nOpcodes assigned to the graphs:\n");
 	for(int i = 0; i < cpog_count; i++)

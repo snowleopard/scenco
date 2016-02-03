@@ -239,7 +239,9 @@ void int_to_string_DC(int bits, int index, int val, char *str){
 	return;
 }
 
-void encodingReformat(int cpog_count){
+void encodingReformat(int cpog_count, encodingType encoding){
+
+	if (encoding < 3) return;
 
 	for(int i = 0; i < cpog_count; i++){
 		int len = strlen(manual_file_back[i]);
