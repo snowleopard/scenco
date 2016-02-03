@@ -1,10 +1,20 @@
 #ifdef __linux
-	#include "encoding.h"
-	#include "support_functions.cpp"
+	#include "includes_defines.h"
+	#include "types.h"
+	#include "global.h"
+	#include "utilities.cpp"
+	#include "load_scenarios.cpp"
+	#include "heuristic_function.cpp"
+	#include "custom_encoding.cpp"
 	#include "encoding_methods.cpp"
 #else
-	#include "[absolute_path]\encoding.h"
-	#include "[absolute_path]\support_functions.cpp"
+	#include "[absolute_path]\includes_defines.h"
+	#include "[absolute_path]\types.h"
+	#include "[absolute_path]\global.h"
+	#include "[absolute_path]\utilities.cpp"
+	#include "[absolute_path]\load_scenarios.cpp"
+	#include "[absolute_path]\heuristic_function.cpp"
+	#include "[absolute_path]\custom_encoding.cpp"
 	#include "[absolute_path]\encoding_methods.cpp"
 #endif
 
@@ -16,6 +26,14 @@ extern "C" int encoding_graphs(	char *file_in,
 	int total;
 	int trivial = 0;
 	int bits;
+	int err=0;
+	int cpog_count = 0;
+	int elements;
+	int min_disp;
+	int len_sequence = 0;
+	int *enc;
+	int gen_perm = 1000;
+	int *sol;
 
 	// memory allocation
 	printf("Allocating memory for vertex names and graphs...");
@@ -79,7 +97,29 @@ extern "C" int encoding_graphs(	char *file_in,
 	fflush(stdout);
 
 	//**********************************************************************
-	// Preparation for encoding
+	// Reading encoding set by the user
+	//**********************************************************************
+
+	printf("Reading encodings set... ");
+	fflush(stdout);
+	if(read_set_encoding(custom_file_name,n,&bits) != 0){
+		fprintf(stderr,"Error on reading encoding set.\n");
+		removeTempFiles();
+		return -1;
+	}
+	printf("DONE\n");
+
+	printf("Check correcteness of encoding set... ");
+	fflush(stdout);
+	if(check_correctness(custom_file_name,n,tot_enc,bits) != 0){
+		removeTempFiles();
+		return -1;
+	}
+	printf("DONE\n");
+	fflush(stdout);
+
+	//**********************************************************************
+	// Variable preparation for encoding
 	//**********************************************************************
 	strcpy(file_in,TRIVIAL_ENCODING_FILE);
 	file_cons = strdup(CONSTRAINTS_FILE);
@@ -99,23 +139,23 @@ extern "C" int encoding_graphs(	char *file_in,
 	srand(time(NULL));
 
 	/*ALLOCATING AND ZEROING DIFFERENCE MATRIX*/
-	opt_diff = (int**) calloc(cpog_count, sizeof(int*));
-	for(i=0;i<cpog_count;i++)
-		opt_diff[i] = (int*) calloc(cpog_count, sizeof(int));
+	opt_diff = (int**) calloc(n, sizeof(int*));
+	for(int i=0;i<n;i++)
+		opt_diff[i] = (int*) calloc(n, sizeof(int));
 
 	/*NUMBER OF POSSIBLE ENCODING*/
 	tot_enc = 1;
-	for(i=0;i<bits;i++) tot_enc *= 2;
+	for(int i=0;i<bits;i++) tot_enc *= 2;
 
 	/*ANALYSIS IF IT'S A PERMUTATION OR A DISPOSITION*/
 	num_perm = 1;
-	if (cpog_count == tot_enc){
+	if (n == tot_enc){
 		/*PERMUTATION*/
 		if(!unfix && !SET){
-			for(i = 1; i< tot_enc; i++)
+			for(int i = 1; i< tot_enc; i++)
 				num_perm *= i;
 		}else{
-			for(i = 1; i<= tot_enc; i++)
+			for(int i = 1; i<= tot_enc; i++)
 				num_perm *= i;
 		}
 		printf("Number of possible permutations by fixing first element: %lld\n", num_perm);
@@ -124,13 +164,13 @@ extern "C" int encoding_graphs(	char *file_in,
 		/*DISPOSITION*/
 		if(!unfix && !SET){
 			elements = tot_enc-1;
-			min_disp = elements - (cpog_count - 1) + 1;
+			min_disp = elements - (n- 1) + 1;
 		}else{
 			elements = tot_enc;
-			min_disp = elements - (cpog_count) + 1;
+			min_disp = elements - (n) + 1;
 		}
 			num_perm = 1;
-		for(i=elements; i>= min_disp; i--)
+		for(int i=elements; i>= min_disp; i--)
 			num_perm *= i;
 		printf("Number of possible dispositions by fixing first element: %lld\n", num_perm);
 	}
@@ -164,10 +204,10 @@ extern "C" int encoding_graphs(	char *file_in,
 		removeTempFiles();
 		return -1;
 	}
-	for(i=0;i<num_perm;i++){
-		perm[i] = (int*) malloc(cpog_count * sizeof(int));
+	for(long long int i=0;i<num_perm;i++){
+		perm[i] = (int*) malloc(n * sizeof(int));
 		if (perm[i] == NULL){
-			fprintf(stderr,"perm[%ld] = null\n",i);
+			fprintf(stderr,"perm[%lld] = null\n",i);
 			removeTempFiles();
 			return 3;
 		}
@@ -177,32 +217,10 @@ extern "C" int encoding_graphs(	char *file_in,
 	/*BUILDING DIFFERENCE MATRIX*/
 	printf("Building DM (=Difference Matrix)... ");
 	fflush(stdout);
-	if( (err = difference_matrix(cpog_count, len_sequence)) ){
+	if( (err = difference_matrix(n, len_sequence)) ){
 		fprintf(stderr,"Error occurred while building difference matrix, error code: %d", err);
 		removeTempFiles();
 		return 3;
-	}
-	printf("DONE\n");
-	fflush(stdout);
-
-	//**********************************************************************
-	// Reading encoding set by the user
-	//**********************************************************************
-
-	printf("Reading encodings set... ");
-	fflush(stdout);
-	if(read_set_encoding(custom_file_name,n,&bits) != 0){
-		fprintf(stderr,"Error on reading encoding set.\n");
-		removeTempFiles();
-		return -1;
-	}
-	printf("DONE\n");
-
-	printf("Check correcteness of encoding set... ");
-	fflush(stdout);
-	if(check_correctness(custom_file_name,n,tot_enc,bits) != 0){
-		removeTempFiles();
-		return -1;
 	}
 	printf("DONE\n");
 	fflush(stdout);
@@ -242,17 +260,40 @@ extern "C" int encoding_graphs(	char *file_in,
 			}
 			break;
 		case heuristic:
-			printf("Running Heuristic encoding.\n");
-			if(heuristicEncoding() != 0){
-				fprintf(stderr,"Heuristic encoding failed.\n");
+			printf("Running Random generation... ");
+			num_perm = 1;
+			if(randomEncoding(n, tot_enc, bits) != 0){
+				fprintf(stderr,"Random encoding failed.\n");
+				return -1;
+			}
+			printf("DONE.\n");
+			printf("Running Heuristic optimisation.\n");
+			if(start_simulated_annealing(n,tot_enc,bits) != 0){
+				fprintf(stderr,"Heuristic optimisation failed.\n");
 				return -1;
 			}
 			break;
 		case exhaustive:
 			printf("Running Exhaustive encoding.\n");
-			if(exhaustiveEncoding() != 0){
-				fprintf(stderr,"Exhaustive encoding failed.\n");
-				return -1;
+
+			if(!unfix && !SET){
+				//permutation_stdalgo(cpog_count,tot_enc);
+				printf("Permutation algorithm unconstrained... ");
+				fflush(stdout);
+				exhaustiveEncoding(sol,0,enc,cpog_count, tot_enc);
+				printf("DONE\n");
+				fflush(stdout);
+			}else{
+				printf("Permutation algorithm constrained... ");
+				fflush(stdout);
+				exhaustiveEncoding(sol,-1,enc,cpog_count, tot_enc);
+				printf("DONE\n");
+
+				printf("Filtering encoding... ");
+				fflush(stdout);
+				filter_encodings(cpog_count, bits, tot_enc);
+				printf("DONE\n");
+				fflush(stdout);
 			}
 			break;
 		default:
@@ -263,7 +304,7 @@ extern "C" int encoding_graphs(	char *file_in,
 	fflush(stdout);
 
 	printf("\nOpcodes assigned to the graphs:\n");
-	for(int i = 0; i < n; i++)
+	for(int i = 0; i < cpog_count; i++)
 		printf("%s\n",scenarioOpcodes[i].c_str());
 
 	return 0;

@@ -143,6 +143,101 @@ int satBasedEncoding(){
 	return 0;
 }
 
+/*******************************************************************************
+*                               random encoding                                *
+*******************************************************************************/
+void random_opcode_choice_v2(int *encod,int tot_enc,int *enc1,int *enc2,int bits,int sel,int *sol,int i_min,int j_min,int cpog_count){
+	int i,j,l;
+	int r,p,where;
+	int *vi, *vj;
+	
+	vi = (int *) malloc(sizeof(int) * (tot_enc * tot_enc));
+	vj = (int *) malloc(sizeof(int) * (tot_enc * tot_enc));
+
+	//IF SEL == 2, WE NEED 2 ENCODINGS OWNED BY TWO CPOG
+	if(sel == 2){
+		
+		//LOOK FOR ENCDODING WITH MINIMUM HAMMING DISTANCE
+		//AMONG AVAILABLE ONES
+		r = 0;
+		for(i=0;i<tot_enc-1;i++){
+			for(j=i+1;j<tot_enc;j++){
+				if(encod[i] == 0 && encod[j] == 0){
+					sol[i_min] = i;
+					sol[j_min] = j;
+					vi[r] = i;
+					vj[r++] = j;
+				}
+			}
+		}
+		//IF JUST A COUPLE OF ENCODING
+		//RETURN THAT RESULT
+		if(r == 1){
+			encod[vi[0]] = 1;
+			encod[vj[0]] = 1;
+			(*enc1) = vi[0];
+			(*enc2) = vj[0];
+		}
+		//OTHERWISE SELECT WHICH
+		//COUPLE OF ENCODINGS CONSIDER
+		//BY MAXIMISING FUNCTION
+		else{
+			l = rand() % r;
+			sol[i_min] = vi[l];
+			sol[j_min] = vj[l];
+			encod[vi[l]] = 1;
+			encod[vj[l]] = 1;
+			(*enc1) = vi[l];
+			(*enc2) = vj[l];
+		}
+	}
+	//IF SEL == 1, ONE OF TWO CPOG HAS BEEN ALREADY ENCODED
+	else{
+		//SET THAT ENCODING
+		i = (*enc1);
+		if(sol[i_min] == -1){
+			where = 0;
+		}
+		else{
+			where = 1;
+		}
+		//AND PICK UP ANOTHER ENCODING MINIMISES
+		//HAMMING DISTANCE WITH PREVIOUS ONE
+		r = 0; // MOD
+		for(j = 0;j<tot_enc;j++){
+			if(j != i && encod[j] == 0){
+		
+		//CHECK THE ENCODING MINIMISING FUNCTION
+				if(where == 0)	sol[i_min] = j;
+				else	sol[j_min] = j;
+					vj[r++] = j;
+			}
+		}
+		
+		//IF JUST ONE ENCODING EXISTS
+		//PICK IT UP
+		if(r == 1){
+			encod[vj[0]] = 1;
+			(*enc2) = vj[0];
+		}
+		//OTHERWISE PICK ENCODING
+		//WHICH WHICH MAXIMISE FUNCTION
+		else{
+			p = rand() % r;
+			if(where == 0)	sol[i_min] = vj[p];
+			else	sol[j_min] = vj[p];
+			encod[vj[p]] = 1;
+			(*enc2) = vj[p];
+		}
+	}
+
+	free(vi);
+	free(vj);
+
+	return;
+}
+
+
 int randomEncoding(int cpog_count, int tot_enc,int bits){
 
 	int min = MAX_WEIGHT,k;
@@ -419,15 +514,229 @@ int randomEncoding(int cpog_count, int tot_enc,int bits){
 	free(full);
 	free(encod);
 
-	return 0;
-}
-
-int heuristicEncoding(){
-
-	return 0;
-}
-
-int exhaustiveEncoding(){
+	scenarioOpcodes.resize(cpog_count);
+	for(int i = 0; i < cpog_count; i++){
+		print_binary(NULL, perm[0][i], bits);
+		scenarioOpcodes[i] = string(numb);
+	}
 
 	return 0;
 }
+
+/*SIMULATED ANNEALING*/
+/*This function tunes the solution by using simulated annealing method.*/
+int start_simulated_annealing(int cpog_count, int tot_enc, int bits){
+	int i,m,n,tmp,start,it;
+	double proba;
+	double alpha =0.996;
+	double temperature;
+	double epsilon = 0.1;
+	double delta;
+	double weight_current, weight_next;
+
+	if(unfix)	start = 0;
+	else	start = 1;
+
+	int cn = 0;
+	if(SET){
+		for(i=0; i<cpog_count;i++)
+			if(custom_perm[i] != -1) cn++;
+	}
+	if(cn < cpog_count -4)
+	for(i=0;i<num_perm;i++){
+		temperature = 10.0;
+		it = 0;
+
+		weight_current = compute_weight(cpog_count, bits, i);
+
+		while(temperature > epsilon){
+			
+			//COMPUTE NEXT SOLUTION
+			if(SET){
+				do{
+					m = (rand() % (cpog_count - start)) + start;
+					n = (rand() % (cpog_count - start)) + start;
+				}while(m == n || custom_perm[m] != -1 || custom_perm[n] != -1);	
+			}else{
+				do{
+					m = (rand() % (cpog_count - start)) + start;
+					n = (rand() % (cpog_count - start)) + start;
+				}while(m == n);
+			}		
+			tmp = perm[i][m];
+			perm[i][m] = perm[i][n];
+			perm[i][n] = tmp;
+
+			//COMPUTE COST FUNCTION FOR NEXT SOLUTION
+			weight_next = compute_weight(cpog_count, bits, i);
+
+			//COMPARE COST FUNCTIONS
+			delta = weight_next -weight_current;
+
+			if(delta < 0){
+				//KEEP NEXT SOLUTION
+				weight_current = weight_next;
+			}else{
+				proba = (rand() * 1.00) / RAND_MAX;
+				//printf("RAND = %f, %d\n",proba,RAND_MAX);
+
+				//KEEP NEXT SOLUTION IF PROB LESS THAN
+				//EXP(-DELTA/TEMPERATURE)
+				if(proba < exp(-delta/temperature)){
+					weight_current = weight_next;
+				}else{
+					//KEEP PREVIOUS SOLUTION
+					tmp = perm[i][m];
+					perm[i][m] = perm[i][n];
+					perm[i][n] = tmp;
+				}
+
+			}
+			
+			//COOLING PROCESS
+			temperature *=alpha;
+			it++;
+		}
+
+	}
+	
+	counter = num_perm;
+
+	scenarioOpcodes.resize(cpog_count);
+	for(int i = 0; i < cpog_count; i++){
+		print_binary(NULL, perm[0][i], bits);
+		scenarioOpcodes[i] = string(numb);
+	}
+
+	return 0;
+}
+
+/*PERMUTATION FUNCTION*/
+/*Following function finds all possible permutations for all available encoding
+for each CPOG.*/
+void exhaustiveEncoding(int *sol,int k,int *enc,int n, int tot){
+	long int i;
+	if(counter >= num_perm)
+		return;
+	if(k == n-1){
+		for(i = 0; i<n; i++)
+			perm[counter][i] = sol[i];
+		counter++;
+		
+	}
+	else{
+		for(i = 0; i < tot; i++)
+			if(!enc[i]){
+				sol[k+1] = i;
+				enc[i] = 1;
+				exhaustiveEncoding(sol, k+1, enc, n, tot);
+				enc[i] = 0;
+			}
+	}
+	return;
+}
+
+/*FILTER FUNCTION*/
+/*This function filter the encodings generated with the Exhaustive search approach
+with the custom encoding set by the user. Finally in the perm array will be present 
+just the encodings with are not filtered by this function.*/
+int filter_encodings(int n_cpog, int bits, int tot_enc){
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	int index_filter = 0;
+	int present = 0, *opcodes;
+	char *number;
+	boolean out = FALSE;
+
+	opcodes = (int*) calloc(tot_enc, sizeof(int));
+
+	// LOOP OVER EACH ENCODING GENERATED WITH THE EXHAUSTIVE SEARCH
+	for(i = 0; i < num_perm;  i++) {
+		
+		// INITIALISING SUPPORT VARIABLES
+		// drop out the encoding, if it does not fit the customisation
+		out = FALSE;
+		// opcodes already used for DC conditions
+		for(j=0; j<tot_enc; j++)
+			opcodes[j] = 0;
+		// custom opcodes
+		for(j=0; j<n_cpog; j++){
+			strcpy(manual_file[j],manual_file_back[j]);
+			opcodes[perm[i][j]] = 1; //opcodes used by the encoding
+		}
+
+		// CHECK FOR FIXED BITS
+		for (j=0; j<n_cpog && out == FALSE; j++){
+
+			// OPCODE FIXED
+			if(custom_perm[j] != -1){
+				print_binary(NULL,perm[i][j], bits);
+				number = numb;
+				if( strDCcmp(number, manual_file[j], bits) ){
+					out = TRUE;
+				}
+			}
+		}
+
+		// CHECK FOR RESERVED OPCODES
+		for (j=0; j<n_cpog && out == FALSE; j++){
+
+			present = 0;
+		
+	
+			// OPCODE CONTAINS AT LEAST ONE RESERVED BIT
+			if (DC_custom[j] == TRUE &&  out == FALSE){
+
+				// CONVERT OPCODE INT INTO A STRING
+				print_binary(NULL,perm[i][j], bits);
+				number = numb;
+
+			/*printf("\nDEBUG PRINTING:----------------------------------\n");
+			printf("bits: %d, number: %s\n", bits, number);
+			printf("DEBUG PRINTING:----------------------------------\n\n");*/
+
+				// SUBSTITUTE THE X BIT OF THE OPCODE WITH THE REAL VALUES GENERATED
+				for(k=0; k<bits; k++){
+					// SUBSTITUTE DON'T CARES (X) WITH VALUES
+					if(manual_file[j][k] == 'X')
+						manual_file[j][k] = number[k];
+					// SUBSTITUTE RESERVED BITS (-) WITH DON'T CARES (X)
+					if(manual_file[j][k] == '-')
+						manual_file[j][k] = 'X';
+				}
+
+				// CHECK THAT EACH OPCODE WITH DON'T CARE REPRESENTS ONE AND ONLY ONE PO
+				for(k=0; k<tot_enc;k++){
+					print_binary(NULL,k, bits);
+					number = numb;
+
+					if( !strDCcmp(number, manual_file[j], bits) && opcodes[k] == 1){
+						present++;
+						
+						/*printf("\nDEBUG PRINTING:----------------------------------\n");
+						printf("bits: %d, number: %s, manual_file[j]: %s\n", bits, number, manual_file[j]);
+						printf("DEBUG PRINTING:----------------------------------\n\n");
+						fflush(stdout);*/
+					}
+				}
+
+				(present > 1) ? out =  TRUE : FALSE;
+			}
+		}
+
+		// IF ENCODING FITS THE CUSTOMISATION INSERT INTO SET OF SOLUTIONS
+		if(out == FALSE){
+			for(k=0; k<n_cpog; k++){
+				perm[index_filter][k] = perm[i][k];
+			}
+			index_filter++;
+		}
+	}
+
+	num_perm = index_filter;
+	counter = index_filter;
+
+	return 0;
+}
+
