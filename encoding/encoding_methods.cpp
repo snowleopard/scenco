@@ -139,7 +139,9 @@ int sequentialEncoding(){
 
 int satBasedEncoding(){
 
-	return 0;
+	printf("Algorithm not yet available.\n");
+
+	return -1;
 }
 
 /*******************************************************************************

@@ -79,7 +79,6 @@ encodeGraphs graphsPath encodingSetPath encoding = do
     graphs <- newCString graphsPath
     encodingSet <- newCString encodingSetPath
     result <- encoding_graphs graphs encodingSet encoding
-    putStrLn "Graphs encoded."
     return result
 
 getOpcodeBit :: Int -> Int -> IO (Bit Bool)
