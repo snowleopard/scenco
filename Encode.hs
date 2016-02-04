@@ -1,6 +1,6 @@
-module Encode (encode, overlay, getPartialOrderFilename,
-                getCustomEncodingFilename, getEncodingAlgorithm,
-                encodeGraphs) where
+module Encode (getPartialOrderFilename,
+               getCustomEncodingFilename, getEncodingAlgorithm,
+               encodeGraphs, getOpcodesLength, getOpcodes) where
 
 import Code
 import Graph
@@ -15,7 +15,10 @@ foreign import ccall unsafe "encoding_graphs"
     encoding_graphs :: CString -> CString -> Int -> IO Int
 
 foreign import ccall unsafe "get_bit"
-    get_bit :: CInt -> CInt -> IO Int
+    get_bit :: Int -> Int -> IO Int
+
+foreign import ccall unsafe "get_opcodes_length"
+    getOpcodesLength :: Int
 
 data EncodingType = Single_literal |
                     Sequential |
@@ -23,8 +26,6 @@ data EncodingType = Single_literal |
                     Random_encoding |
                     Heuristic |
                     Exhaustive deriving (Enum)
-
-data BitType = ZERO | ONE | UNKNOWN | DONT_USE deriving (Enum)
 
 -- Guarantees:
 -- 1) Turn unknowns to knowns:
@@ -81,12 +82,25 @@ encodeGraphs graphsPath encodingSetPath encoding = do
     putStrLn "Graphs encoded."
     return result
 
-getOpcodes :: IO [[Int]]
-getOpcodes = do
-    
+getOpcodeBit :: Int -> Int -> IO (Bit Bool)
+getOpcodeBit partialOrder bitPosition = do
+    bitC <- get_bit partialOrder bitPosition
+    return $ convert bitC
 
-encode :: [(Graph, CodeWithUnknowns)] -> Either String [CodeWithoutUnknowns]
-encode = undefined
+convert :: Int -> Bit Bool
+convert x | x == 0    = used False
+          | x == 1    = used True
+          | x == 2    = unused
+          | otherwise = error $ "Cannot convert " ++ show x ++ " to Bit Bool"
 
-overlay :: [(Graph, CodeWithoutUnknowns)] -> Graph
-overlay = undefined
+getOpcode :: Int -> Int -> IO CodeWithoutUnknowns
+getOpcode bitLength poID = traverse (getOpcodeBit poID) [0..bitLength-1]
+
+getOpcodes :: Int -> Int -> IO [CodeWithoutUnknowns]
+getOpcodes nPO bitLength = traverse (getOpcode bitLength) [0..nPO-1]
+
+--encode :: [(Graph, CodeWithUnknowns)] -> Either String [CodeWithoutUnknowns]
+--encode = undefined
+
+--overlay :: [(Graph, CodeWithoutUnknowns)] -> Graph
+--overlay = undefined

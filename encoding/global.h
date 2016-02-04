@@ -35,6 +35,7 @@ char **name_cond;
 char **vertices;
 char **diff = NULL; 
 BitType **opcodes = NULL;
+int bits;
 
 // Andrey's tool
 GRAPH_TYPE *g;

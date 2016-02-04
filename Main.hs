@@ -6,10 +6,15 @@ import TechnologyMapping
 
 main = do
     -- encoding test
-    poFile <- getPartialOrderFilename
-    customOp <- getCustomEncodingFilename
+    let numberGraphs = 11 --number of graphs to encode
+    poFile    <- getPartialOrderFilename
+    customOp  <- getCustomEncodingFilename
     algorithm <- getEncodingAlgorithm
-    result <- encodeGraphs poFile customOp algorithm
+    encodeGraphs poFile customOp algorithm -- encode graphs
+    let opcodeLength = getOpcodesLength -- get opcode length
+    opcodes <- getOpcodes numberGraphs opcodeLength -- get opcodes
+    print opcodes
+
     --if result = 0 then get the matrix
 
     -- how to spawn a process, reading the ouput

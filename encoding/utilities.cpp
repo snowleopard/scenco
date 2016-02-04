@@ -254,3 +254,26 @@ void encodingReformat(int cpog_count, encodingType encoding){
 
 	return;
 }
+
+int set_opcodes(int cpog_count){
+	opcodes = (BitType **) malloc (sizeof(BitType *) * cpog_count);
+	for(int i=0; i<cpog_count; i++){
+		opcodes[i] = (BitType *) malloc(sizeof(BitType) * bits);
+		for(int j=0; j<bits; j++){
+			switch(scenarioOpcodes[i][j]){
+				case '0':
+					opcodes[i][j] = ZERO;
+					break;
+				case '1':
+					opcodes[i][j] = ONE;
+					break;
+				case '-':
+					opcodes[i][j] = DONT_USE;
+					break;
+				default :
+					return -1;
+			}
+		}
+	}
+	return  0;
+}

@@ -22,6 +22,10 @@ extern "C" int get_bit(int row, int col){
 	return ((int)opcodes[row][col]);
 }
 
+extern "C" int get_opcodes_length(){
+	return bits;
+}
+
 extern "C" int encoding_graphs(	char *file_in,
 				char *custom_file_name,
 				encodingType encoding){
@@ -29,7 +33,6 @@ extern "C" int encoding_graphs(	char *file_in,
 	FILE *fp;
 	int total;
 	int trivial = 0;
-	int bits;
 	int err=0;
 	int cpog_count = 0;
 	int elements;
@@ -303,31 +306,13 @@ extern "C" int encoding_graphs(	char *file_in,
 	for(int i = 0; i < cpog_count; i++)
 		fprintf(fpLOG,"%s\n",scenarioOpcodes[i].c_str());
 
-	opcodes = (BitType **) malloc (sizeof(BitType *) * cpog_count);
-	for(int i=0; i<cpog_count; i++){
-		opcodes[i] = (BitType *) malloc(sizeof(BitType) * bits);
-		for(int j=0; j<bits; j++){
-			switch(scenarioOpcodes[i][j]){
-				case '0':
-					opcodes[i][j] = ZERO;
-					break;
-				case '1':
-					opcodes[i][j] = ONE;
-					break;
-				case '-':
-					opcodes[i][j] = DONT_USE;
-					break;
-				default :
-					fprintf(stderr,"Conversion into BitType failed.\n");
-					return -1;
-			}
-		}
-	}
+	// set opcode length
+	bits = scenarioOpcodes[0].length();
 
-	for(int i=0; i<cpog_count; i++){
-		for(int j=0; j<bits; j++)
-			printf("%d", opcodes[i][j]);
-		printf("\n");
+	// set opcodes
+	if (set_opcodes(cpog_count) != 0){
+		fprintf(stderr,"Conversion into BitType failed.\n");
+		return -1;
 	}
 
 	fclose(fpLOG);

@@ -1,4 +1,4 @@
-module Code (CodeWithUnknowns, CodeWithoutUnknowns) where
+module Code (CodeWithUnknowns, CodeWithoutUnknowns, known, unused, used, unknown, Bit) where
 
 type BoolWithUnknowns = Maybe Bool
 type Bit a = Maybe a
@@ -10,8 +10,11 @@ type CodeWithoutUnknowns = [Bit Bool]
 known :: Bool -> Bit BoolWithUnknowns
 known value = Just (Just value)
 
-unused :: Bit BoolWithUnknowns
+unused :: Bit a
 unused = Nothing
 
-unknonwn :: Bit BoolWithUnknowns
-unknonwn = Just Nothing
+used :: Bool -> Bit Bool
+used value = Just value
+
+unknown :: Bit BoolWithUnknowns
+unknown = Just Nothing
