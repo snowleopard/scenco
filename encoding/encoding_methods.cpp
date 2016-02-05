@@ -137,13 +137,6 @@ int sequentialEncoding(){
 	return 0;
 }
 
-int satBasedEncoding(){
-
-	printf("Algorithm not yet available.\n");
-
-	return -1;
-}
-
 /*******************************************************************************
 *                               random encoding                                *
 *******************************************************************************/
@@ -239,12 +232,12 @@ void random_opcode_choice_v2(int *encod,int tot_enc,int *enc1,int *enc2,int bits
 }
 
 
-int randomEncoding(int cpog_count, int tot_enc,int bits){
+int randomEncoding(){
 
-	int min = MAX_WEIGHT,k;
+	long long int min = numeric_limits<long long int>::max(),k;
 	int i,j,c = 0,i_min,j_min,enc1 = 0,enc2 = 0,inc,p = 0,n = 1;
 	int *full = NULL, *encod = NULL, **matrix_ass;
-	int v_min_i[MAX_CPOG], v_min_j[MAX_CPOG];
+	int *v_min_i = NULL, *v_min_j = NULL;
 	int *solution = NULL;
 	boolean ins, out = FALSE;
 	char *number;
@@ -393,21 +386,29 @@ int randomEncoding(int cpog_count, int tot_enc,int bits){
 			j = 0;
 		}
 
+		if(v_min_i  != NULL) free(v_min_i);
+		if(v_min_j  != NULL) free(v_min_j);
+
 		for( p= j; p<cpog_count ; p=(p+inc)){
-			min = MAX_WEIGHT;
+			min = numeric_limits<long long int>::max();
 			//FIND MINIMUMs INSIDE DIFFERENCES MATRIX
 			for(i=0;i<cpog_count-1;i++){
 				for( j=(i+1) ; j<cpog_count ; j++ ){
 					if(matrix_ass[i][j] == 0){
 						if(opt_diff[i][j] < min){
 							min = opt_diff[i][j];
+							n = 1;
+							v_min_i = (int*) realloc (v_min_i, sizeof(int) * n);
+							v_min_j = (int*) realloc (v_min_j, sizeof(int) * n);
 							v_min_i[0] = i;
 							v_min_j[0] = j;
-							n = 1;
 						}else if (opt_diff[i][j] == min){
-							v_min_i[n] = i;
-							v_min_j[n] = j;
 							n++;
+							v_min_i = (int*) realloc (v_min_i, sizeof(int) * n);
+							v_min_j = (int*) realloc (v_min_j, sizeof(int) * n);
+							v_min_i[n-1] = i;
+							v_min_j[n-1] = j;
+							
 						}
 					}
 				}
@@ -461,7 +462,11 @@ int randomEncoding(int cpog_count, int tot_enc,int bits){
 				printf("%d ", solution[i]);
 			}
 			printf("\n\n");*/
+
 		}
+
+		if(v_min_i  != NULL) free(v_min_i);
+		if(v_min_j  != NULL) free(v_min_j);
 
 		//CHECK RESULT WAS NOT ALREADY PRESENT
 		//INSIDE ALL THE JUST GENERATED ENCODINGS
@@ -526,7 +531,7 @@ int randomEncoding(int cpog_count, int tot_enc,int bits){
 
 /*SIMULATED ANNEALING*/
 /*This function tunes the solution by using simulated annealing method.*/
-int start_simulated_annealing(int cpog_count, int tot_enc, int bits){
+int start_simulated_annealing(){
 	int i,m,n,tmp,start,it;
 	double proba;
 	double alpha =0.996;

@@ -434,14 +434,21 @@ int difference_matrix(int cpog_count, int len_sequence){
 /*Following function read non-trivial encoding constraints of the Conditional Partial Order Graphs.*/
 int read_file(char *file_in,int *cpog_count, int *len_sequence){
 	FILE *fp = NULL;
-	char string[MAX_CPOG], dump;
+	char *string, dump, c;
 	int i = 0, j = 0;
 
 	fp = fopen(file_in, "r");
-	if( fscanf(fp,"%s", string) == EOF){
+	if(feof(fp)){
 		fprintf(stderr,"File is empty. Please, introduce another file.\n");
 		return -1;
 	}
+	while ( (c = fgetc (fp)) != '\n' ) i++;
+	i++;
+	fclose(fp);
+	string = (char*) malloc(sizeof(char) * i);
+
+	fp = fopen(file_in, "r");
+	fscanf(fp,"%s", string);
 	*len_sequence = 1;
 	(*cpog_count) = strlen(string);
 	

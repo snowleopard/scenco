@@ -128,7 +128,7 @@ int temporary_files_creation(){
 /*LOGARITHM2 FUNCTION*/
 /*Following function simply computes logarithm base 2 of input parameter.*/
 int logarithm2(int n){
-	int logval = 0, i = 1,j;
+	/*int logval = 0, i = 1,j;
 
 	for(j=0;j<MAX_LOG;j++){
 		i *= 2;
@@ -136,14 +136,13 @@ int logarithm2(int n){
 			logval = -1;
 	}
 
-	/*DEBUG PRINTING*/
-	//printf("logval: %d", logval);
-
 	while(n){
 		logval++;
 		n >>= 1;
-	}
-	return logval;
+	}*/
+
+	
+	return ceil(log2(n));
 }
 
 /*PRINT BINARY FUNCTION*/
@@ -239,7 +238,7 @@ void int_to_string_DC(int bits, int index, int val, char *str){
 	return;
 }
 
-void encodingReformat(int cpog_count, encodingType encoding){
+void encodingReformat(encodingType encoding){
 
 	if (encoding < 3) return;
 
@@ -276,4 +275,25 @@ int set_opcodes(int cpog_count){
 		}
 	}
 	return  0;
+}
+
+int export_variables(encodingType encoding){
+
+	encodingReformat(encoding);
+
+	fprintf(fpLOG,"\nOpcodes assigned to the graphs:\n");
+	for(int i = 0; i < cpog_count; i++)
+		fprintf(fpLOG,"%s\n",scenarioOpcodes[i].c_str());
+
+	// set opcode length
+	bits = scenarioOpcodes[0].length();
+
+	// set opcodes
+	if (set_opcodes(cpog_count) != 0){
+		fprintf(stderr,"Conversion into BitType failed.\n");
+		return -1;
+	}
+
+
+	return 0;
 }

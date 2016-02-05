@@ -3,8 +3,7 @@ enum encodingType
 { 
 	single_literal,
 	sequential,
-	satBased,
-	random_encoding,
+	randomE,
 	heuristic,
 	exhaustive
 };

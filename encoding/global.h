@@ -1,16 +1,16 @@
 //TEMPORARY FILES
 #ifdef __linux
-	char TRIVIAL_ENCODING_FILE[FILENAME_LENGTH] = "/tmp/trivial.XXXXXX";
-	char CONSTRAINTS_FILE[FILENAME_LENGTH] = "/tmp/constraints.XXXXXX";
-	char TMP_FILE[FILENAME_LENGTH] = "/tmp/tmpfile.XXXXXX";
-	char SCRIPT_PATH[FILENAME_LENGTH] = "/tmp/synth.XXXXXX";
-	char LOG[FILENAME_LENGTH] = "encoding.log";
+	char TRIVIAL_ENCODING_FILE[MAX_NAME] = "/tmp/trivial.XXXXXX";
+	char CONSTRAINTS_FILE[MAX_NAME] = "/tmp/constraints.XXXXXX";
+	char TMP_FILE[MAX_NAME] = "/tmp/tmpfile.XXXXXX";
+	char SCRIPT_PATH[MAX_NAME] = "/tmp/synth.XXXXXX";
+	char LOG[MAX_NAME] = "encoding.log";
 #else
-	char TRIVIAL_ENCODING_FILE[FILENAME_LENGTH];
-	char CONSTRAINTS_FILE[FILENAME_LENGTH];
-	char TMP_FILE[FILENAME_LENGTH];
-	char SCRIPT_PATH[FILENAME_LENGTH];
-	char LOG[FILENAME_LENGTH];
+	char TRIVIAL_ENCODING_FILE[MAX_NAME];
+	char CONSTRAINTS_FILE[MAX_NAME];
+	char TMP_FILE[MAX_NAME];
+	char SCRIPT_PATH[MAX_NAME];
+	char LOG[MAX_NAME];
 #endif
 
 // Alex's tool
@@ -23,7 +23,7 @@ int *custom_perm_back;
 boolean *DC_custom = NULL;
 int tot_enc;
 boolean DC = FALSE;
-long long int num_perm;
+long long int num_perm, all_perm;
 int **opt_diff = NULL;
 int counter = 0;
 int **perm = NULL;
@@ -36,6 +36,10 @@ char **vertices;
 char **diff = NULL; 
 BitType **opcodes = NULL;
 int bits;
+int total;
+int cpog_count = 0;
+int *enc;
+int *sol;
 
 // Andrey's tool
 GRAPH_TYPE *g;

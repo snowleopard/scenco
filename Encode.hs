@@ -1,6 +1,6 @@
-module Encode (getPartialOrderFilename,
-               getCustomEncodingFilename, getEncodingAlgorithm,
-               encodeGraphs, getOpcodesLength, getOpcodes) where
+module Encode (getPartialOrderFilename, getCustomEncodingFilename,
+               getEncodingAlgorithm, loadGraphsAndOpcodes, encodeGraphs,
+               getOpcodesLength, getOpcodes) where
 
 import Code
 import Graph
@@ -11,21 +11,35 @@ import Foreign.C.String
 
 testFolder = "test/"
 
-foreign import ccall unsafe "encoding_graphs"
-    encoding_graphs :: CString -> CString -> Int -> IO Int
+foreign import ccall unsafe "load_graphs_opcodes"
+    insertGraphsAndOpcodes :: CString -> CString -> IO Int
 
 foreign import ccall unsafe "get_bit"
-    get_bit :: Int -> Int -> IO Int
+    getBit :: Int -> Int -> IO Int
 
 foreign import ccall unsafe "get_opcodes_length"
     getOpcodesLength :: Int
 
-data EncodingType = Single_literal |
-                    Sequential |
-                    SatBased |
-                    Random_encoding |
-                    Heuristic |
-                    Exhaustive deriving (Enum)
+foreign import ccall unsafe "single_literal_encoding"
+    singleLiteralEncoding :: IO Int
+
+foreign import ccall unsafe "sequential_encoding"
+    sequentialEncoding :: IO Int
+
+foreign import ccall unsafe "random_encoding"
+    randomEncoding :: IO Int
+
+foreign import ccall unsafe "heuristic_encoding"
+    heuristicEncoding :: IO Int
+
+foreign import ccall unsafe "exhaustive_encoding"
+    exhaustiveEncoding :: IO Int
+
+data EncodingType = SingleLiteral
+                  | Sequential
+                  | Random
+                  | Heuristic
+                  | Exhaustive
 
 -- Guarantees:
 -- 1) Turn unknowns to knowns:
@@ -60,37 +74,61 @@ getCustomEncodingFilename = do
     return encodingSetPath
 
 -- lets user select which algorithm to use for the encoding
-getEncodingAlgorithm :: IO Int
+getEncodingAlgorithm :: IO EncodingType
 getEncodingAlgorithm = do
+    putStrLn " "
+    putStrLn "Algorithms available for encoding the graphs:"
     putStrLn "\t 1) Single-literal encoding"
     putStrLn "\t 2) Sequential encoding"
-    putStrLn "\t 3) SAT-based optimal encoding"
-    putStrLn "\t 4) Random encoding (supports constraints)"
-    putStrLn "\t 5) Heuristic encoding (supports constraints)"
-    putStrLn "\t 6) Exhaustive encoding (supports constraints)"
-    putStr "Select algorithm to use: "
+    putStrLn "\t 3) Random encoding (supports constraints)"
+    putStrLn "\t 4) Heuristic encoding (supports constraints)"
+    putStrLn "\t 5) Exhaustive encoding (supports constraints)"
+    putStr "Select the number of the algorithm you want to use: "
     hFlush stdout
-    encodingNumber <- read <$> getLine
-    return (encodingNumber - 1)
+    newstdin <- openFile "/dev/tty" ReadMode
+    --encodingId <- readNumber
+    --encodingId <- read <$> getLine
+    encodingId <- read <$> (hGetLine newstdin)
+    hClose newstdin
+    return $ convertAlgorithm encodingId
 
 -- uses c++ function to encode the partial orders
-encodeGraphs :: String -> String -> Int -> IO Int
-encodeGraphs graphsPath encodingSetPath encoding = do
+loadGraphsAndOpcodes :: String -> String -> IO Int
+loadGraphsAndOpcodes graphsPath encodingSetPath = do
     graphs <- newCString graphsPath
     encodingSet <- newCString encodingSetPath
-    result <- encoding_graphs graphs encodingSet encoding
+    result <- insertGraphsAndOpcodes graphs encodingSet
     return result
 
 getOpcodeBit :: Int -> Int -> IO (Bit Bool)
 getOpcodeBit partialOrder bitPosition = do
-    bitC <- get_bit partialOrder bitPosition
+    bitC <- getBit partialOrder bitPosition
     return $ convert bitC
 
 convert :: Int -> Bit Bool
-convert x | x == 0    = used False
-          | x == 1    = used True
-          | x == 2    = unused
-          | otherwise = error $ "Cannot convert " ++ show x ++ " to Bit Bool"
+convert x
+    | x == 0    = used False
+    | x == 1    = used True
+    | x == 2    = unused
+    | otherwise = error $ "Cannot convert " ++ show x ++ " to Bit Bool"
+
+convertAlgorithm :: Int -> EncodingType
+convertAlgorithm x
+    | x == 1     = SingleLiteral
+    | x == 2     = Sequential
+    | x == 3     = Random
+    | x == 4     = Heuristic
+    | x == 5     = Exhaustive
+    | otherwise  = error $ "Wrong algorithm selected " ++ show x
+
+encodeGraphs :: EncodingType -> IO Int
+encodeGraphs e =
+    case e of
+        SingleLiteral -> singleLiteralEncoding
+        Sequential    -> sequentialEncoding
+        Random        -> randomEncoding
+        Heuristic     -> heuristicEncoding
+        Exhaustive    -> exhaustiveEncoding
 
 getOpcode :: Int -> Int -> IO CodeWithoutUnknowns
 getOpcode bitLength poID = traverse (getOpcodeBit poID) [0..bitLength-1]
