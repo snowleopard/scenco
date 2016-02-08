@@ -152,6 +152,9 @@ void print_binary(FILE *fp,int n, int bits){
 	vett = (int*)calloc(bits, sizeof(int));
 	//char *number;
 
+
+	if(numb != NULL) free(numb);
+
 	numb = (char*) malloc(sizeof(char) * MAX_NAME);
 	//printf("%d - ",n);
 	/*DEBUG PRINTING: int number*/
@@ -240,7 +243,7 @@ void int_to_string_DC(int bits, int index, int val, char *str){
 
 void encodingReformat(encodingType encoding){
 
-	if (encoding < 3) return;
+	if (encoding < 2) return;
 
 	for(int i = 0; i < cpog_count; i++){
 		int len = strlen(manual_file_back[i]);
@@ -275,6 +278,12 @@ int set_opcodes(int cpog_count){
 		}
 	}
 	return  0;
+}
+
+void clear_scenarios(){
+	for(int i; i<cpog_count;i++){
+		if ( !scenarioOpcodes[i].empty() ) scenarioOpcodes[i].clear();
+	}
 }
 
 int export_variables(encodingType encoding){

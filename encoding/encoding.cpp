@@ -27,9 +27,13 @@ extern "C" {
 		int min_disp;
 		int len_sequence = 0;
 
-		if(temporary_files_creation() != 0){
-			return -1;
+		if(first){
+			first = FALSE;	
+			if(temporary_files_creation() != 0){
+				return -1;
+			}
 		}
+
 		if( (fpLOG = fopen(LOG,"w")) == NULL){
 			fprintf(stderr,"Error on opening LOG file for writing.\n");
 		}
@@ -210,6 +214,71 @@ extern "C" {
 		return 0;
 	}
 
+	int unload_graphs_opcodes(){
+		if(g != NULL) free(g);
+		if(manual_file != NULL) free(manual_file);
+		if(manual_file_back != NULL) free(manual_file_back);
+		if(custom_perm != NULL) free(custom_perm);
+		if(custom_perm_back != NULL) free(custom_perm_back);
+		if(opt_diff != NULL) {
+			for(int i = 0; i<cpog_count; i++)
+				free(opt_diff[i]);
+			free(opt_diff);
+		}
+		if(perm != NULL) {
+			for(long long int i = 0; i<num_perm; i++)
+				free(perm[i]);
+			free(perm);
+		}
+		if(file_cons != NULL) free(file_cons);
+		if(weights != NULL) free(weights);
+		if(diff != NULL){
+			int i = 0;
+			while(diff[i] != NULL) free(diff[i++]);
+			free(diff);
+		}
+		if(opcodes != NULL){
+			for(int i = 0; i < cpog_count; i++) free(opcodes[i]);
+		}
+		if(enc != NULL) free(enc);
+		if(sol != NULL) free(sol);
+		clear_scenarios();
+		cpog_count = 0;
+		n = 0;
+	
+		// Andrey's tool
+		int k=0;
+		if( !eventNames.empty() ) eventNames.clear();
+		for(int i = 0; i<eventsLimit; i++)
+			if( !eventNames_str[i].empty() )eventNames_str[i].clear();
+		while( !eventPredicates[k].empty() ) eventPredicates[k++].clear();
+		if( !scenarioNames.empty() )scenarioNames.clear();
+		for(int i = 0; i< eventsLimit; i++)
+			for(int j = 0; j< predicatesLimit; j++)
+				if(!ev[i][j].empty()) ev[i][j].clear();
+		for(int i = 0; i< eventsLimit; i++)
+			for(int j = 0; j< eventsLimit; j++)
+				if(!ee[i][j].empty()) ee[i][j].clear();
+
+		constraints.clear();
+		if ( !encodings.empty() )encodings.clear();
+		if ( !cgv.empty() ) cgv.clear();
+		if ( !cge.empty() ) cge.clear();
+		if ( !literal.empty() ) literal.clear();
+		if ( !bestLiteral.empty() ) bestLiteral.clear();
+
+		for(int i = 0; i< eventsLimit; i++)
+			for(int j = 0; j< predicatesLimit; j++)
+				if(!vConditions[i][j].empty())
+					vConditions[i][j].clear();
+
+		for(int i = 0; i< eventsLimit; i++)
+			for(int j = 0; j< eventsLimit; j++)
+				if(!aConditions[i][j].empty())
+					aConditions[i][j].clear();
+		return 0;
+	}
+
 	int single_literal_encoding(){
 
 		if( (fpLOG = fopen(LOG,"a")) == NULL){
@@ -238,6 +307,8 @@ extern "C" {
 			fprintf(stderr,"Error on opening LOG file for appending.\n");
 		}
 
+		bits = bits_saved;
+
 		fprintf(fpLOG,"Running Sequential encoding.\n");
 
 		if(sequentialEncoding() != 0){
@@ -259,6 +330,8 @@ extern "C" {
 		if( (fpLOG = fopen(LOG,"a")) == NULL){
 			fprintf(stderr,"Error on opening LOG file for appending.\n");
 		}
+
+		bits = bits_saved;
 
 		fprintf(fpLOG,"Running Random encoding.\n");
 		
@@ -282,6 +355,8 @@ extern "C" {
 		if( (fpLOG = fopen(LOG,"a")) == NULL){
 			fprintf(stderr,"Error on opening LOG file for appending.\n");
 		}
+
+		bits = bits_saved;
 
 		fprintf(fpLOG,"Running Random generation... ");
 		num_perm = 1;

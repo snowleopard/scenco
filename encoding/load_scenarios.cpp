@@ -475,16 +475,6 @@ int read_file(char *file_in,int *cpog_count, int *len_sequence){
 	}
 	fclose(fp);
 
-	/*NON-TRIVIAL ENCODING PRINTING*/
-	// debug printing
-	/*if(verbose){		
-		printf("NON-TRIVIAL ENCODING:\n");
-		for(i = 0; i <(*len_sequence) ;i++){
-			for(j = 0; j< (*cpog_count); j++)
-				printf("%c", diff[i][j]);
-			printf("\n");
-		}
-	}*/
 	return 0;
 }
 

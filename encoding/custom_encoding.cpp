@@ -40,6 +40,7 @@ int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 		return 2;
 	}
 	*bits = atoi(number);
+	bits_saved = *bits;
 	tot_enc = 1;
 	for(k=0;k<(*bits);k++) tot_enc *= 2;
 	fclose(fp);

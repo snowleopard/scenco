@@ -26,6 +26,7 @@ int singleLiteralEncoding(int total){
 	fprintf(fpLOG,"DONE.\nThe best encoding uses %d operational variables:\n", R);
 
 	scenarioOpcodes.resize(n);
+	clear_scenarios();
 
 	for(int i = 0; i < n; i++) for(int j = 0; j < R; j++) scenarioOpcodes[i] += "-";
     
@@ -127,6 +128,7 @@ int singleLiteralEncoding(int total){
 *******************************************************************************/
 int sequentialEncoding(){
 	int bits = logarithm2(n);
+	clear_scenarios();
 	scenarioOpcodes.resize(n);
 	
 	for(int i = 0; i < n; i++){
@@ -521,6 +523,7 @@ int randomEncoding(){
 	free(encod);
 
 	scenarioOpcodes.resize(cpog_count);
+	clear_scenarios();
 	for(int i = 0; i < cpog_count; i++){
 		print_binary(NULL, perm[0][i], bits);
 		scenarioOpcodes[i] = string(numb);
@@ -609,6 +612,7 @@ int start_simulated_annealing(){
 	counter = num_perm;
 
 	scenarioOpcodes.resize(cpog_count);
+	clear_scenarios();
 	for(int i = 0; i < cpog_count; i++){
 		print_binary(NULL, perm[0][i], bits);
 		scenarioOpcodes[i] = string(numb);

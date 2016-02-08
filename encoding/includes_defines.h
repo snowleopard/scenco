@@ -10,7 +10,7 @@
 #include <limits>
 
 // constant definition
-#define MAX_NAME	300	  // Max length name for each node
+#define MAX_NAME	     300  // Max length name for each node
 #define EXHAUSTIVE_MAX_PERM 1000  // Max number of permutation
 
 #define stringLimit	1000

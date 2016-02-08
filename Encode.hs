@@ -1,6 +1,7 @@
 module Encode (getPartialOrderFilename, getCustomEncodingFilename,
                getEncodingAlgorithm, loadGraphsAndOpcodes, encodeGraphs,
-               getOpcodesLength, getOpcodes) where
+               getOpcodesLength, getOpcodes,unloadGraphsAndOpcodes,
+               EncodingType(..)) where
 
 import Code
 import Graph
@@ -13,6 +14,9 @@ testFolder = "test/"
 
 foreign import ccall unsafe "load_graphs_opcodes"
     insertGraphsAndOpcodes :: CString -> CString -> IO Int
+
+foreign import ccall unsafe "unload_graphs_opcodes"
+    unloadGraphsAndOpcodes :: IO Int
 
 foreign import ccall unsafe "get_bit"
     getBit :: Int -> Int -> IO Int
