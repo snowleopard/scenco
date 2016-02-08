@@ -406,7 +406,7 @@ bool encode(int vertex, int limit, int next)
 /*DIFFERENCE MATRIX FUNCTION*/
 /*Following function computes differences among CPOG, and store them inside
 a matrix.*/
-int difference_matrix(int cpog_count, int len_sequence){
+int difference_matrix(int cpog_count){
 	int i = 0, j = 0, k = 0;
 	
 	/*COMPUTING DIFFERENCES AMONG CPOG*/
@@ -416,23 +416,12 @@ int difference_matrix(int cpog_count, int len_sequence){
 				if((diff[k][i] == '0' && diff[k][j] == '1') || (diff[k][i] == '1' && diff[k][j] == '0'))
 					opt_diff[i][j]++;
 	
-	/*OPTIMAL DIFFERENCES MATRIX PRINTING*/
-	// debug printing
-	/*if(verbose){
-		printf("\nOPTIMAL DIFFERENCES MATRIX:\n");
-		for(i=0;i<cpog_count;i++){
-			for(j=0;j<cpog_count;j++)
-				printf("%2d ", opt_diff[i][j]);
-			printf("\n");
-		}
-		printf("\n");
-	}*/
 	return 0;
 }
 
 /*READ FILE FUNCTION*/
 /*Following function read non-trivial encoding constraints of the Conditional Partial Order Graphs.*/
-int read_file(char *file_in,int *cpog_count, int *len_sequence){
+int read_file(char *file_in){
 	FILE *fp = NULL;
 	char *string, dump, c;
 	int i = 0, j = 0;
@@ -449,26 +438,23 @@ int read_file(char *file_in,int *cpog_count, int *len_sequence){
 
 	fp = fopen(file_in, "r");
 	fscanf(fp,"%s", string);
-	*len_sequence = 1;
-	(*cpog_count) = strlen(string);
+	len_sequence = 1;
+	cpog_count = strlen(string);
 	
 	while(fscanf(fp,"%s", string) != EOF)
-		(*len_sequence)++;
+		len_sequence++;
 	fclose(fp);
 
-	/*DEBUG PRINTING*/
-	//printf("%d %d\n", *cpog_count, *len_sequence);
-
-	diff = (char**) malloc(sizeof(char*) * (*len_sequence));
-	for(i=0;i<(*len_sequence);i++)
-		diff[i] = (char*) malloc(sizeof(char) * (*cpog_count));
+	diff = (char**) malloc(sizeof(char*) * (len_sequence));
+	for(i=0;i<len_sequence;i++)
+		diff[i] = (char*) malloc(sizeof(char) * cpog_count);
 
 	fp = fopen(file_in, "r");
-	for(i = 0; i< (*len_sequence);i++){
-		for(j = 0; j< (*cpog_count); j++){
+	for(i = 0; i< len_sequence;i++){
+		for(j = 0; j< cpog_count; j++){
 			if(fscanf(fp, "%c", &diff[i][j]) == EOF){
 				fprintf(stderr,"Error on reading custom encodings.\n");
-				return 3;
+				return -1;
 			}
 		}
 		j = fscanf(fp,"%c", &dump);

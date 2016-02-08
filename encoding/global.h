@@ -42,6 +42,7 @@ int total;
 int cpog_count = 0;
 int *enc;
 int *sol;
+int len_sequence;
 
 // Andrey's tool
 GRAPH_TYPE *g;

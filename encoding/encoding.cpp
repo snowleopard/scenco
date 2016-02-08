@@ -10,7 +10,7 @@
 extern "C" {
 
 	int get_bit(int row, int col){
-		return ((int)opcodes[row][col]);
+		return ((int) opcodes[row][col]);
 	}
 
 	int get_opcodes_length(){
@@ -25,7 +25,6 @@ extern "C" {
 		int err=0;
 		int elements;
 		int min_disp;
-		int len_sequence = 0;
 
 		if(first){
 			first = FALSE;	
@@ -120,7 +119,7 @@ extern "C" {
 
 		/*READ NON-TRIVIAL ENCODING FILE*/
 		fprintf(fpLOG,"Reading non-trivial encoding file... ");
-		if( (err = read_file(file_in, &cpog_count, &len_sequence)) ){
+		if( (err = read_file(file_in)) ){
 			fprintf(stderr,"Error occured while reading non-trivial encoding file, error code: %d", err);
 			removeTempFiles();
 			return -1;
@@ -201,7 +200,7 @@ extern "C" {
 
 		/*BUILDING DIFFERENCE MATRIX*/
 		fprintf(fpLOG,"Building DM (=Difference Matrix)... ");
-		if( (err = difference_matrix(n, len_sequence)) ){
+		if( (err = difference_matrix(cpog_count)) ){
 			fprintf(stderr,"Error occurred while building difference matrix, error code: %d", err);
 			removeTempFiles();
 			return 3;
@@ -222,37 +221,40 @@ extern "C" {
 		if(custom_perm_back != NULL) free(custom_perm_back);
 		if(opt_diff != NULL) {
 			for(int i = 0; i<cpog_count; i++)
-				free(opt_diff[i]);
+				if(opt_diff[i] != NULL) free(opt_diff[i]);
 			free(opt_diff);
 		}
 		if(perm != NULL) {
 			for(long long int i = 0; i<num_perm; i++)
-				free(perm[i]);
+				if(perm[i] != NULL )free(perm[i]);
 			free(perm);
 		}
 		if(file_cons != NULL) free(file_cons);
 		if(weights != NULL) free(weights);
 		if(diff != NULL){
-			int i = 0;
-			while(diff[i] != NULL) free(diff[i++]);
+			for(int i = 0; i< len_sequence; i++)
+				if(diff[i] != NULL) free(diff[i]);
 			free(diff);
 		}
 		if(opcodes != NULL){
-			for(int i = 0; i < cpog_count; i++) free(opcodes[i]);
+			for(int i = 0; i < cpog_count; i++) 
+				if(opcodes[i] != NULL) free(opcodes[i]);
 		}
 		if(enc != NULL) free(enc);
 		if(sol != NULL) free(sol);
-		clear_scenarios();
 		cpog_count = 0;
 		n = 0;
-	
+		len_sequence = 0;
+
 		// Andrey's tool
-		int k=0;
 		if( !eventNames.empty() ) eventNames.clear();
 		for(int i = 0; i<eventsLimit; i++)
 			if( !eventNames_str[i].empty() )eventNames_str[i].clear();
-		while( !eventPredicates[k].empty() ) eventPredicates[k++].clear();
+		for(int i = 0; i<eventsLimit;i++)
+			if( !eventPredicates[i].empty() )
+				eventPredicates[i].clear();
 		if( !scenarioNames.empty() )scenarioNames.clear();
+		if( !scenarioOpcodes.empty() )scenarioOpcodes.clear();
 		for(int i = 0; i< eventsLimit; i++)
 			for(int j = 0; j< predicatesLimit; j++)
 				if(!ev[i][j].empty()) ev[i][j].clear();
@@ -260,7 +262,7 @@ extern "C" {
 			for(int j = 0; j< eventsLimit; j++)
 				if(!ee[i][j].empty()) ee[i][j].clear();
 
-		constraints.clear();
+		if(!constraints.empty()) constraints.clear();
 		if ( !encodings.empty() )encodings.clear();
 		if ( !cgv.empty() ) cgv.clear();
 		if ( !cge.empty() ) cge.clear();
@@ -306,8 +308,6 @@ extern "C" {
 		if( (fpLOG = fopen(LOG,"a")) == NULL){
 			fprintf(stderr,"Error on opening LOG file for appending.\n");
 		}
-
-		bits = bits_saved;
 
 		fprintf(fpLOG,"Running Sequential encoding.\n");
 
