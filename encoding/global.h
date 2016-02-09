@@ -29,7 +29,7 @@ int **opt_diff = NULL;
 int counter = 0;
 int **perm = NULL;
 char *file_cons = NULL;
-float *weights = NULL;
+long long int *weights = NULL;
 boolean SET;
 boolean unfix = FALSE;
 //char **name_cond; 
@@ -43,6 +43,8 @@ int cpog_count = 0;
 int *enc;
 int *sol;
 int len_sequence;
+long long int minW;
+long long int maxW;
 
 // Andrey's tool
 GRAPH_TYPE *g;

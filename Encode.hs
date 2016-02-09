@@ -31,13 +31,13 @@ foreign import ccall unsafe "sequential_encoding"
     sequentialEncoding :: IO Int
 
 foreign import ccall unsafe "random_encoding"
-    randomEncoding :: IO Int
+    randomEncoding :: Int -> IO Int
 
 foreign import ccall unsafe "heuristic_encoding"
-    heuristicEncoding :: IO Int
+    heuristicEncoding :: Int -> IO Int
 
 foreign import ccall unsafe "exhaustive_encoding"
-    exhaustiveEncoding :: IO Int
+    exhaustiveEncoding :: Int -> IO Int
 
 data EncodingType = SingleLiteral
                   | Sequential
@@ -125,14 +125,13 @@ convertAlgorithm x
     | x == 5     = Exhaustive
     | otherwise  = error $ "Wrong algorithm selected " ++ show x
 
-encodeGraphs :: EncodingType -> IO Int
-encodeGraphs e =
-    case e of
-        SingleLiteral -> singleLiteralEncoding
-        Sequential    -> sequentialEncoding
-        Random        -> randomEncoding
-        Heuristic     -> heuristicEncoding
-        Exhaustive    -> exhaustiveEncoding
+encodeGraphs :: EncodingType -> Maybe Int -> IO Int
+encodeGraphs SingleLiteral _ = singleLiteralEncoding
+encodeGraphs Sequential _ = sequentialEncoding
+encodeGraphs Random (Just a) = randomEncoding a
+encodeGraphs Heuristic (Just a) = heuristicEncoding a
+encodeGraphs Exhaustive (Just a) = exhaustiveEncoding a
+encodeGraphs x _ = error $ "Wrong algorithm selected"
 
 getOpcode :: Int -> Int -> IO CodeWithoutUnknowns
 getOpcode bitLength poID = traverse (getOpcodeBit poID) [0..bitLength-1]

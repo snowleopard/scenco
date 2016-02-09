@@ -255,7 +255,7 @@ int randomEncoding(){
 		matrix_ass[i] = (int*) calloc(cpog_count, sizeof(int));
 
 	while(c < num_perm && out == FALSE){
-		
+
 		//RESET SUPPORT DATA STRUCTURES
 		for(i=0;i<cpog_count;i++){
 			full[i] = -1;
@@ -387,12 +387,11 @@ int randomEncoding(){
 		else{
 			j = 0;
 		}
-
-		if(v_min_i  != NULL) free(v_min_i);
-		if(v_min_j  != NULL) free(v_min_j);
-
+					
 		for( p= j; p<cpog_count ; p=(p+inc)){
 			min = numeric_limits<long long int>::max();
+			v_min_i = NULL;
+			v_min_j = NULL;
 			//FIND MINIMUMs INSIDE DIFFERENCES MATRIX
 			for(i=0;i<cpog_count-1;i++){
 				for( j=(i+1) ; j<cpog_count ; j++ ){
@@ -415,12 +414,13 @@ int randomEncoding(){
 					}
 				}
 			}
-			
+
 			//CHOOSE WHICH MINIMUMs TO USE RANDOMLY
 			i = rand()%n;
 			i_min = v_min_i[i];
 			j_min = v_min_j[i];
-
+			if(v_min_i != NULL) free(v_min_i);
+			if(v_min_j != NULL) free(v_min_j);
 			//DECODE IT WITH ENCODING WITH MINIMUM HAMMING DISTANCE
 			//ACTUALLY AVAILABLE
 			if(full[i_min] == -1 && full[j_min] == -1){
@@ -466,9 +466,6 @@ int randomEncoding(){
 			printf("\n\n");*/
 
 		}
-
-		if(v_min_i  != NULL) free(v_min_i);
-		if(v_min_j  != NULL) free(v_min_j);
 
 		//CHECK RESULT WAS NOT ALREADY PRESENT
 		//INSIDE ALL THE JUST GENERATED ENCODINGS
@@ -521,13 +518,6 @@ int randomEncoding(){
 	free(matrix_ass);
 	free(full);
 	free(encod);
-
-	scenarioOpcodes.resize(cpog_count);
-	clear_scenarios();
-	for(int i = 0; i < cpog_count; i++){
-		print_binary(NULL, perm[0][i], bits);
-		scenarioOpcodes[i] = string(numb);
-	}
 
 	return 0;
 }
@@ -655,11 +645,11 @@ int filter_encodings(int n_cpog, int bits, int tot_enc){
 	int j = 0;
 	int k = 0;
 	int index_filter = 0;
-	int present = 0, *opcodes;
+	int present = 0, *opcodesF;
 	char *number;
 	boolean out = FALSE;
 
-	opcodes = (int*) calloc(tot_enc, sizeof(int));
+	opcodesF = (int*) calloc(tot_enc, sizeof(int));
 
 	// LOOP OVER EACH ENCODING GENERATED WITH THE EXHAUSTIVE SEARCH
 	for(i = 0; i < num_perm;  i++) {
@@ -669,11 +659,12 @@ int filter_encodings(int n_cpog, int bits, int tot_enc){
 		out = FALSE;
 		// opcodes already used for DC conditions
 		for(j=0; j<tot_enc; j++)
-			opcodes[j] = 0;
+			opcodesF[j] = 0;
+
 		// custom opcodes
 		for(j=0; j<n_cpog; j++){
 			strcpy(manual_file[j],manual_file_back[j]);
-			opcodes[perm[i][j]] = 1; //opcodes used by the encoding
+			opcodesF[perm[i][j]] = 1; //opcodes used by the encoding
 		}
 
 		// CHECK FOR FIXED BITS
@@ -721,7 +712,7 @@ int filter_encodings(int n_cpog, int bits, int tot_enc){
 					print_binary(NULL,k, bits);
 					number = numb;
 
-					if( !strDCcmp(number, manual_file[j], bits) && opcodes[k] == 1){
+					if( !strDCcmp(number, manual_file[j], bits) && opcodesF[k] == 1){
 						present++;
 						
 						/*printf("\nDEBUG PRINTING:----------------------------------\n");

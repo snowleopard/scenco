@@ -167,7 +167,7 @@ extern "C" {
 		}
 
 		all_perm = num_perm;
-		num_perm = EXHAUSTIVE_MAX_PERM;
+//		num_perm = EXHAUSTIVE_MAX_PERM;
 
 		/*PREPARATION DATA FOR ENCODING PERMUTATIONS*/
 		enc = (int*) calloc(tot_enc, sizeof(int));
@@ -182,21 +182,6 @@ extern "C" {
 			removeTempFiles();
 			return -1;
 		}
-		perm = (int**) malloc(sizeof(int*) * num_perm);
-		if ( perm == NULL){
-			fprintf(stderr,"perm variable = null\n");
-			removeTempFiles();
-			return -1;
-		}
-		for(long long int i=0;i<num_perm;i++){
-			perm[i] = (int*) malloc(n * sizeof(int));
-			if (perm[i] == NULL){
-				fprintf(stderr,"perm[%lld] = null\n",i);
-				removeTempFiles();
-				return 3;
-			}
-		}
-		weights = (float*) calloc(num_perm, sizeof(float));
 
 		/*BUILDING DIFFERENCE MATRIX*/
 		fprintf(fpLOG,"Building DM (=Difference Matrix)... ");
@@ -311,6 +296,11 @@ extern "C" {
 
 		fprintf(fpLOG,"Running Sequential encoding.\n");
 
+		if(allocate_encodings_space(1) != 0){
+			fprintf(stderr,"Sequential encoding failed.\n");
+			return -1;
+		}
+
 		if(sequentialEncoding() != 0){
 			fprintf(stderr,"Sequential encoding failed.\n");
 			return -1;
@@ -325,7 +315,7 @@ extern "C" {
 		return 0;
 	}
 
-	int random_encoding(){
+	int random_encoding(int num_enc){
 
 		if( (fpLOG = fopen(LOG,"a")) == NULL){
 			fprintf(stderr,"Error on opening LOG file for appending.\n");
@@ -334,10 +324,19 @@ extern "C" {
 		bits = bits_saved;
 
 		fprintf(fpLOG,"Running Random encoding.\n");
+
+		if(allocate_encodings_space(num_enc) != 0){
+			fprintf(stderr,"Encoding allocation failed.\n");
+			return -1;
+		}
 		
-		num_perm = 1;
 		if(randomEncoding() != 0){
 			fprintf(stderr,"Random encoding failed.\n");
+			return -1;
+		}
+
+		if(heuristic_choice() != 0) {
+			fprintf(stderr,"Computing heuristic encoding.\n");
 			return -1;
 		}
 
@@ -350,7 +349,7 @@ extern "C" {
 		return 0;
 	}
 
-	int heuristic_encoding(){
+	int heuristic_encoding(int num_enc){
 
 		if( (fpLOG = fopen(LOG,"a")) == NULL){
 			fprintf(stderr,"Error on opening LOG file for appending.\n");
@@ -358,8 +357,13 @@ extern "C" {
 
 		bits = bits_saved;
 
+		if(allocate_encodings_space(num_enc) != 0){
+			fprintf(stderr,"Encoding allocation failed.\n");
+			return -1;
+		}
+
 		fprintf(fpLOG,"Running Random generation... ");
-		num_perm = 1;
+		
 		if(randomEncoding() != 0){
 			fprintf(stderr,"Random encoding failed.\n");
 			return -1;
@@ -373,6 +377,11 @@ extern "C" {
 		}
 		fprintf(fpLOG,"DONE.\n");
 
+		if(heuristic_choice() != 0) {
+			fprintf(stderr,"Computing heuristic encoding.\n");
+			return -1;
+		}
+
 		if (export_variables(heuristic) != 0){
 			return -1;
 		}
@@ -380,18 +389,15 @@ extern "C" {
 		fclose(fpLOG);
 	}
 
-	int exhaustive_encoding(){
+	int exhaustive_encoding(int num_enc){
 
 		if( (fpLOG = fopen(LOG,"a")) == NULL){
 			fprintf(stderr,"Error on opening LOG file for appending.\n");
 		}
 
-		if(all_perm > EXHAUSTIVE_MAX_PERM || all_perm < 0){
-			fprintf(stderr,"Solution space is too wide to be inspected.\n");
-			removeTempFiles();
+		if(allocate_encodings_space(num_enc) != 0){
+			fprintf(stderr,"Encoding allocation failed.\n");
 			return -1;
-		} else {
-			num_perm = all_perm;
 		}
 
 		fprintf(fpLOG,"Running Exhaustive encoding.\n");
@@ -409,6 +415,12 @@ extern "C" {
 			fprintf(fpLOG,"Filtering encoding... ");
 			filter_encodings(cpog_count, bits, tot_enc);
 			fprintf(fpLOG,"DONE\n");
+
+		}
+
+		if(heuristic_choice() != 0) {
+			fprintf(stderr,"Computing heuristic encoding.\n");
+			return -1;
 		}
 
 		if (export_variables(exhaustive) != 0){

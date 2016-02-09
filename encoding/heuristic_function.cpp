@@ -82,3 +82,73 @@ double compute_weight(int cpog_count,int bits,int index){
 	return wg;
 
 }
+
+/*AREA FUNCTION SSD*/
+/*Following function computes both the maximum and minimum weight for each encoding permutation
+following SSD criterion.*/
+int heuristic_choice(){
+        int ones = 0;
+	long long int wg = 0;
+	int minEnc = 0;
+	int *iMin = NULL;
+	
+	maxW = -1;
+	minW = numeric_limits<long long int>::max();
+
+	if( counter == 0){
+		fprintf(stderr,"No encodings match the custom opcodes fixed.\n");
+		return -1;
+	}
+
+        for(int i = 0; i<counter; i++){
+                wg = 0;
+                for(int j = 0; j<cpog_count-1; j++)
+                        for(int k = j+1; k < cpog_count; k++){
+				//COMPUTE HAMMING DISTANCE
+				ones = compute_HD(perm[i][j],j, perm[i][k],k,bits,cpog_count);
+				wg += weight_function(opt_diff[j][k],ones);
+			}
+                weights[i] = wg;
+                if(wg < minW) minW = wg;
+                if(wg > maxW) maxW = wg;
+        }
+
+	for(int i = 0; i< counter; i++){
+
+		if(weights[i] == minW){
+			minEnc++;
+			iMin = (int*) realloc (iMin, sizeof(int) * minEnc);
+			iMin[minEnc-1] = i;
+		}
+	}
+
+	int iRand = rand() % minEnc;
+	free(iMin);
+
+	loadScenarioOpcodes(iRand);
+
+        return 0;
+}
+
+int allocate_encodings_space(int mem){
+
+	num_perm = mem;
+	counter = 0;
+	perm = (int**) malloc(sizeof(int*) * mem);
+	if ( perm == NULL){
+		fprintf(stderr,"perm variable = null\n");
+		removeTempFiles();
+		return -1;
+	}
+	for(long long int i=0;i<mem;i++){
+		perm[i] = (int*) malloc(n * sizeof(int));
+		if (perm[i] == NULL){
+			fprintf(stderr,"perm[%lld] = null\n",i);
+			removeTempFiles();
+			return -1;
+		}
+	}
+	weights = (long long int *) calloc(mem, sizeof(long long int));
+
+	return 0;
+}

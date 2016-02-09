@@ -306,3 +306,15 @@ int export_variables(encodingType encoding){
 
 	return 0;
 }
+
+void loadScenarioOpcodes(int index){
+
+	scenarioOpcodes.resize(cpog_count);
+	clear_scenarios();
+	for(int i = 0; i < cpog_count; i++){
+		print_binary(NULL, perm[index][i], bits);
+		scenarioOpcodes[i] = string(numb);
+	}
+
+	return;
+}
