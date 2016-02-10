@@ -4,7 +4,8 @@ int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 	FILE *fp = NULL;
 	int i,k;
 	char number[MAX_NAME];
-	boolean acq = FALSE;
+	char *tmp_str;
+	boolean acq = FALSE, freeCode = TRUE;
 
 	fp = fopen(custom_file_name,"r");
 	custom_perm = (int*) malloc(sizeof(int) * cpog_count);
@@ -16,8 +17,9 @@ int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 			fprintf(stderr,"Error: not enough encoding for this CPOG, they must be %d.\n",cpog_count);
 			return 1;
 		}
+
+		freeCode = TRUE;
 		if(number[0] != '/'){
-			SET = TRUE;
 			// RESET number of bits
 			if(!acq){
 				*bits = strlen(number);
@@ -25,29 +27,32 @@ int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 				tot_enc = 1;
 				for(k=0;k<(*bits);k++) tot_enc *= 2;
 			}
-			k = conv_int(number, i);
-			custom_perm[i] = k;
-			custom_perm_back[i] = k;
+			for(int j=0; j<(*bits) && freeCode; j++){
+				if(number[j] != 'X') freeCode = FALSE;
+			}
+
+			if(freeCode){
+				custom_perm[i] = -1;
+				custom_perm_back[i] = -1;
+			} else{
+				SET = TRUE;
+				k = conv_int(number, i);
+				custom_perm[i] = k;
+				custom_perm_back[i] = k;
+			}
 		}
 		else{
 			custom_perm[i] = -1;
 			custom_perm_back[i] = -1;
 		}
 	}
-
-	if (fscanf(fp,"%s", number) == EOF){
-		fprintf(stderr,"Error on reading number of bits set inside file %s.\n", custom_file_name);
-		return 2;
-	}
-	*bits = atoi(number);
 	bits_saved = *bits;
-	tot_enc = 1;
-	for(k=0;k<(*bits);k++) tot_enc *= 2;
 	fclose(fp);
 
 	
 	manual_file = (char**) malloc(sizeof(char*) * cpog_count);
 	manual_file_back = (char**) malloc(sizeof(char*) * cpog_count);
+	tmp_str = (char*) malloc(sizeof(char) * ((*bits)+1));
 	for(i=0;i<cpog_count;i++){
 		manual_file[i] = (char*) malloc(sizeof(char) * ((*bits)+1));
 		manual_file_back[i] = (char*) malloc(sizeof(char) * ((*bits)+1));
@@ -60,12 +65,20 @@ int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 	}
 
 	for(i=0;i<cpog_count;i++){
-		if(fscanf(fp,"%s",manual_file[i]) == EOF){
+		if(fscanf(fp,"%s",tmp_str) == EOF){
 			fprintf(stderr,"Error on reading custom encodings.\n");
 			return 3;
 		}
+		freeCode = TRUE;
+		for(int j=0; j<(*bits) && freeCode; j++){
+			if(tmp_str[j] != 'X') freeCode = FALSE;
+		}
+		if(freeCode) strcpy(manual_file[i], "/");
+		else strcpy(manual_file[i], tmp_str);
 		strcpy(manual_file_back[i],manual_file[i]);
 	}
+
+	free(tmp_str);
 
 	fclose(fp);
 	return 0;

@@ -4,6 +4,7 @@ import Encode
 import Synthesis
 import TechnologyMapping
 import Test
+import Code
 
 main = do
     testArm8

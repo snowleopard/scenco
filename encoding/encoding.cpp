@@ -188,7 +188,7 @@ extern "C" {
 		if( (err = difference_matrix(cpog_count)) ){
 			fprintf(stderr,"Error occurred while building difference matrix, error code: %d", err);
 			removeTempFiles();
-			return 3;
+			return -1;
 		}
 		fprintf(fpLOG,"DONE\n");
 

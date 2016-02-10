@@ -1,126 +1,165 @@
 module Test (testArm8, testArm11, testIntel7, testIntel8, testIntel9) where
 
 import Encode
+import Code
 import System.IO
+
+testFolder = "test/"
 
 testArm8 :: IO Bool
 testArm8 = do
     putStrLn "========== ARM Cortex M0+ (8 Partial orders)"
-    result <- loadGraphsAndOpcodes "test/arm_8.cpog" "test/arm_8.opcodes"
-    if result /= 0
-        then error $ "Error loading graphs"
-        else putStrLn "Graphs and opcodes loaded"
+    let cpogFile         = "test/arm_8.cpog"
+        opcodesFile      = "test/arm_8.opcodes"
+        numPartialOrders = 8
 
-    runAllAlgorithms
-    let opcodeLength = getOpcodesLength -- get opcode length
-    opcodes <- getOpcodes 8 opcodeLength -- get opcodes
+    assertLoad cpogFile opcodesFile
 
-    result <- unloadGraphsAndOpcodes
-    if result /= 0
-        then error $ "Error unloading graphs"
-        else putStrLn "Graphs and opcodes unloaded"
+    customOpcodes <- parseCustomOpcode opcodesFile
+    runAllAlgorithms numPartialOrders customOpcodes
+
+    assertUnload
     putStrLn "=========="
     return True
 
 testArm11 :: IO Bool
 testArm11 = do
     putStrLn "========== ARM Cortex M0+ (11 Partial orders)"
-    result <- loadGraphsAndOpcodes "test/arm_11.cpog" "test/arm_11.opcodes"
-    if result /= 0
-        then error $ "Error loading graphs"
-        else putStrLn "Graphs and opcodes loaded"
+    let cpogFile         = testFolder ++ "arm_11.cpog"
+        opcodesFile      = testFolder ++ "arm_11.opcodes"
+        numPartialOrders = 11
 
-    runAllAlgorithms
-    let opcodeLength = getOpcodesLength -- get opcode length
-    opcodes <- getOpcodes 11 opcodeLength -- get opcodes
+    assertLoad cpogFile opcodesFile
 
-    result <- unloadGraphsAndOpcodes
-    if result /= 0
-        then error $ "Error unloading graphs"
-        else putStrLn "Graphs and opcodes unloaded"
+    customOpcodes <- parseCustomOpcode opcodesFile
+    runAllAlgorithms numPartialOrders customOpcodes
+
+    assertUnload
     putStrLn "=========="
     return True
 
 testIntel7 :: IO Bool
 testIntel7 = do
     putStrLn "========== Intel 8051 (7 Partial orders)"
-    result <- loadGraphsAndOpcodes "test/Intel8051_7.cpog" "test/Intel8051_7.opcodes"
-    if result /= 0
-        then error $ "Error loading graphs"
-        else putStrLn "Graphs and opcodes loaded"
+    let cpogFile         = testFolder ++ "Intel8051_7.cpog"
+        opcodesFile      = testFolder ++ "Intel8051_7.opcodes"
+        numPartialOrders = 7
 
-    runAllAlgorithms
-    let opcodeLength = getOpcodesLength -- get opcode length
-    opcodes <- getOpcodes 7 opcodeLength -- get opcodes
+    assertLoad cpogFile opcodesFile
 
-    result <- unloadGraphsAndOpcodes
-    if result /= 0
-        then error $ "Error unloading graphs"
-        else putStrLn "Graphs and opcodes unloaded"
+    customOpcodes <- parseCustomOpcode opcodesFile
+    runAllAlgorithms numPartialOrders customOpcodes
+
+    assertUnload
     putStrLn "=========="
     return True
 
 testIntel8 :: IO Bool
 testIntel8 = do
     putStrLn "========== Intel 8051 (8 Partial orders)"
-    result <- loadGraphsAndOpcodes "test/Intel8051_8.cpog" "test/Intel8051_8.opcodes"
-    if result /= 0
-        then error $ "Error loading graphs"
-        else putStrLn "Graphs and opcodes loaded"
+    let cpogFile         = testFolder ++ "Intel8051_8.cpog"
+        opcodesFile      = testFolder ++ "Intel8051_8.opcodes"
+        numPartialOrders = 8
 
-    runAllAlgorithms
-    let opcodeLength = getOpcodesLength -- get opcode length
-    opcodes <- getOpcodes 8 opcodeLength -- get opcodes
+    assertLoad cpogFile opcodesFile
 
-    result <- unloadGraphsAndOpcodes
-    if result /= 0
-        then error $ "Error unloading graphs"
-        else putStrLn "Graphs and opcodes unloaded"
+    customOpcodes <- parseCustomOpcode opcodesFile
+    runAllAlgorithms numPartialOrders customOpcodes
+
+    assertUnload
     putStrLn "=========="
     return True
 
 testIntel9 :: IO Bool
 testIntel9 = do
     putStrLn "========== Intel 8051 (9 Partial orders)"
-    result <- loadGraphsAndOpcodes "test/Intel8051_9.cpog" "test/Intel8051_9.opcodes"
+    let cpogFile         = testFolder ++ "Intel8051_9.cpog"
+        opcodesFile      = testFolder ++ "Intel8051_9.opcodes"
+        numPartialOrders = 9
+
+    assertLoad cpogFile opcodesFile
+
+    customOpcodes <- parseCustomOpcode opcodesFile
+    runAllAlgorithms numPartialOrders customOpcodes
+
+    assertUnload
+    putStrLn "=========="
+    return True
+
+runAllAlgorithms :: Int -> [CodeWithUnknowns] -> IO ()
+runAllAlgorithms numPartialOrders customOpcodes = do
+    assertSingleLiteral
+    assertSequential
+    assertRandom numPartialOrders customOpcodes
+    assertHeuristic numPartialOrders customOpcodes
+    --assertExhaustive
+
+assertCodes :: [CodeWithUnknowns] -> [CodeWithoutUnknowns] -> IO ()
+assertCodes [] [] = putStrLn "Valid code"
+assertCodes (x:xs) (y:ys) = do
+    let codeCorrectness = validate x y
+    case codeCorrectness of
+        Valid           -> putStr ""
+        LengthMismatch  -> putStrLn "Length mismatch"
+        UnusedBitAdded  -> putStrLn "Unused bit added"
+        KnownBitChanged -> putStrLn "Known bit changed"
+        otherwise       -> putStrLn "Invalid code"
+    assertCodes xs ys
+assertCodes a b = putStrLn "Number of codes mismatch"
+
+assertLoad :: FilePath -> FilePath -> IO ()
+assertLoad cpogFile opcodesFile = do
+    result <- loadGraphsAndOpcodes cpogFile opcodesFile
     if result /= 0
         then error $ "Error loading graphs"
         else putStrLn "Graphs and opcodes loaded"
 
-    runAllAlgorithms
-    let opcodeLength = getOpcodesLength -- get opcode length
-    opcodes <- getOpcodes 9 opcodeLength -- get opcodes
-
+assertUnload :: IO ()
+assertUnload = do
     result <- unloadGraphsAndOpcodes
     if result /= 0
         then error $ "Error unloading graphs"
         else putStrLn "Graphs and opcodes unloaded"
-    putStrLn "=========="
-    return True
 
-runAllAlgorithms :: IO ()
-runAllAlgorithms = do
+assertSingleLiteral :: IO ()
+assertSingleLiteral = do
     result <- encodeGraphs SingleLiteral Nothing
     if result /= 0
         then error $ "Single literal encoding... ERROR"
         else putStrLn "Single literal encoding... OK"
 
+assertSequential :: IO ()
+assertSequential = do
     result <- encodeGraphs Sequential Nothing
     if result /= 0
         then error $ "Sequential encoding... ERROR"
         else putStrLn "Sequential encoding... OK"
 
+assertRandom :: Int -> [CodeWithUnknowns] -> IO ()
+assertRandom numPartialOrders customOpcodes = do
     result <- encodeGraphs Random (Just 10)
     if result /= 0
         then error $ "Random encoding... ERROR"
-        else putStrLn "Random encoding... OK"
+        else putStr "Random encoding... "
 
+    let bitLength = getOpcodesLength
+    randomOpcodes <- getOpcodes numPartialOrders bitLength
+    assertCodes customOpcodes randomOpcodes
+
+assertHeuristic :: Int -> [CodeWithUnknowns] -> IO ()
+assertHeuristic numPartialOrders customOpcodes = do
     result <- encodeGraphs Heuristic (Just 10)
     if result /= 0
         then error $ "Heuristic encoding... ERROR"
-        else putStrLn "Heuristic encoding... OK"
+        else putStr "Heuristic encoding... "
 
---    result <- encodeGraphs Exhaustive
---    if result /= 0
---        then error $ "Exhaustive encoding... ERROR"
---        else putStrLn "Heuristic encoding... OK"
+    let bitLength = getOpcodesLength
+    heuristicOpcodes <- getOpcodes numPartialOrders bitLength
+    assertCodes customOpcodes heuristicOpcodes
+
+assertExhaustive :: IO ()
+assertExhaustive = do
+    result <- encodeGraphs Exhaustive (Just 10)
+    if result /= 0
+        then error $ "Exhaustive encoding... ERROR"
+        else putStrLn "Heuristic encoding... OK"

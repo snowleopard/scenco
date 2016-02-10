@@ -29,7 +29,7 @@ ALU MAU ALU2
 
 .scenario CLASS_G
 PCIU IFU
-SIDU ALU MAI
+SIDU ALU MAU
 .end
 
 .scenario CLASS_H

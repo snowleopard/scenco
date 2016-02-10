@@ -6,6 +6,7 @@ module Encode (getPartialOrderFilename, getCustomEncodingFilename,
 import Code
 import Graph
 import System.IO
+import System.FilePath
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
@@ -60,7 +61,7 @@ data EncodingType = SingleLiteral
 -- 3) Internal error: gurantees are not satisfied
 
 -- gets path of file that contains the partial orders
-getPartialOrderFilename :: IO String
+getPartialOrderFilename :: IO FilePath
 getPartialOrderFilename = do
     putStr "File containing partial orders: "
     hFlush stdout
@@ -69,7 +70,7 @@ getPartialOrderFilename = do
     return graphsPath
 
 -- gets path of file that contains the custom opcodes
-getCustomEncodingFilename :: IO String
+getCustomEncodingFilename :: IO FilePath
 getCustomEncodingFilename = do
     putStr "File containing custom opcodes: "
     hFlush stdout
@@ -97,7 +98,7 @@ getEncodingAlgorithm = do
     return $ convertAlgorithm encodingId
 
 -- uses c++ function to encode the partial orders
-loadGraphsAndOpcodes :: String -> String -> IO Int
+loadGraphsAndOpcodes :: FilePath -> FilePath -> IO Int
 loadGraphsAndOpcodes graphsPath encodingSetPath = do
     graphs <- newCString graphsPath
     encodingSet <- newCString encodingSetPath
@@ -126,12 +127,12 @@ convertAlgorithm x
     | otherwise  = error $ "Wrong algorithm selected " ++ show x
 
 encodeGraphs :: EncodingType -> Maybe Int -> IO Int
-encodeGraphs SingleLiteral _ = singleLiteralEncoding
-encodeGraphs Sequential _ = sequentialEncoding
-encodeGraphs Random (Just a) = randomEncoding a
-encodeGraphs Heuristic (Just a) = heuristicEncoding a
-encodeGraphs Exhaustive (Just a) = exhaustiveEncoding a
-encodeGraphs x _ = error $ "Wrong algorithm selected"
+encodeGraphs SingleLiteral      _       = singleLiteralEncoding
+encodeGraphs Sequential         _       = sequentialEncoding
+encodeGraphs Random         (Just a)    = randomEncoding        a
+encodeGraphs Heuristic      (Just a)    = heuristicEncoding     a
+encodeGraphs Exhaustive     (Just a)    = exhaustiveEncoding    a
+encodeGraphs x                  _       = error $ "Wrong algorithm selected"
 
 getOpcode :: Int -> Int -> IO CodeWithoutUnknowns
 getOpcode bitLength poID = traverse (getOpcodeBit poID) [0..bitLength-1]
