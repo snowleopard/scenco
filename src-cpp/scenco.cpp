@@ -25,25 +25,25 @@ extern "C" {
 		int err=0;
 		int elements;
 		int min_disp;
-
+printf("1-\n");
 		if(first){
 			first = FALSE;	
 			if(temporary_files_creation() != 0){
 				return -1;
 			}
 		}
-
+printf("2-\n");
 		if( (fpLOG = fopen(LOG,"w")) == NULL){
 			fprintf(stderr,"Error on opening LOG file for writing.\n");
 		}
 		fprintf(fpLOG,WELCOME_STRING);	
-
+printf("3-\n");
 		// memory allocation
 		fprintf(fpLOG,"Allocating memory for vertex names and graphs...");
 		g = (GRAPH_TYPE *) malloc(sizeof(GRAPH_TYPE) * scenariosLimit);
 		fprintf(fpLOG,"DONE\n");
 		fflush(stdout);
-
+printf("4-\n");
 		//**********************************************************************
 		// Building CPOG Part
 		//**********************************************************************
@@ -55,13 +55,13 @@ extern "C" {
 			return -1;
 		}
 		fprintf(fpLOG,"\n%d scenarios have been loaded.\n", n);
-	
+printf("5-\n");	
 		// looking for predicates
 		if(predicateSearch() != 0){
 			fprintf(stderr,"Predicate searching failed.\n");
 			return -1;
 		}
-	
+printf("6-\n");	
 		// looking for non-trivial constraints
 		if( (fp = fopen(CONSTRAINTS_FILE,"w")) == NULL){
 			fprintf(stderr,"Error on opening constraints file for writing.\n");
@@ -72,7 +72,7 @@ extern "C" {
 			return -1;
 		}
 		fprintf(fpLOG,"\n%d non-trivial encoding constraints found:\n\n", total - trivial);
-
+printf("7-\n");
 		// writing non-trivial constraints into a file
 		if( (fp = fopen(TRIVIAL_ENCODING_FILE,"w")) == NULL){
 			fprintf(stderr,"Error on opening constraints file for writing.\n");
@@ -83,14 +83,14 @@ extern "C" {
 				fprintf(fp,"%s\n",encodings[i].constraint.c_str());
 		}
 		fclose(fp);
-	
+	printf("8-\n");
 		fprintf(fpLOG,"\nBuilding conflict graph... ");
 		if(conflictGraph(&total) != 0){
 			fprintf(stderr,"Building conflict graph failed.\n");
 			return -1;
 		}
 		fprintf(fpLOG,"DONE.\n");
-
+printf("8-\n");
 		//**********************************************************************
 		// Reading encoding set by the user
 		//**********************************************************************
@@ -103,14 +103,14 @@ extern "C" {
 			return -1;
 		}
 		fprintf(fpLOG,"DONE\n");
-
+printf("9-\n");
 		fprintf(fpLOG,"Check correcteness of encoding set... ");
 		if(check_correctness(custom_file_name,n,tot_enc,bits) != 0){
 			removeTempFiles();
 			return -1;
 		}
 		fprintf(fpLOG,"DONE\n");
-
+printf("10-\n");
 		//**********************************************************************
 		// Variable preparation for encoding
 		//**********************************************************************
@@ -125,19 +125,19 @@ extern "C" {
 			return -1;
 		}
 		fprintf(fpLOG,"DONE\n");
-
+printf("11-\n");
 		/*SEED FOR RAND*/
 		srand(time(NULL));
-
+printf("12-\n");
 		/*ALLOCATING AND ZEROING DIFFERENCE MATRIX*/
 		opt_diff = (int**) calloc(n, sizeof(int*));
 		for(int i=0;i<n;i++)
 			opt_diff[i] = (int*) calloc(n, sizeof(int));
-
+printf("13-\n");
 		/*NUMBER OF POSSIBLE ENCODING*/
 		tot_enc = 1;
 		for(int i=0;i<bits;i++) tot_enc *= 2;
-
+printf("14-\n");
 		/*ANALYSIS IF IT'S A PERMUTATION OR A DISPOSITION*/
 		num_perm = 1;
 		if (n == tot_enc){
@@ -165,7 +165,7 @@ extern "C" {
 				num_perm *= i;
 			fprintf(fpLOG,"Number of possible dispositions by fixing first element: %lld\n", num_perm);
 		}
-
+printf("15-\n");
 		all_perm = num_perm;
 //		num_perm = EXHAUSTIVE_MAX_PERM;
 
@@ -182,7 +182,7 @@ extern "C" {
 			removeTempFiles();
 			return -1;
 		}
-
+printf("16-\n");
 		/*BUILDING DIFFERENCE MATRIX*/
 		fprintf(fpLOG,"Building DM (=Difference Matrix)... ");
 		if( (err = difference_matrix(cpog_count)) ){
@@ -191,7 +191,7 @@ extern "C" {
 			return -1;
 		}
 		fprintf(fpLOG,"DONE\n");
-
+printf("17-\n");
 		fclose(fpLOG);
 		removeTempFiles();
 
