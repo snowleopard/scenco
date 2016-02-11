@@ -35,7 +35,7 @@ install:
     - ghc --version
     - cabal --version
     #- alex --version
-    - happy --version
+    #- happy --version
 
     - git config --global url."git://github.com/ghc/packages-".insteadOf     git://github.com/ghc/packages/
     - git config --global url."http://github.com/ghc/packages-".insteadOf    http://github.com/ghc/packages/
@@ -64,3 +64,7 @@ script:
     - cabal build
     - cabal test --show-details=always
 
+cache:
+    directories:
+        - $HOME/.cabal
+        - $HOME/.ghc
