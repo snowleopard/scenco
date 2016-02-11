@@ -387,6 +387,8 @@ extern "C" {
 		}
 
 		fclose(fpLOG);
+
+		return 0;
 	}
 
 	int exhaustive_encoding(int num_enc){
