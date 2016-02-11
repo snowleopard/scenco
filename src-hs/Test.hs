@@ -6,7 +6,7 @@ import System.IO
 
 testFolder = "test/"
 
-testArm8 :: IO Bool
+testArm8 :: IO ()
 testArm8 = do
     putStrLn "========== ARM Cortex M0+ (8 Partial orders)"
     let cpogFile         = "test/arm_8.cpog"
@@ -20,9 +20,8 @@ testArm8 = do
 
     assertUnload
     putStrLn "=========="
-    return True
 
-testArm11 :: IO Bool
+testArm11 :: IO ()
 testArm11 = do
     putStrLn "========== ARM Cortex M0+ (11 Partial orders)"
     let cpogFile         = testFolder ++ "arm_11.cpog"
@@ -36,9 +35,8 @@ testArm11 = do
 
     assertUnload
     putStrLn "=========="
-    return True
 
-testIntel7 :: IO Bool
+testIntel7 :: IO ()
 testIntel7 = do
     putStrLn "========== Intel 8051 (7 Partial orders)"
     let cpogFile         = testFolder ++ "Intel8051_7.cpog"
@@ -52,9 +50,8 @@ testIntel7 = do
 
     assertUnload
     putStrLn "=========="
-    return True
 
-testIntel8 :: IO Bool
+testIntel8 :: IO ()
 testIntel8 = do
     putStrLn "========== Intel 8051 (8 Partial orders)"
     let cpogFile         = testFolder ++ "Intel8051_8.cpog"
@@ -68,9 +65,8 @@ testIntel8 = do
 
     assertUnload
     putStrLn "=========="
-    return True
 
-testIntel9 :: IO Bool
+testIntel9 :: IO ()
 testIntel9 = do
     putStrLn "========== Intel 8051 (9 Partial orders)"
     let cpogFile         = testFolder ++ "Intel8051_9.cpog"
@@ -84,7 +80,6 @@ testIntel9 = do
 
     assertUnload
     putStrLn "=========="
-    return True
 
 runAllAlgorithms :: Int -> [CodeWithUnknowns] -> IO ()
 runAllAlgorithms numPartialOrders customCodes = do

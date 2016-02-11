@@ -6,7 +6,11 @@ import TechnologyMapping
 import Test
 import Code
 
+scencoVersion = "Scenco v0.1"
+
 main = do
+    putStrLn scencoVersion
+    putStrLn ""
     testArm8
     testArm11
     testIntel7
