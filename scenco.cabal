@@ -38,8 +38,8 @@ library
 test-suite scenco-test
     type:             exitcode-stdio-1.0
     main-is:          src-hs/Main.hs
-    build-depends:    base >= 4.7 && < 5,  
-                      scenco
+    build-depends:    base >= 4.7 && < 5  
+                    , scenco
     other-extensions: TypeFamilies
     default-language: Haskell2010
     GHC-options:      -Wall -fwarn-tabs

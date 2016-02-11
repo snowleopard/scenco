@@ -3,9 +3,6 @@ module Code (
     known, unknown, used, unused, CodeValidation (..), validate,
     parseCustomCode) where
 
-import System.FilePath
-import Control.Monad
-
 type BoolWithUnknowns = Maybe Bool
 type Bit a = Maybe a
 
@@ -45,7 +42,7 @@ validate (a:as) (b:bs)
 
 parseCustomCode :: FilePath -> IO ([CodeWithUnknowns])
 parseCustomCode codePath = do
-    contents <- lines <$> readFile codePath
+    contents <- lines <.> readFile codePath
     let codeLength  = length $ head contents
         codes       = readCodes contents
     return codes
