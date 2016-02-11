@@ -437,7 +437,10 @@ int read_file(char *file_in){
 	string = (char*) malloc(sizeof(char) * i);
 
 	fp = fopen(file_in, "r");
-	fscanf(fp,"%s", string);
+	if(fscanf(fp,"%s", string) == EOF){
+		fprintf(stderr,"Error reading the file.\n");
+		return -1;
+	}
 	len_sequence = 1;
 	cpog_count = strlen(string);
 	
