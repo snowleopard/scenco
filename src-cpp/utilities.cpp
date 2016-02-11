@@ -127,20 +127,6 @@ int temporary_files_creation(){
 /*LOGARITHM2 FUNCTION*/
 /*Following function simply computes logarithm base 2 of input parameter.*/
 int logarithm2(int n){
-	/*int logval = 0, i = 1,j;
-
-	for(j=0;j<MAX_LOG;j++){
-		i *= 2;
-		if (n == i)
-			logval = -1;
-	}
-
-	while(n){
-		logval++;
-		n >>= 1;
-	}*/
-
-	
 	return ceil(log2(n));
 }
 
@@ -149,16 +135,10 @@ int logarithm2(int n){
 void print_binary(FILE *fp,int n, int bits){
 	int i, *vett,j;
 	vett = (int*)calloc(bits, sizeof(int));
-	//char *number;
-
 
 	if(numb != NULL) free(numb);
 
 	numb = (char*) malloc(sizeof(char) * (bits+1));
-	//printf("%d - ",n);
-	/*DEBUG PRINTING: int number*/
-	//if(fp == stdout)	
-	//	fprintf(fp,"(%d) ", n);
 
 	for(i=0;i<bits; i++){
 		if(n & 1) vett[i] = 1;
@@ -172,8 +152,6 @@ void print_binary(FILE *fp,int n, int bits){
 		else	numb[j++] = '0';
 	}
 	numb[bits] = '\0';
-
-	//printf("%s\n",number);
 
 	if (fp != NULL)
 		fprintf(fp," ");
@@ -211,10 +189,6 @@ int conv_int(char* string, int index){
 		}
 		val *=2;
 	}
-
-	/*if(cnt != 0)
-		*used_bits = strlen(string) - cnt;*/
-
 
 	return num;
 }

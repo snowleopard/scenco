@@ -278,19 +278,6 @@ int randomEncoding(){
 				strcpy(manual_file[i], manual_file_back[i]);
 			}
 
-			/*for(int y=0;y<cpog_count; y++){
-				printf("%d %s\n",custom_perm[y], manual_file[y]);
-			}
-			printf("CPOG_ENCODED: ");
-			for(i=0;i<cpog_count;i++) printf("%d ", full[i]);
-			printf("\n");
-			printf("SOLUTION: ");
-			for(i=0;i<cpog_count;i++) printf("%d ", solution[i]);
-			printf("\n");
-			printf("OP-CODE USED: ");
-			for(i=0;i<tot_enc;i++) printf("%d ", encod[i]);
-			printf("\n");*/
-
 			ins = FALSE;
 			while(!ins){
 				ins = TRUE;
@@ -348,21 +335,6 @@ int randomEncoding(){
 					}
 				}
 			}
-
-
-			// DEBUG PRINTING
-			/*for(int y=0;y<cpog_count; y++){
-				printf("%d %s\n",custom_perm[y], manual_file[y]);
-			}
-			printf("CPOG_ENCODED: ");
-			for(i=0;i<cpog_count;i++) printf("%d ", full[i]);
-			printf("\n");
-			printf("SOLUTION: ");
-			for(i=0;i<cpog_count;i++) printf("%d ", solution[i]);
-			printf("\n");
-			printf("OP-CODE USED: ");
-			for(i=0;i<tot_enc;i++) printf("%d ", encod[i]);
-			printf("\n");*/
 
 			for(i=0; i<cpog_count; i++){
 				strcpy(manual_file[i],manual_file_back[i]);
@@ -459,12 +431,6 @@ int randomEncoding(){
 					}
 				}
 			}
-			//DEBUG PRINTING: current solution
-			/*for(i=0;i<cpog_count;i++){
-				printf("%d ", solution[i]);
-			}
-			printf("\n\n");*/
-
 		}
 
 		//CHECK RESULT WAS NOT ALREADY PRESENT
@@ -503,12 +469,6 @@ int randomEncoding(){
 			out = TRUE;
 		}
 #endif
-	
-		//SELECT ENCODING WITHOUT CHECKING
-		//IF IT'S ALREADY PRESENT	
-		/*for(i=0;i<cpog_count;i++)
-			perm[c][i] = solution[i];
-		c++;*/
 	}
 	counter = num_perm;
 
@@ -693,10 +653,6 @@ int filter_encodings(int n_cpog, int bits, int tot_enc){
 				print_binary(NULL,perm[i][j], bits);
 				number = numb;
 
-			/*printf("\nDEBUG PRINTING:----------------------------------\n");
-			printf("bits: %d, number: %s\n", bits, number);
-			printf("DEBUG PRINTING:----------------------------------\n\n");*/
-
 				// SUBSTITUTE THE X BIT OF THE OPCODE WITH THE REAL VALUES GENERATED
 				for(k=0; k<bits; k++){
 					// SUBSTITUTE DON'T CARES (X) WITH VALUES
@@ -714,11 +670,6 @@ int filter_encodings(int n_cpog, int bits, int tot_enc){
 
 					if( !strDCcmp(number, manual_file[j], bits) && opcodesF[k] == 1){
 						present++;
-						
-						/*printf("\nDEBUG PRINTING:----------------------------------\n");
-						printf("bits: %d, number: %s, manual_file[j]: %s\n", bits, number, manual_file[j]);
-						printf("DEBUG PRINTING:----------------------------------\n\n");
-						fflush(stdout);*/
 					}
 				}
 
