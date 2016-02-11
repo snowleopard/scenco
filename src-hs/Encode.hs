@@ -9,6 +9,7 @@ import System.FilePath
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
+import Data.Traversable
 
 testFolder = "test/"
 
