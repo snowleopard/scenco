@@ -42,9 +42,9 @@ validate (a:as) (b:bs)
 
 parseCustomCode :: FilePath -> IO ([CodeWithUnknowns])
 parseCustomCode codePath = do
-    contents <- lines <.> readFile codePath
-    let codeLength  = length $ head contents
-        codes       = readCodes contents
+    contents <- readFile codePath
+    let cLine = lines contents
+        codes = readCodes cLine
     return codes
 
 readCodes :: [String] -> [CodeWithUnknowns]
