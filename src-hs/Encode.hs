@@ -3,15 +3,7 @@ module Encode (loadGraphsAndCodes, encodeGraphs,
                EncodingType(..)) where
 
 import Code
-import Graph
-import System.IO
-import System.FilePath
-import Foreign
-import Foreign.C.Types
 import Foreign.C.String
-import Data.Traversable
-
-testFolder = "test/"
 
 foreign import ccall unsafe "load_graphs_codes"
     insertGraphsAndCodes :: CString -> CString -> IO Int
@@ -66,22 +58,15 @@ convert x
     | x == 2    = unused
     | otherwise = error $ "Cannot convert " ++ show x ++ " to Bit Bool"
 
-convertAlgorithm :: Int -> EncodingType
-convertAlgorithm x
-    | x == 1     = SingleLiteral
-    | x == 2     = Sequential
-    | x == 3     = Random
-    | x == 4     = Heuristic
-    | x == 5     = Exhaustive
-    | otherwise  = error $ "Wrong algorithm selected " ++ show x
-
 encodeGraphs :: EncodingType -> Maybe Int -> IO Int
 encodeGraphs SingleLiteral      _       = singleLiteralEncoding
 encodeGraphs Sequential         _       = sequentialEncoding
 encodeGraphs Random         (Just a)    = randomEncoding        a
+encodeGraphs Random             _       = randomEncoding        10
 encodeGraphs Heuristic      (Just a)    = heuristicEncoding     a
+encodeGraphs Heuristic          _       = heuristicEncoding     10
 encodeGraphs Exhaustive     (Just a)    = exhaustiveEncoding    a
-encodeGraphs x                  _       = error $ "Wrong algorithm selected"
+encodeGraphs Exhaustive         _       = exhaustiveEncoding    10
 
 getCode :: Int -> Int -> IO CodeWithoutUnknowns
 getCode bitLength poID = traverse (getCodeBit poID) [0..bitLength-1]

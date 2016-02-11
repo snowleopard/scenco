@@ -93,13 +93,13 @@ assertCodes [] [] = putStrLn "Valid code"
 assertCodes (x:xs) (y:ys) = do
     let codeCorrectness = validate x y
     case codeCorrectness of
-        Valid           -> putStr ""
-        LengthMismatch  -> putStrLn "Length mismatch"
-        UnusedBitAdded  -> putStrLn "Unused bit added"
-        KnownBitChanged -> putStrLn "Known bit changed"
-        otherwise       -> putStrLn "Invalid code"
+        Valid            -> putStr ""
+        LengthMismatch   -> putStrLn "Length mismatch"
+        UnusedBitRemoved -> putStrLn "Unused bit removed"
+        UnusedBitAdded   -> putStrLn "Unused bit added"
+        KnownBitChanged  -> putStrLn "Known bit changed"
     assertCodes xs ys
-assertCodes a b = putStrLn "Number of codes mismatch"
+
 
 assertLoad :: FilePath -> FilePath -> IO ()
 assertLoad cpogFile codesFile = do
