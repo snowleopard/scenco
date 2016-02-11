@@ -35,7 +35,7 @@ library
                     , filepath
     default-language: Haskell2010
     other-extensions: TypeFamilies
-    GHC-options:      -Wall -fwarn-tabs src-cpp/scenco.cpp
+    GHC-options:      -Wall src-cpp/scenco.cpp
     extra-libraries : stdc++
     
 test-suite scenco-test
