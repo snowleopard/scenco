@@ -20,15 +20,15 @@ matrix:
               - export PATH
               - cabal update
 
-        # - os: osx
-        #  env: TARGET=utils/ghc-pkg/stage1/build/tmp/ghc-pkg
-        #  before_install:
-        #      - brew update
-        #      - brew install ghc cabal-install
-        #      - cabal update
-        #      - cabal install alex happy
-        #      - PATH="$HOME/.cabal/bin:$PATH"
-        #      - export PATH
+         - os: osx
+          env: TARGET=utils/ghc-pkg/stage1/build/tmp/ghc-pkg
+          before_install:
+              - brew update
+              - brew install ghc cabal-install
+              - cabal update
+              - cabal install alex happy
+              - PATH="$HOME/.cabal/bin:$PATH"
+              - export PATH
 
 install:
     - env
