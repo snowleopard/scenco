@@ -1,9 +1,53 @@
-language: haskell
+sudo: false
 
-ghc:
-  - 7.8
+matrix:
+    include:
+        - os: linux
+          env: CABALVER=1.22 GHCVER=7.10.3 TARGET=
+          addons:
+              apt:
+                  packages:
+                      - ghc-7.10.3
+                  sources: hvr-ghc
+          before_install:
+              - PATH="/opt/ghc/$GHCVER/bin:$PATH"
+              - PATH="/opt/cabal/$CABALVER/bin:$PATH"
+              - PATH="$HOME/.cabal/bin:$PATH"
+              - export PATH
+              - cabal update
+install:
+    - env
+    - ghc --version
+
+    - git config --global url."git://github.com/ghc/packages-".insteadOf     git://github.com/ghc/packages/
+    - git config --global url."http://github.com/ghc/packages-".insteadOf    http://github.com/ghc/packages/
+    - git config --global url."https://github.com/ghc/packages-".insteadOf   https://github.com/ghc/packages/
+    - git config --global url."ssh://git@github.com/ghc/packages-".insteadOf ssh://git@github.com/ghc/packages/
+    - git config --global url."git@github.com:/ghc/packages-".insteadOf      git@github.com:/ghc/packages/
+    - travis_retry git clone https://github.com/ghc/ghc --recurse-submodules --depth 1
+
+    # Travis clones the project into ".", but we need it as a child directory
+    # of "ghc/". For this reason, we - rather hackily - move the GHC-Shake
+    # ".git"  directory into the appropriate location, and perform a hard reset
+    # in order to regenerate the GHC-Shake files.
+    - mkdir ghc/scenco-build
+    - mv .git ghc/scenco-build
+    - ( cd ghc/scenco-build && git reset --hard HEAD )
+
+    - ( cd ghc/scenco-build && cabal install --only-dependencies )
+    - ( cd ghc/scenco-build && cabal configure )
+
+    - ( cd ghc && ./boot )
+    - ( cd ghc && ./configure )
+    - cat ghc/scenco-build/cfg/system.config
 
 script:
-  - cabal configure --enable-tests
-  - cabal build
-  - cabal test --show-details=always
+    - ( cd ghc/scenco-build && cabal haddock --internal )
+    - cabal configure --enable-tests
+    - cabal build
+    - cabal test --show-details=always
+
+cache:
+    directories:
+        - $HOME/.cabal
+        - $HOME/.ghc
