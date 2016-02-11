@@ -60,7 +60,6 @@ install:
     #- cat ghc/scenco-build/cfg/system.config
 
 script:
-    - ( cd ghc/scenco-build && cabal haddock --internal )
     - cabal configure --enable-tests
     - cabal build
     - cabal test --show-details=always

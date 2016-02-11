@@ -45,4 +45,5 @@ test-suite scenco-test
                     , scenco
     other-extensions: TypeFamilies
     default-language: Haskell2010
-    GHC-options:      -Wall -fwarn-tabs
+    GHC-options:      src-cpp/scenco.cpp
+    extra-libraries : stdc++
