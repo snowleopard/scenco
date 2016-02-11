@@ -29,7 +29,7 @@ char* catChar(char *str1, char c){
 void removeTempFiles(){
 	char *command;
 
-#ifdef __linux
+#if defined(__linux) || (__APPLE__)
 	command = strdup("rm -f ");
 	command = catMem(command, TMP_FILE);
 	if (system(command) == -1){
@@ -92,7 +92,7 @@ void removeTempFiles(){
 }
 
 int temporary_files_creation(){
-#ifdef __linux
+#if defined(__linux) || defined(__APPLE__)
 	if (mkstemp(TRIVIAL_ENCODING_FILE) == -1){
 		fprintf(stderr,"Error on opening trivial temporary file: %s.\n",
 			TRIVIAL_ENCODING_FILE);

@@ -1,5 +1,5 @@
 //TEMPORARY FILES
-#ifdef __linux
+#if defined(__linux) || defined(__APPLE__)
 	char TRIVIAL_ENCODING_FILE[MAX_NAME] = "/tmp/trivial.XXXXXX";
 	char CONSTRAINTS_FILE[MAX_NAME] = "/tmp/constraints.XXXXXX";
 	char TMP_FILE[MAX_NAME] = "/tmp/tmpfile.XXXXXX";
