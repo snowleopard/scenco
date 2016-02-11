@@ -16,7 +16,8 @@ int compute_HD(int n1,int i, int n2,int j,int bits,int cpog_count){
 			print_binary(NULL,n2, bits);
 			number = numb;
 			ones = 0;
-			char str[MAX_NAME];						
+			char *str;
+			str = (char*) malloc(sizeof(char) * (bits +1));
 			int_to_string_DC(bits, i, n1, str);
 			for(q = 0; q<bits; q++){
 				if(str[q] == '0' && number[q] == '1')
@@ -24,12 +25,14 @@ int compute_HD(int n1,int i, int n2,int j,int bits,int cpog_count){
 				if(str[q] == '1' && number[q] == '0')
 					ones++;
 			}
+			free(str);
 			return ones;
 		}
 		if(!DC_custom[i] && DC_custom[j]){
 			print_binary(NULL,n1, bits);
 			number = numb;
-			char str[MAX_NAME];							
+			char *str;
+			str = (char*) malloc(sizeof(char) * (bits +1));						
 			int_to_string_DC(bits, j, n2, str);
 			for(q = 0; q<bits; q++){
 				if(str[q] == '0' && number[q] == '1')
@@ -37,10 +40,14 @@ int compute_HD(int n1,int i, int n2,int j,int bits,int cpog_count){
 				if(str[q] == '1' && number[q] == '0')
 					ones++;
 			}
+			free(str);
 			return ones;
 		}
 		if(DC_custom[i] && DC_custom[j]){
-			char str[MAX_NAME], str2[MAX_NAME];
+			char *str;
+			char *str2;
+			str = (char*) malloc(sizeof(char) * (bits +1));
+			str2 = (char*) malloc(sizeof(char) * (bits +1));
 			int_to_string_DC(bits, i, n1, str);					
 			int_to_string_DC(bits, j, n2, str2);
 			for(q = 0; q<bits; q++){
@@ -49,6 +56,8 @@ int compute_HD(int n1,int i, int n2,int j,int bits,int cpog_count){
 				if(str[q] == '1' && str2[q] == '0')
 					ones++;
 			}
+			free(str);
+			free(str2);
 			return ones;
 		}
 		

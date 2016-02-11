@@ -1,17 +1,16 @@
 //TEMPORARY FILES
 #if defined(__linux) || defined(__APPLE__)
-	char TRIVIAL_ENCODING_FILE[MAX_NAME] = "/tmp/trivial.XXXXXX";
-	char CONSTRAINTS_FILE[MAX_NAME] = "/tmp/constraints.XXXXXX";
-	char TMP_FILE[MAX_NAME] = "/tmp/tmpfile.XXXXXX";
-	char SCRIPT_PATH[MAX_NAME] = "/tmp/synth.XXXXXX";
-	char LOG[MAX_NAME] = "encoding.log";
+	char TRIVIAL_ENCODING_FILE[] = "/tmp/trivial.XXXXXX";
+	char CONSTRAINTS_FILE[] = "/tmp/constraints.XXXXXX";
+	char TMP_FILE[] = "/tmp/tmpfile.XXXXXX";
+	char SCRIPT_PATH[] = "/tmp/synth.XXXXXX";
 #else
-	char TRIVIAL_ENCODING_FILE[MAX_NAME];
-	char CONSTRAINTS_FILE[MAX_NAME];
-	char TMP_FILE[MAX_NAME];
-	char SCRIPT_PATH[MAX_NAME];
-	char LOG[MAX_NAME];
+	char *TRIVIAL_ENCODING_FILE;
+	char *CONSTRAINTS_FILE;
+	char *TMP_FILE;
+	char *SCRIPT_PATH;
 #endif
+	char LOG[] = "scenco.log";
 
 // Alex's tool
 FILE *fpLOG;

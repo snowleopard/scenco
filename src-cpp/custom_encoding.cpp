@@ -3,7 +3,7 @@
 int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 	FILE *fp = NULL;
 	int i,k;
-	char number[MAX_NAME];
+	char *number;
 	char *tmp_str;
 	boolean acq = FALSE, freeCode = TRUE;
 

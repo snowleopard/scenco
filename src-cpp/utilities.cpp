@@ -29,7 +29,7 @@ char* catChar(char *str1, char c){
 void removeTempFiles(){
 	char *command;
 
-#if defined(__linux) || (__APPLE__)
+#if defined(__linux) || __APPLE__
 	command = strdup("rm -f ");
 	command = catMem(command, TMP_FILE);
 	if (system(command) == -1){
@@ -116,11 +116,10 @@ int temporary_files_creation(){
 		return -1;
 	}
 #else
-	tmpnam (TRIVIAL_ENCODING_FILE);
-	tmpnam (CONSTRAINTS_FILE);
-	tmpnam (TMP_FILE);
-	tmpnam (SCRIPT_PATH);
-	tmpnam (LOG);
+	TRIVIAL_ENCODING_FILE = tmpnam (NULL);
+	CONSTRAINTS_FILE = tmpnam (NULL);
+	TMP_FILE = tmpnam (NULL);
+	SCRIPT_PATH = tmpnam (NULL);
 #endif
 	return 0;
 }
@@ -155,7 +154,7 @@ void print_binary(FILE *fp,int n, int bits){
 
 	if(numb != NULL) free(numb);
 
-	numb = (char*) malloc(sizeof(char) * MAX_NAME);
+	numb = (char*) malloc(sizeof(char) * (bits+1));
 	//printf("%d - ",n);
 	/*DEBUG PRINTING: int number*/
 	//if(fp == stdout)	
