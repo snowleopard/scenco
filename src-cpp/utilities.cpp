@@ -29,7 +29,7 @@ char* catChar(char *str1, char c){
 void removeTempFiles(){
 	char *command;
 
-#if defined(__linux) || __APPLE__
+#if defined(__linux) || defined(__APPLE__)
 	command = strdup("rm -f ");
 	command = catMem(command, TMP_FILE);
 	if (system(command) == -1){
