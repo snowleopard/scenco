@@ -1,7 +1,7 @@
 module Code (
     CodeWithUnknowns, CodeWithoutUnknowns, Bit,
     known, unknown, used, unused, CodeValidation (..), validate,
-    parseCustomOpcode) where
+    parseCustomCode) where
 
 import System.FilePath
 import Control.Monad
@@ -43,9 +43,9 @@ validate (a:as) (b:bs)
   where
     condition `thenError` result = if condition then result else validate as bs
 
-parseCustomOpcode :: FilePath -> IO ([CodeWithUnknowns])
-parseCustomOpcode opcodePath = do
-    contents <- lines <$> readFile opcodePath
+parseCustomCode :: FilePath -> IO ([CodeWithUnknowns])
+parseCustomCode codePath = do
+    contents <- lines <$> readFile codePath
     let codeLength  = length $ head contents
         codes       = readCodes contents
     return codes

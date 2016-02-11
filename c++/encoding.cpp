@@ -13,11 +13,11 @@ extern "C" {
 		return ((int) opcodes[row][col]);
 	}
 
-	int get_opcodes_length(){
+	int get_codes_length(){
 		return bits;
 	}
 
-	int load_graphs_opcodes(char *file_in,
+	int load_graphs_codes(char *file_in,
 			char *custom_file_name){
 
 		FILE *fp;
@@ -198,7 +198,7 @@ extern "C" {
 		return 0;
 	}
 
-	int unload_graphs_opcodes(){
+	int unload_graphs_codes(){
 		if(g != NULL) free(g);
 		if(manual_file != NULL) free(manual_file);
 		if(manual_file_back != NULL) free(manual_file_back);

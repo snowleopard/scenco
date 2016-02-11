@@ -10,13 +10,13 @@ testArm8 :: IO Bool
 testArm8 = do
     putStrLn "========== ARM Cortex M0+ (8 Partial orders)"
     let cpogFile         = "test/arm_8.cpog"
-        opcodesFile      = "test/arm_8.opcodes"
+        codesFile      = "test/arm_8.opcodes"
         numPartialOrders = 8
 
-    assertLoad cpogFile opcodesFile
+    assertLoad cpogFile codesFile
 
-    customOpcodes <- parseCustomOpcode opcodesFile
-    runAllAlgorithms numPartialOrders customOpcodes
+    customCodes <- parseCustomCode codesFile
+    runAllAlgorithms numPartialOrders customCodes
 
     assertUnload
     putStrLn "=========="
@@ -26,13 +26,13 @@ testArm11 :: IO Bool
 testArm11 = do
     putStrLn "========== ARM Cortex M0+ (11 Partial orders)"
     let cpogFile         = testFolder ++ "arm_11.cpog"
-        opcodesFile      = testFolder ++ "arm_11.opcodes"
+        codesFile      = testFolder ++ "arm_11.opcodes"
         numPartialOrders = 11
 
-    assertLoad cpogFile opcodesFile
+    assertLoad cpogFile codesFile
 
-    customOpcodes <- parseCustomOpcode opcodesFile
-    runAllAlgorithms numPartialOrders customOpcodes
+    customCodes <- parseCustomCode codesFile
+    runAllAlgorithms numPartialOrders customCodes
 
     assertUnload
     putStrLn "=========="
@@ -42,13 +42,13 @@ testIntel7 :: IO Bool
 testIntel7 = do
     putStrLn "========== Intel 8051 (7 Partial orders)"
     let cpogFile         = testFolder ++ "Intel8051_7.cpog"
-        opcodesFile      = testFolder ++ "Intel8051_7.opcodes"
+        codesFile      = testFolder ++ "Intel8051_7.opcodes"
         numPartialOrders = 7
 
-    assertLoad cpogFile opcodesFile
+    assertLoad cpogFile codesFile
 
-    customOpcodes <- parseCustomOpcode opcodesFile
-    runAllAlgorithms numPartialOrders customOpcodes
+    customCodes <- parseCustomCode codesFile
+    runAllAlgorithms numPartialOrders customCodes
 
     assertUnload
     putStrLn "=========="
@@ -58,13 +58,13 @@ testIntel8 :: IO Bool
 testIntel8 = do
     putStrLn "========== Intel 8051 (8 Partial orders)"
     let cpogFile         = testFolder ++ "Intel8051_8.cpog"
-        opcodesFile      = testFolder ++ "Intel8051_8.opcodes"
+        codesFile      = testFolder ++ "Intel8051_8.opcodes"
         numPartialOrders = 8
 
-    assertLoad cpogFile opcodesFile
+    assertLoad cpogFile codesFile
 
-    customOpcodes <- parseCustomOpcode opcodesFile
-    runAllAlgorithms numPartialOrders customOpcodes
+    customCodes <- parseCustomCode codesFile
+    runAllAlgorithms numPartialOrders customCodes
 
     assertUnload
     putStrLn "=========="
@@ -74,24 +74,24 @@ testIntel9 :: IO Bool
 testIntel9 = do
     putStrLn "========== Intel 8051 (9 Partial orders)"
     let cpogFile         = testFolder ++ "Intel8051_9.cpog"
-        opcodesFile      = testFolder ++ "Intel8051_9.opcodes"
+        codesFile      = testFolder ++ "Intel8051_9.opcodes"
         numPartialOrders = 9
 
-    assertLoad cpogFile opcodesFile
+    assertLoad cpogFile codesFile
 
-    customOpcodes <- parseCustomOpcode opcodesFile
-    runAllAlgorithms numPartialOrders customOpcodes
+    customCodes <- parseCustomCode codesFile
+    runAllAlgorithms numPartialOrders customCodes
 
     assertUnload
     putStrLn "=========="
     return True
 
 runAllAlgorithms :: Int -> [CodeWithUnknowns] -> IO ()
-runAllAlgorithms numPartialOrders customOpcodes = do
+runAllAlgorithms numPartialOrders customCodes = do
     assertSingleLiteral
     assertSequential
-    assertRandom numPartialOrders customOpcodes
-    assertHeuristic numPartialOrders customOpcodes
+    assertRandom numPartialOrders customCodes
+    assertHeuristic numPartialOrders customCodes
     --assertExhaustive
 
 assertCodes :: [CodeWithUnknowns] -> [CodeWithoutUnknowns] -> IO ()
@@ -108,18 +108,18 @@ assertCodes (x:xs) (y:ys) = do
 assertCodes a b = putStrLn "Number of codes mismatch"
 
 assertLoad :: FilePath -> FilePath -> IO ()
-assertLoad cpogFile opcodesFile = do
-    result <- loadGraphsAndOpcodes cpogFile opcodesFile
+assertLoad cpogFile codesFile = do
+    result <- loadGraphsAndCodes cpogFile codesFile
     if result /= 0
         then error $ "Error loading graphs"
-        else putStrLn "Graphs and opcodes loaded"
+        else putStrLn "Graphs and codes loaded"
 
 assertUnload :: IO ()
 assertUnload = do
-    result <- unloadGraphsAndOpcodes
+    result <- unloadGraphsAndCodes
     if result /= 0
         then error $ "Error unloading graphs"
-        else putStrLn "Graphs and opcodes unloaded"
+        else putStrLn "Graphs and codes unloaded"
 
 assertSingleLiteral :: IO ()
 assertSingleLiteral = do
@@ -136,26 +136,26 @@ assertSequential = do
         else putStrLn "Sequential encoding... OK"
 
 assertRandom :: Int -> [CodeWithUnknowns] -> IO ()
-assertRandom numPartialOrders customOpcodes = do
+assertRandom numPartialOrders customCodes = do
     result <- encodeGraphs Random (Just 10)
     if result /= 0
         then error $ "Random encoding... ERROR"
         else putStr "Random encoding... "
 
-    let bitLength = getOpcodesLength
-    randomOpcodes <- getOpcodes numPartialOrders bitLength
-    assertCodes customOpcodes randomOpcodes
+    let bitLength = getCodesLength
+    randomCodes <- getCodes numPartialOrders bitLength
+    assertCodes customCodes randomCodes
 
 assertHeuristic :: Int -> [CodeWithUnknowns] -> IO ()
-assertHeuristic numPartialOrders customOpcodes = do
+assertHeuristic numPartialOrders customCodes = do
     result <- encodeGraphs Heuristic (Just 10)
     if result /= 0
         then error $ "Heuristic encoding... ERROR"
         else putStr "Heuristic encoding... "
 
-    let bitLength = getOpcodesLength
-    heuristicOpcodes <- getOpcodes numPartialOrders bitLength
-    assertCodes customOpcodes heuristicOpcodes
+    let bitLength = getCodesLength
+    heuristicCodes <- getCodes numPartialOrders bitLength
+    assertCodes customCodes heuristicCodes
 
 assertExhaustive :: IO ()
 assertExhaustive = do
