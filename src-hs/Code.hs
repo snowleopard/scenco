@@ -1,7 +1,7 @@
 module Code (
     CodeWithUnknowns, CodeWithoutUnknowns, Bit,
-    known, unknown, used, unused, CodeValidation (..), validate
-    ) where
+    known, unknown, used, unused, CodeValidation (..), validate,
+    parseCustomCode) where
 
 type BoolWithUnknowns = Maybe Bool
 type Bit a = Maybe a
@@ -39,3 +39,23 @@ validate (a:as) (b:bs)
     | a == known False = (b /= used False) `thenError` KnownBitChanged
   where
     condition `thenError` result = if condition then result else validate as bs
+
+parseCustomCode :: FilePath -> IO ([CodeWithUnknowns])
+parseCustomCode codePath = do
+    contents <- lines <$> readFile codePath
+    let codes       = readCodes contents
+    return codes
+
+readCodes :: [String] -> [CodeWithUnknowns]
+readCodes = map readCode
+
+readCode :: String -> CodeWithUnknowns
+readCode = map readBit
+
+readBit :: Char -> Bit BoolWithUnknowns
+readBit x
+    | x == '0'       = known False
+    | x == '1'       = known True
+    | x == 'X'       = unknown
+    | x == '-'       = unused
+    | otherwise      = error $ "readBit: character '" ++ show x ++ "' is not recognised."

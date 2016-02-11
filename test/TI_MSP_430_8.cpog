@@ -1,0 +1,48 @@
+.scenario ALU_Rn_to_Rn
+PCIU IFU
+ALU
+.end
+
+.scenario ALU_123_to_Rn
+PCIU IFU PCIU2 IFU2
+IFU ALU IFU2
+.end
+
+.scenario ALU_Rn_to_PC
+ALU IFU
+.end
+
+.scenario ALU_123_to_PC
+PCIU IFU ALU IFU2
+.end
+
+.scenario Memory_access
+PCIU IFU
+MAU
+.end
+
+.scenario CALU_Rn_to_Rn
+PCIU IFU
+ALU ALU2
+:!ge ALU2
+.end
+
+.scenario CALU_123_to_Rn
+PCIU PCIU2 IFU2
+PCIU IFU PCIU2
+ALU IFU ALU2
+ALU PCIU2
+:!ge IFU
+:!ge ALU2
+.end
+
+.scenario calu_123_pc
+PCIU PCIU2 IFU2
+PCIU IFU
+ALU IFU ALU2 IFU2
+ALU PCIU2
+ALU IFU2
+:!ge IFU
+:!ge ALU2
+:ge PCIU2
+.end
