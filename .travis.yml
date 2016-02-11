@@ -34,7 +34,7 @@ install:
     - env
     - ghc --version
     - cabal --version
-    - alex --version
+    #- alex --version
     - happy --version
 
     - git config --global url."git://github.com/ghc/packages-".insteadOf     git://github.com/ghc/packages/
