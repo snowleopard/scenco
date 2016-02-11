@@ -1,10 +1,6 @@
 module Main (main) where
 
-import Encode
-import Synthesis
-import TechnologyMapping
 import Test
-import Code
 
 scencoVersion = "Scenco v0.1"
 
