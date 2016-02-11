@@ -48,19 +48,19 @@ install:
     # of "ghc/". For this reason, we - rather hackily - move the GHC-Shake
     # ".git"  directory into the appropriate location, and perform a hard reset
     # in order to regenerate the GHC-Shake files.
-    #- mkdir ghc/scenco-build
-    #- mv .git ghc/scenco-build
-    #- ( cd ghc/scenco-build && git reset --hard HEAD )
+    - mkdir ghc/scenco-build
+    - mv .git ghc/scenco-build
+    - ( cd ghc/scenco-build && git reset --hard HEAD )
 
-    #- ( cd ghc/scenco-build && cabal install --only-dependencies )
-    #- ( cd ghc/scenco-build && cabal configure )
+    - ( cd ghc/scenco-build && cabal install --only-dependencies )
+    - ( cd ghc/scenco-build && cabal configure )
 
     #- ( cd ghc && ./boot )
     #- ( cd ghc && ./configure )
     #- cat ghc/scenco-build/cfg/system.config
 
 script:
-    #- ( cd ghc/scenco-build && cabal haddock --internal )
+    - ( cd ghc/scenco-build && cabal haddock --internal )
     - cabal configure --enable-tests
     - cabal build
     - cabal test --show-details=always
