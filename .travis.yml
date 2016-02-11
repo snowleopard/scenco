@@ -20,7 +20,7 @@ matrix:
               - export PATH
               - cabal update
 
-         - os: osx
+        - os: osx
           env: TARGET=utils/ghc-pkg/stage1/build/tmp/ghc-pkg
           before_install:
               - brew update
