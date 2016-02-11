@@ -11,12 +11,12 @@ category:      Hardware
 build-type:    Simple
 cabal-version: >=1.10
 
+extra-source-files:
+    src-cpp/scenco.cpp
+
 source-repository head
     type:     git
     location: https://github.com/tuura/scenco-1.git
-
-extra-source-files:
-    src-cpp/scenco.cpp
 
 library
     hs-source-dirs:   src-hs
