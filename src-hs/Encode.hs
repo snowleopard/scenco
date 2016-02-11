@@ -1,5 +1,4 @@
-module Encode (getPartialOrderFilename, getCustomEncodingFilename,
-               getEncodingAlgorithm, loadGraphsAndCodes, encodeGraphs,
+module Encode (loadGraphsAndCodes, encodeGraphs,
                getCodesLength, getCodes,unloadGraphsAndCodes,
                EncodingType(..)) where
 
