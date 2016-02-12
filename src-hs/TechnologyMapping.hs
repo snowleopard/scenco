@@ -1,4 +1,4 @@
-module TechnologyMapping (technologyMapping, estimateArea) where
+module TechnologyMapping (technologyMapping, Area (..), estimateArea) where
 
 import Library
 import Formula

@@ -41,10 +41,9 @@ data EncodingType = SingleLiteral
 -- uses c++ function to encode the partial orders
 loadGraphsAndCodes :: FilePath -> FilePath -> IO Int
 loadGraphsAndCodes graphsPath encodingSetPath = do
-    graphs <- newCString graphsPath
+    graphs      <- newCString graphsPath
     encodingSet <- newCString encodingSetPath
-    result <- insertGraphsAndCodes graphs encodingSet
-    return result
+    insertGraphsAndCodes graphs encodingSet
 
 getCodeBit :: Int -> Int -> IO (Bit Bool)
 getCodeBit partialOrder bitPosition = do
