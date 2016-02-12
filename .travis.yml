@@ -29,6 +29,7 @@ install:
     - env
     - ghc --version
     - cabal --version
+    - cabal install --only-dependencies
 
 script:
     - cabal configure --enable-tests
