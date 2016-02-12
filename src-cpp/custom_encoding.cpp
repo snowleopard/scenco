@@ -2,10 +2,16 @@
 /*This function reads the encoding set by designer in order to fix them.*/
 int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 	FILE *fp = NULL;
-	int i,k;
-	char number[256];
+	int i,k,b=0;
+	char *number;
 	char *tmp_str;
+	char c;
 	boolean acq = FALSE, freeCode = TRUE;
+
+	fp = fopen(custom_file_name,"r");
+	while ( ( c = fgetc ( fp ) ) != '\n' ) b++;
+	number = (char*) malloc(sizeof(char) * (b+2));
+	fclose(fp);	
 
 	fp = fopen(custom_file_name,"r");
 	custom_perm = (int*) malloc(sizeof(int) * cpog_count);
@@ -79,6 +85,7 @@ int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 	}
 
 	free(tmp_str);
+	free(number);
 
 	fclose(fp);
 	return 0;
