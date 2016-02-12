@@ -8,40 +8,38 @@ testFolder = "test/"
 testArm8 :: IO ()
 testArm8 = do
     putStrLn "========== ARM Cortex M0+ (8 Partial orders)"
-    runAsserts (testFolder ++ "arm_8.cpog") (testFolder ++ "arm_8.opcodes") 8
+    runAsserts "arm_8.cpog" "arm_8.opcodes" 8
     putStrLn "=========="
 
 testArm11 :: IO ()
 testArm11 = do
     putStrLn "========== ARM Cortex M0+ (11 Partial orders)"
-    runAsserts (testFolder ++ "arm_11.cpog") (testFolder ++ "arm_11.opcodes") 11
+    runAsserts "arm_11.cpog" "arm_11.opcodes" 11
     putStrLn "=========="
 
 testIntel7 :: IO ()
 testIntel7 = do
     putStrLn "========== Intel 8051 (7 Partial orders)"
-    runAsserts (testFolder ++ "Intel8051_7.cpog") (testFolder ++ "Intel8051_7.opcodes") 7
+    runAsserts "Intel8051_7.cpog" "Intel8051_7.opcodes" 7
     putStrLn "=========="
 
 testIntel8 :: IO ()
 testIntel8 = do
     putStrLn "========== Intel 8051 (8 Partial orders)"
-    runAsserts (testFolder ++ "Intel8051_8.cpog") (testFolder ++ "Intel8051_8.opcodes") 8
+    runAsserts "Intel8051_8.cpog" "Intel8051_8.opcodes" 8
     putStrLn "=========="
 
 testIntel9 :: IO ()
 testIntel9 = do
     putStrLn "========== Intel 8051 (9 Partial orders)"
-    runAsserts (testFolder ++ "Intel8051_9.cpog") (testFolder ++ "Intel8051_9.opcodes") 9
+    runAsserts "Intel8051_9.cpog" "Intel8051_9.opcodes" 9
     putStrLn "=========="
 
 runAsserts :: String -> String -> Int -> IO ()
 runAsserts cpogFile codesFile numPartialOrders = do
-    assertLoad cpogFile codesFile
-
-    customCodes <- parseCustomCode codesFile
+    assertLoad (testFolder ++ cpogFile) (testFolder ++ codesFile)
+    customCodes <- parseCustomCode (testFolder ++ codesFile)
     runAllAlgorithms numPartialOrders customCodes
-
     assertUnload
 
 runAllAlgorithms :: Int -> [CodeWithUnknowns] -> IO ()
