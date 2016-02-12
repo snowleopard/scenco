@@ -1,3 +1,4 @@
+#include <ctime>
 #include "includes_defines.h"
 #include "types.h"
 #include "global.h"
