@@ -2,10 +2,16 @@
 /*This function reads the encoding set by designer in order to fix them.*/
 int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 	FILE *fp = NULL;
-	int i,k;
-	char number[maxBitLength];
+	int i,k,b=0;
+	char *number;
 	char *tmp_str;
-	boolean acq = FALSE, freeCode = TRUE;
+	char c;
+	boolean acq = FALSE, freeCode = TRUE, dontUse = FALSE;
+
+	fp = fopen(custom_file_name,"r");
+ 	while ( ( c = fgetc ( fp ) ) != '\n' ) b++;
+	number = (char*) malloc(sizeof(char) * (b+2));
+	fclose(fp);	
 
 	fp = fopen(custom_file_name,"r");
 	custom_perm = (int*) malloc(sizeof(int) * cpog_count);
@@ -27,10 +33,16 @@ int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 				tot_enc = 1;
 				for(k=0;k<(*bits);k++) tot_enc *= 2;
 			}
+			dontUse = FALSE;
+			for(int j=0; j<(*bits) && !dontUse; j++){
+				if(number[j] == '-'){
+					dontUse = TRUE;
+					DC_custom[i] = TRUE;
+				}
+			}
 			for(int j=0; j<(*bits) && freeCode; j++){
 				if(number[j] != 'X') freeCode = FALSE;
 			}
-
 			if(freeCode){
 				custom_perm[i] = -1;
 				custom_perm_back[i] = -1;
@@ -79,6 +91,7 @@ int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 	}
 
 	free(tmp_str);
+	free(number);
 
 	fclose(fp);
 	return 0;

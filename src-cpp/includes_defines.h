@@ -10,7 +10,6 @@
 #include <limits>
 
 // constant definition
-#define maxBitLength	300
 #define stringLimit	1000
 #define eventsLimit	1000
 #define scenariosLimit	700
