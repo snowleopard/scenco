@@ -1,4 +1,4 @@
-module Code (
+module Tuura.Code (
     CodeWithUnknowns, CodeWithoutUnknowns, Bit,
     known, unknown, used, unused, CodeValidation (..), validate, parseCustomCode
     ) where

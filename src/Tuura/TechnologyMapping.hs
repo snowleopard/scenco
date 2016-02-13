@@ -1,8 +1,8 @@
-module TechnologyMapping (technologyMapping, Area (..), estimateArea) where
+module Tuura.TechnologyMapping (technologyMapping, Area (..), estimateArea) where
 
-import Library
-import Formula
-import Circuit
+import Tuura.Circuit
+import Tuura.Formula
+import Tuura.Library
 
 technologyMapping :: Library -> [Formula] -> Circuit
 technologyMapping = undefined

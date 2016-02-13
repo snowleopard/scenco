@@ -12,27 +12,27 @@ build-type:    Simple
 cabal-version: >=1.10
 
 extra-source-files:
-    src-cpp/base.h
-    src-cpp/*.cpp
+    src/c++/base.h
+    src/c++/*.cpp
 
 source-repository head
     type:     git
     location: https://github.com/tuura/scenco.git
 
 library
-    hs-source-dirs:   src-hs
+    hs-source-dirs:   src
     exposed-modules:
-        Code
-        Encode
-        Synthesis
-        TechnologyMapping
+        Tuura.Code
+        Tuura.Encode
+        Tuura.Synthesis
+        Tuura.TechnologyMapping
     other-modules:
-        Circuit
-        Formula
-        Graph
-        Library
-    c-sources:        src-cpp/scenco.cpp
-    include-dirs:     src-cpp
+        Tuura.Circuit
+        Tuura.Formula
+        Tuura.Graph
+        Tuura.Library
+    c-sources:        src/c++/scenco.cpp
+    include-dirs:     src/c++
     build-depends:    base >= 4.7 && < 5
                     , mtl == 2.2.*
                     , transformers >= 0.4 && < 0.6

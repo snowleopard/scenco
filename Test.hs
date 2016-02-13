@@ -3,8 +3,8 @@ module Test (testArm8, testArm11, testIntel7, testIntel8, testIntel9) where
 import System.FilePath
 import Control.Monad
 
-import Encode
-import Code
+import Tuura.Encode
+import Tuura.Code
 
 testPath :: FilePath
 testPath = "test"

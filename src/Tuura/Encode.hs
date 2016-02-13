@@ -1,9 +1,9 @@
-module Encode (loadGraphsAndCodes, encodeGraphs,
+module Tuura.Encode (loadGraphsAndCodes, encodeGraphs,
                getCodesLength, getCodes,unloadGraphsAndCodes,
                EncodingType(..)) where
 
-import Code
 import Foreign.C.String
+import Tuura.Code
 
 foreign import ccall unsafe "load_graphs_codes"
     insertGraphsAndCodes :: CString -> CString -> IO Int
