@@ -1,7 +1,5 @@
 #include <ctime>
-#include "includes_defines.h"
-#include "types.h"
-#include "global.h"
+#include "base.h"
 #include "utilities.cpp"
 #include "load_scenarios.cpp"
 #include "heuristic_function.cpp"
