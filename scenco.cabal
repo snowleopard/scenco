@@ -12,7 +12,8 @@ build-type:    Simple
 cabal-version: >=1.10
 
 extra-source-files:
-    src-cpp/scenco.cpp
+    src-cpp/base.h
+    src-cpp/*.cpp
 
 source-repository head
     type:     git
@@ -20,21 +21,25 @@ source-repository head
 
 library
     hs-source-dirs:   src-hs
-    exposed-modules:  Code
-                    , Encode
-                    , Synthesis
-                    , TechnologyMapping
-    other-modules:    Circuit
-                    , Formula
-                    , Graph
-                    , Library
+    exposed-modules:
+        Code
+        Encode
+        Synthesis
+        TechnologyMapping
+    other-modules:
+        Circuit
+        Formula
+        Graph
+        Library
+    c-sources:        src-cpp/scenco.cpp
+    include-dirs:     src-cpp
     build-depends:    base >= 4.7 && < 5
                     , mtl == 2.2.*
                     , transformers >= 0.4 && < 0.6
     default-language: Haskell2010
     other-extensions: TypeFamilies
-    GHC-options:      -Wall src-cpp/scenco.cpp
-    extra-libraries : stdc++
+    GHC-options:      -Wall -fwarn-tabs
+    extra-libraries:  stdc++
     
 test-suite scenco-test
     type:             exitcode-stdio-1.0
@@ -44,5 +49,5 @@ test-suite scenco-test
                     , scenco
     other-extensions: TypeFamilies
     default-language: Haskell2010
-    GHC-options:      src-cpp/scenco.cpp
-    extra-libraries : stdc++
+    GHC-options:      -Wall -fwarn-tabs
+    extra-libraries:  stdc++
