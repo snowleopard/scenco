@@ -134,7 +134,9 @@ int sequentialEncoding(){
 	for(int i = 0; i < n; i++){
 		print_binary(NULL, i, bits);
 		scenarioOpcodes[i] = string(numb);
+		perm[0][i] = i;
 	}
+
 
 	return 0;
 }
@@ -243,9 +245,9 @@ int randomEncoding(){
 	int *solution = NULL;
 	boolean ins, out = FALSE;
 	char *number;
-#ifdef ACT_STOP
+
 	int fails = 0;
-#endif
+
 	//ALLOC DATA STRUCTURE TO SUPPORT ENCODING GENERATION
 	full = (int*) malloc(sizeof(int)*cpog_count);
 	solution = (int*) malloc(sizeof(int)*cpog_count);
@@ -371,6 +373,12 @@ int randomEncoding(){
 						if(opt_diff[i][j] < min){
 							min = opt_diff[i][j];
 							n = 1;
+							if(v_min_i != NULL && v_min_j != NULL){
+								free(v_min_i);	
+								v_min_i = NULL;
+								free(v_min_j);	
+								v_min_j = NULL;
+							}
 							v_min_i = (int*) realloc (v_min_i, sizeof(int) * n);
 							v_min_j = (int*) realloc (v_min_j, sizeof(int) * n);
 							v_min_i[0] = i;
@@ -451,11 +459,11 @@ int randomEncoding(){
 			for(i=0;i<cpog_count;i++)
 				perm[c][i] = solution[i];
 			c++;
-#ifdef ACT_STOP
+
 			fails = 0;
-#endif
+
 		}
-#ifdef ACT_STOP
+
 		//IF SOLUTION ALREADY EXISTS INCREMENT A COUNTER
 		else{
 				fails++;
@@ -463,14 +471,15 @@ int randomEncoding(){
 
 		//IF COUNTER EXCEEDS PREDEFINED DEADLINE
 		//STOP ENCODINGS GENERATION
-		if(fails > MAX_FAILS){
+		if(fails > 100){
 			num_perm = c;
 			fprintf(fpLOG,"\nFunction was able to generate just %lld permutations.\n",num_perm);
 			out = TRUE;
 		}
-#endif
+
 	}
 	counter = num_perm;
+
 
 	//FREE DATA STRUCTURES JUST USED
 	for(i=0;i<cpog_count;i++)
@@ -560,13 +569,6 @@ int start_simulated_annealing(){
 	}
 	
 	counter = num_perm;
-
-	scenarioOpcodes.resize(cpog_count);
-	clear_scenarios();
-	for(int i = 0; i < cpog_count; i++){
-		print_binary(NULL, perm[0][i], bits);
-		scenarioOpcodes[i] = string(numb);
-	}
 
 	return 0;
 }

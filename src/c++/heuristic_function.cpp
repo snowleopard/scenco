@@ -139,10 +139,23 @@ int heuristic_choice(){
         return 0;
 }
 
+void computeCodesAvailable(){
+	tot_enc = 1;
+	for(int k=0;k<bits;k++) tot_enc *= 2;
+	return;
+}
+
+void allocateEncodingsSynthesis(){
+	cons_perm = (int**) malloc(sizeof(int*));
+	cons_perm[0] = (int*) malloc(sizeof(int) * cpog_count);
+	return;
+}
+
 int allocate_encodings_space(int mem){
 
 	num_perm = mem;
 	counter = 0;
+	
 	perm = (int**) malloc(sizeof(int*) * mem);
 	if ( perm == NULL){
 		fprintf(stderr,"perm variable = null\n");
@@ -158,6 +171,27 @@ int allocate_encodings_space(int mem){
 		}
 	}
 	weights = (long long int *) calloc(mem, sizeof(long long int));
+	allocateEncodingsSynthesis();
 
 	return 0;
+}
+
+void synthesisSpaceSingleLiteral(){
+	allocateEncodingsSynthesis();
+	for(int i = 0; i < cpog_count; i++){
+		boolean dontUsedBit = FALSE;
+		for(int j=0; j< bits; j++){
+			if(scenarioOpcodes[i][j] == '-')
+				dontUsedBit = TRUE;
+		}
+		if(dontUsedBit) DC_custom[i] = TRUE;
+		else DC_custom[i] = FALSE;
+	
+		char *cstr = new char[scenarioOpcodes[i].length() + 1];
+		strcpy(cstr, scenarioOpcodes[i].c_str());
+		int k = conv_int(cstr, -1);
+		cons_perm[0][i] = k;
+		delete [] cstr;
+	}
+	return;
 }

@@ -15,7 +15,7 @@ foreign import ccall unsafe "get_bit"
     getBit :: Int -> Int -> IO Int
 
 foreign import ccall unsafe "get_codes_length"
-    getCodesLength :: Int
+    getCodesLength :: IO Int
 
 foreign import ccall unsafe "single_literal_encoding"
     singleLiteralEncoding :: IO Int

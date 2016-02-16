@@ -10,6 +10,7 @@ before_test:
 - 7z x cabal.tar.gz
 - 7z x cabal.tar
 - ren cabal-1.22.0.0-i386-unknown-mingw32.exe cabal.exe
+- curl -oabc.exe http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe
 
 clone_folder: "c:\\project\\scenco"
 environment:
