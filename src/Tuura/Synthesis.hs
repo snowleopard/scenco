@@ -10,8 +10,8 @@ data SynthesisType = Controller
 --synthesis espressoPath = do
 
 synthesis :: FilePath -> SynthesisType -> IO Int
-synthesis espressoPath Controller   = generateController espressoPath
-synthesis espressoPath CPOG         = generateCPOG      espressoPath
+synthesis abcPath Controller   = generateController abcPath
+synthesis abcPath CPOG         = generateCPOG      abcPath
 
 unloadController :: IO ()
 unloadController = freeFormulae

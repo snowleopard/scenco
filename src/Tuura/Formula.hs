@@ -16,11 +16,11 @@ foreign import ccall unsafe "free_formulae"
 --generateFormulae espressoPath = undefined
 
 generateController :: FilePath-> IO Int
-generateController espressoPath = do
-    espresso <- newCString espressoPath
-    getFormulae espresso 1
+generateController abcPath = do
+    abc <- newCString abcPath
+    getFormulae abc 1
 
 generateCPOG :: FilePath -> IO Int
-generateCPOG espressoPath = do
-    espresso <- newCString espressoPath
-    getFormulae espresso 0
+generateCPOG abcPath = do
+    abc <- newCString abcPath
+    getFormulae abc 0
