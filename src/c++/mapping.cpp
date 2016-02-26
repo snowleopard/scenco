@@ -307,7 +307,6 @@ conditions occur. It sets for all the possible bits configuration '-' don't care
 void write_conditions(FILE *fp,int cpog_count,int i,int p,int q,int bits,int co){
 	int j,k;
 	boolean ins = FALSE;
-	char *number;
 
 	if(!DC){
 		for(j=0;j<tot_enc;j++){
@@ -334,12 +333,12 @@ void write_conditions(FILE *fp,int cpog_count,int i,int p,int q,int bits,int co)
 	}else{
 		if(!SET){
 			for(j=0;j<tot_enc;j++){
+				char *numb = NULL;
 				ins = FALSE;
-				print_binary(NULL,j, bits);
-				number = numb;
+				numb = decimal_to_binary(j, bits);
 				/*MOD !ins not present before*/
 				for(k = 0;k<cpog_count;k++)
-					if(!strDCcmp(number,manual_file[k],bits)){
+					if(!strDCcmp(numb,manual_file[k],bits)){
 						print_binary(fp,j, bits); /*Input encodings*/
 						fprintf(fp," ");
 						if(co)
@@ -355,13 +354,14 @@ void write_conditions(FILE *fp,int cpog_count,int i,int p,int q,int bits,int co)
 					fprintf(fp,"-");
 					fprintf(fp,"\n");
 				}
+				free(numb);
 			
 			}
 		}else{
 			for(j=0;j<tot_enc;j++){
 				ins = FALSE;
-				print_binary(NULL,j, bits);
-				number = numb;
+				char *numb = NULL;
+				numb = decimal_to_binary(j, bits);
 				/*MOD !ins not present before*/
 				for(k = 0;k<cpog_count;k++){
 					if(!DC_custom[k]){
@@ -380,7 +380,7 @@ void write_conditions(FILE *fp,int cpog_count,int i,int p,int q,int bits,int co)
 						str = (char*) malloc(sizeof(char) * (bits+1));
 						int_to_string_DC(bits,k,cons_perm[i][k], str);
 
-						if(!strDCcmp(number,str,bits)){
+						if(!strDCcmp(numb,str,bits)){
 							print_binary(fp,j, bits); /*Input encodings*/
 							fprintf(fp," ");
 							if(co)
@@ -398,6 +398,7 @@ void write_conditions(FILE *fp,int cpog_count,int i,int p,int q,int bits,int co)
 					fprintf(fp,"-");
 					fprintf(fp,"\n");
 				}
+				free(numb);
 			
 			}
 		}

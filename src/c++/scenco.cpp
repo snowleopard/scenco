@@ -30,62 +30,47 @@ extern "C" {
 		if(first){
 			first = FALSE;
 			if(temporary_files_creation() != 0){
+				safe_exit("Error allocating temporary files.");
 				return -1;
 			}
 		}
 
-		if( (fpLOG = fopen(LOG,"w")) == NULL){
-			fprintf(stderr,"Error on opening LOG file for writing.\n");
-		}
-		fprintf(fpLOG,WELCOME_STRING);
-
 		// memory allocation
-		fprintf(fpLOG,"Allocating memory for vertex names and graphs...");
 		if(heapVariablesAllocation() != 0){
-			fprintf(stderr,"Error on heap allocation variables.\n");
-			removeTempFiles();
+			safe_exit("Error on heap allocation variables.");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE\n");
 
-/*******************************************************************************
-*                           Building CPOG Part                                 *
-*******************************************************************************/
+		/***************************************************************
+		*                     Building CPOG Part                       *
+		***************************************************************/
 
 		// loading scenarios
-		fprintf(fpLOG,"\nOptimal scenarios encoding and CPOG synthesis.\n");
 		if(loadScenarios(file_in, fp) != 0){
-			fprintf(stderr,"Loading scenarios failed.\n");
-			removeTempFiles();
+			safe_exit("Loading scenarios failed.");
 			return -1;
 		}
-		fprintf(fpLOG,"\n%d scenarios have been loaded.\n", n);
 
 		// looking for predicates
 		if(predicateSearch() != 0){
-			fprintf(stderr,"Predicate searching failed.\n");
-			removeTempFiles();
+			safe_exit("Predicate searching failed.");
 			return -1;
 		}
 
 		// looking for non-trivial constraints
 		if( (fp = fopen(CONSTRAINTS_FILE,"w")) == NULL){
-			fprintf(stderr,"Error on opening constraints file for writing.\n");
-			removeTempFiles();
+			safe_exit("Error on opening constraints file for writing.");
 			return -1;
 		}
 		if(nonTrivialConstraints(fp, &total, &trivial) != 0){
-			fprintf(stderr,"Non-trivial constraints searching failed.\n");
-			removeTempFiles();
+			safe_exit("Non-trivial constraints searching failed.");
 			return -1;
 		}
 		fclose(fp);
-		fprintf(fpLOG,"\n%d non-trivial encoding constraints found:\n\n", total - trivial);
 
 		// writing non-trivial constraints into a file
 		if( (fp = fopen(TRIVIAL_ENCODING_FILE,"w")) == NULL){
-			fprintf(stderr,"Error on opening constraints file for writing.\n");
-			removeTempFiles();
+			safe_exit("Error on opening constraints file for writing.");
 			return -1;
 		}
 		for(int i = 0; i < total; i++)
@@ -94,49 +79,37 @@ extern "C" {
 		}
 		fclose(fp);
 
-		fprintf(fpLOG,"\nBuilding conflict graph... ");
 		if(conflictGraph(&total) != 0){
-			fprintf(stderr,"Building conflict graph failed.\n");
-			removeTempFiles();
+			safe_exit("Building conflict graph failed.");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE.\n");
 
-/*******************************************************************************
-*                   Reading encoding set by the user                           *
-*******************************************************************************/
+		/***************************************************************
+		*              Reading encoding set by the user                *
+		***************************************************************/
 
-		fprintf(fpLOG,"Reading encodings set... ");
-		fflush(stdout);
 		if(read_set_encoding(custom_file_name,n,&bits) != 0){
-			fprintf(stderr,"Error on reading encoding set.\n");
-			removeTempFiles();
+			safe_exit("Error on reading encoding set.");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE\n");
 
-		fprintf(fpLOG,"Check correcteness of encoding set... ");
 		if(check_correctness(custom_file_name,n,tot_enc,bits) != 0){
-			removeTempFiles();
+			safe_exit("Codes set by the user unfeasible.");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE\n");
 
-/*******************************************************************************
-*                     Variable preparation for encoding                        *
-*******************************************************************************/
+		/***************************************************************
+		*               Variable preparation for encoding              *
+		***************************************************************/
 		strcpy(file_in,TRIVIAL_ENCODING_FILE);
 		file_cons = strdup(CONSTRAINTS_FILE);
 
 		/*READ NON-TRIVIAL ENCODING FILE*/
-		fprintf(fpLOG,"Reading non-trivial encoding file... ");
 		if( (err = read_file(file_in)) ){
-			fprintf(stderr,"Error occured while reading non-trivial\
-					encoding file, error code: %d", err);
-			removeTempFiles();
+			safe_exit("Error occured while reading non-trivial\
+				   encoding file.");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE\n");
 
 		/*SEED FOR RAND*/
 		srand(time(NULL));
@@ -161,8 +134,6 @@ extern "C" {
 				for(int i = 1; i<= tot_enc; i++)
 					num_perm *= i;
 			}
-			fprintf(fpLOG,"Number of possible permutations by fixing\
-					first element: %lld\n", num_perm);
 		}
 		else{
 			/*DISPOSITION*/
@@ -176,8 +147,6 @@ extern "C" {
 				num_perm = 1;
 			for(int i=elements; i>= min_disp; i--)
 				num_perm *= i;
-			fprintf(fpLOG,"Number of possible dispositions by fixing\
-					first element: %lld\n", num_perm);
 		}
 
 		all_perm = num_perm;
@@ -191,288 +160,197 @@ extern "C" {
 
 		sol = (int*) calloc(tot_enc, sizeof(int));
 		if (sol == NULL){
-			fprintf(stderr,"solution variable = null\n");
-			removeTempFiles();
+			safe_exit("Error on allocating array for the solution.");
 			return -1;
 		}
 
 		/*BUILDING DIFFERENCE MATRIX*/
-		fprintf(fpLOG,"Building DM (=Difference Matrix)... ");
 		if( (err = difference_matrix(cpog_count)) ){
-			fprintf(stderr,"Error occurred while building difference\
-					matrix, error code: %d", err);
-			removeTempFiles();
+			safe_exit("Error occurred while building difference\
+				   matrix");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE\n");
-
-		fflush(stdout);
-
-		fclose(fpLOG);
 
 		return 0;
 	}
 
 	int single_literal_encoding(){
 
-		if( (fpLOG = fopen(LOG,"a")) == NULL){
-			fprintf(stderr,"Error on opening LOG file for appending.\n");
-		}
-
 		computeCodesAvailable();
 
-		fprintf(fpLOG,"Running single-literal encoding.\n");
-
 		if(singleLiteralEncoding(total) != 0){
-			fprintf(stderr,"Single-literal encoding failed.\n");
+			safe_exit("Single-literal encoding failed.");
 			return -1;
 		}
 
 		if (export_variables(single_literal) != 0){
+			safe_exit("Error exporting variables for external environment\
+				   for single-literal encoding.");
 			return -1;
 		}
 
 		synthesisSpaceSingleLiteral();
-
-		fclose(fpLOG);
 
 		return 0;
 	}
 
 	int sequential_encoding(){
 
-		if( (fpLOG = fopen(LOG,"a")) == NULL){
-			fprintf(stderr,"Error on opening LOG file for appending.\n");
-		}
-
 		computeCodesAvailable();
 
-		fprintf(fpLOG,"Running Sequential encoding.\n");
-
 		if(allocate_encodings_space(1) != 0){
-			fprintf(stderr,"Sequential encoding failed.\n");
+			safe_exit("Error allocating space for sequential encoding.");
 			return -1;
 		}
 
 		if(sequentialEncoding() != 0){
-			fprintf(stderr,"Sequential encoding failed.\n");
+			safe_exit("Sequential encoding failed.");
 			return -1;
 		}
 
 		if (export_variables(sequential) != 0){
+			safe_exit("Error exporting variables for external environment\
+				   for sequential encoding.");
 			return -1;
 		}
 
 		opcodesForSynthesis(0);
-
-		fclose(fpLOG);
 
 		return 0;
 	}
 
 	int random_encoding(int num_enc){
 
-		if( (fpLOG = fopen(LOG,"a")) == NULL){
-			fprintf(stderr,"Error on opening LOG file for appending.\n");
-		}
-
 		bits = bits_saved;
 		computeCodesAvailable();
 
-		fprintf(fpLOG,"Running Random encoding.\n");
-
 		if(allocate_encodings_space(num_enc) != 0){
-			fprintf(stderr,"Encoding allocation failed.\n");
+			safe_exit("Encoding allocating variables for random encoding.");
 			return -1;
 		}
 
 		if(randomEncoding() != 0){
-			fprintf(stderr,"Random encoding failed.\n");
+			safe_exit("Random encoding failed.");
 			return -1;
 		}
 
 		if(heuristic_choice() != 0) {
-			fprintf(stderr,"Computing heuristic encoding.\n");
+			safe_exit("Error on choosing best results on random encoding.");
 			return -1;
 		}
 
 		if (export_variables(randomE) != 0){
+			safe_exit("Error exporting variables for external environment\
+				   for random encoding.");
 			return -1;
 		}
-
-		fclose(fpLOG);
 
 		return 0;
 	}
 
 	int heuristic_encoding(int num_enc){
 
-		if( (fpLOG = fopen(LOG,"a")) == NULL){
-			fprintf(stderr,"Error on opening LOG file for appending.\n");
-		}
-
 		bits = bits_saved;
 		computeCodesAvailable();
 
 		if(allocate_encodings_space(num_enc) != 0){
-			fprintf(stderr,"Encoding allocation failed.\n");
+			safe_exit("Encoding allocating variables for heuristic encoding.");
 			return -1;
 		}
-
-		fprintf(fpLOG,"Running Random generation... ");
-
 		if(randomEncoding() != 0){
-			fprintf(stderr,"Random encoding failed.\n");
+			safe_exit("Random encoding failed (heuristic encoding).");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE.\n");
-
-		fprintf(fpLOG,"Running Heuristic optimisation... ");
 		if(start_simulated_annealing() != 0){
-			fprintf(stderr,"Heuristic optimisation failed.\n");
+			safe_exit("Heuristic optimisation failed.");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE.\n");
 
 		if(heuristic_choice() != 0) {
-			fprintf(stderr,"Computing heuristic encoding.\n");
+			safe_exit("Error on choosing best results on heuristic encoding.");
 			return -1;
 		}
 
 		if (export_variables(heuristic) != 0){
+			safe_exit("Error exporting variables for external environment\
+				   for heuristic encoding.");
 			return -1;
 		}
-
-		fclose(fpLOG);
 
 		return 0;
 	}
 
 	int exhaustive_encoding(int num_enc){
 
-		if( (fpLOG = fopen(LOG,"a")) == NULL){
-			fprintf(stderr,"Error on opening LOG file for appending.\n");
-		}
-
 		if(allocate_encodings_space(num_enc) != 0){
-			fprintf(stderr,"Encoding allocation failed.\n");
+			safe_exit("Encoding allocating variables for exhaustive encoding.");
 			return -1;
 		}
 
 		computeCodesAvailable();
 
-		fprintf(fpLOG,"Running Exhaustive encoding.\n");
-
 		if(!unfix && !SET){
 			//permutation_stdalgo(cpog_count,tot_enc);
-			fprintf(fpLOG,"Permutation algorithm unconstrained... ");
 			exhaustiveEncoding(sol,0,enc,cpog_count, tot_enc);
-			fprintf(fpLOG,"DONE\n");
 		}else{
-			fprintf(fpLOG,"Permutation algorithm constrained... ");
 			exhaustiveEncoding(sol,-1,enc,cpog_count, tot_enc);
-			fprintf(fpLOG,"DONE\n");
-
-			fprintf(fpLOG,"Filtering encoding... ");
 			filter_encodings(cpog_count, bits, tot_enc);
-			fprintf(fpLOG,"DONE\n");
 
 		}
 
 		if(heuristic_choice() != 0) {
-			fprintf(stderr,"Computing heuristic encoding.\n");
+			safe_exit("Error on choosing best results on exhaustive encoding.");
 			return -1;
 		}
 
 		if (export_variables(exhaustive) != 0){
+			safe_exit("Error exporting variables for external environment\
+				   for exhaustive encoding.");
 			return -1;
 		}
-
-		fclose(fpLOG);
 
 		return 0;
 	}
 
-	int get_formulae(char* abcPath, int controllerSynthesis){
+	int get_controller_formulae(char* abcPath){
 
 		int err;
 
-		if( (fpLOG = fopen(LOG,"a")) == NULL){
-			fprintf(stderr,"Error on opening LOG file for appending.\n");
-		}
-
-		if(!graphRead){
-			graphRead = TRUE;
-			fprintf(fpLOG,"Reading graph structure...");
-			if( readingGraphStructure() != 0){
-				fprintf(stderr, "Error reading graph structure.\n");
-				removeTempFiles();
-				return -1;
-			}
-			fprintf(fpLOG,"DONE\n");
-		}
-
-		fprintf(fpLOG,"Memory allocation for Boolean functions... ");
-		if(booleanFunctionsAllocation() != 0){
-			fprintf(stderr, "Error allocating memory for boolean functions.\n");
-			removeTempFiles();
+		if (get_formulae_nodes(abcPath) != 0){
+			safe_exit("Error using ABC for getting Boolean formulae\
+				   of nodes and arcs (controller synthesis).");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE\n");
 
-		computeCodesAvailable();
-
-		/*CONVERT TRUTH TABLES INTO BOOLEAN FUNCTION*/
-		fprintf(fpLOG,"Convert truth table into boolean functions of vertices and edges... ");
-		if((err = boolean_function(0, abcPath)!= 0)){
-			fprintf(stderr,"Error on getting boolean function using\
-				Abc. Error code: %d\n", err);
-			removeTempFiles();
+		if( (err = equations_abc(cpog_count,bits)) != 0){
+			safe_exit("Error merging final equations for ABC mapping\
+				   (controller synthesis).");
 			return -1;
 		}
-		fprintf(fpLOG,"DONE\n");
 
-
-		/*CONVERT TRUTH TABLES INTO BOOLEAN FUNCTION OF CONDITION ONLY*/
-		fprintf(fpLOG,"Convert truth table into boolean functions of condition of vertices... ");
-		if((err = boolean_function(1, abcPath)!= 0)){
-			fprintf(stderr,"Error on getting boolean function using\
-				Abc. Error code: %d\n", err);
-			removeTempFiles();
-			return -1;
-		}
-		fprintf(fpLOG,"DONE\n");
-
-		//ACQUIRE NAMES OF CONDITIONS
-		fprintf(fpLOG,"Getting condition names... ");
-		if(get_conditions_names()){
-			fprintf(stderr,"Error on getting condition names from CPOG representation.\n");
-			removeTempFiles();
-			return -1;
-		}
-		fprintf(fpLOG,"DONE\n");
-
-		fprintf(fpLOG,"Building final Boolean equations (Abc)... ");
-		if(controllerSynthesis){
-			if( (err = equations_abc(cpog_count,bits)) != 0){
-				fprintf(stderr,"Error on writing final equations. Error code: %d.\n",err);
-				removeTempFiles();
-				return -1;
-			}
-		}else{
-			if( (err = equations_abc_cpog_size(cpog_count,bits)) != 0){
-				fprintf(stderr,"Error on writing final equations. Error code: %d.\n",err);
-				removeTempFiles();
-				return -1;
-			}
-		}
-		fprintf(fpLOG,"DONE\n");
-
-		fprintf(fpLOG,"Free variables for synthesis...");
 		freeBooleanFunctions();
-		fprintf(fpLOG,"DONE\n.");
 
-		fclose(fpLOG);
+		return 0;
+	}
+
+	int get_CPOG_formulae(char* abcPath){
+
+		int err;
+
+		if (get_formulae_nodes(abcPath) != 0){
+			removeTempFiles();
+			safe_exit("Error using ABC for getting Boolean formulae\
+				   of nodes and arcs (CPOG synthesis).");
+			return -1;
+		}
+
+		if( (err = equations_abc_cpog_size(cpog_count,bits)) != 0){
+			safe_exit("Error merging final equations for ABC mapping\
+				   (CPOG synthesis).");
+			return -1;
+		}
+
+		freeBooleanFunctions();
 
 		return 0;
 	}
@@ -481,52 +359,37 @@ extern "C" {
 		return nEquations;
 	}
 
+	char* get_equation(int n){
+		if(n >= nEquations){
+			safe_exit("Wrong equationg ID.");
+			return NULL;
+		}
+		return equations[n];
+	}
+
 	double map_and_get_area_circuit(char *abcPath, char *techLibrary){
 
 		char *command;
-		char string[50];
-		char c;
-		FILE *fp = NULL;
 
 		command = abcCommandOutTmp(abcPath);
 
 		if(writeMappingScript(techLibrary) != 0){
-			fprintf(stderr,"Error writing script for Abc.\n");
-			removeTempFiles();
+			safe_exit("Error writing mapping script for ABC.");
 			return -1;
 		}
 
 		// run abc
 		if( system(command) == -1){
-			fprintf(stderr, "Error running Abc for\
-				mapping: %s\n", command);
+			safe_exit("Error running ABC for mapping getting area of\
+				   the circuit.");
 			return -1;
 		}
-		fp = fopen(TMP_FILE, "r");
-		while( fscanf(fp,"%s", string) != EOF ){
-			if(!strcmp(string, "TOTAL")){
-				while((c = fgetc(fp)) != '=');
-				if (fscanf(fp,"%d", &gates) != 1){
-					fprintf(stderr, "Error reading number of gates\
-							from Abc result.\n");
-					removeTempFiles();
-					return -1;
-			
-				}
-				while((c = fgetc(fp)) != '=');
-				if(fscanf(fp,"%f", &area) != 1){
-					fprintf(stderr, "Error reading area\
-							from Abc result.\n");
-					removeTempFiles();
-					return -1;
-			
-				}
-				break;
-			} else {
-				while((c = fgetc(fp)) != '\n');
-			}
+
+		if(parse_area_result_abc() != 0){
+			safe_exit("Error parsing ABC result for getting Area\
+				   of the circuit.");
+			return -1;
 		}
-		fclose(fp);
 
 		free(command);
 
@@ -540,15 +403,13 @@ extern "C" {
 		command = abcCommandOutNull(abcPath);
 
 		if(writeVerilogGenScript(techLibrary, vFile) != 0){
-			fprintf(stderr,"Error writing script for Abc.\n");
-			removeTempFiles();
+			safe_exit("Error writing verilog script for ABC.");
 			return -1;
 		}
 
 		// run abc
 		if( system(command) == -1){
-			fprintf(stderr, "Error running Abc for\
-				verilog generation: %s\n", command);
+			safe_exit("Error running Abc for verilog generation.");
 			return -1;
 		}
 

@@ -166,3 +166,46 @@ int boolean_function(int co, char* abcPath){
 
 	return 0;
 }
+
+int get_formulae_nodes(char *abcPath){
+
+	int err;
+
+	if(!graphRead){
+		graphRead = TRUE;
+		if( readingGraphStructure() != 0){
+			fprintf(stderr, "Error reading graph structure.\n");
+			return -1;
+		}
+	}
+
+	if(booleanFunctionsAllocation() != 0){
+		fprintf(stderr, "Error allocating memory for boolean functions.\n");
+		return -1;
+	}
+
+	computeCodesAvailable();
+
+	/*CONVERT TRUTH TABLES INTO BOOLEAN FUNCTION*/
+	if((err = boolean_function(0, abcPath)!= 0)){
+		fprintf(stderr,"Error on getting boolean function using\
+			Abc. Error code: %d\n", err);
+		return -1;
+	}
+
+
+	/*CONVERT TRUTH TABLES INTO BOOLEAN FUNCTION OF CONDITION ONLY*/
+	if((err = boolean_function(1, abcPath)!= 0)){
+		fprintf(stderr,"Error on getting boolean function using\
+			Abc. Error code: %d\n", err);
+		return -1;
+	}
+
+	//ACQUIRE NAMES OF CONDITIONS
+	if(get_conditions_names()){
+		fprintf(stderr,"Error on getting condition names from CPOG representation.\n");
+		return -1;
+	}
+
+	return 0;
+}

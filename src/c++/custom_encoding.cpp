@@ -160,20 +160,22 @@ int check_correctness(char *custom_file_name, int cpog_count, int tot_enc, int b
 			if(custom_perm[i] != -1 && DC_custom[i]){
 				result++;
 				for(k=0; k<tot_enc; k++){
-					print_binary(NULL,k, bits);
-					number = numb;
-					if(!strDCcmp(number,manual_file[i],bits)){
+					char *numb = NULL;
+					numb = decimal_to_binary(k, bits);
+					if(!strDCcmp(numb,manual_file[i],bits)){
 						if(opcodes[k] == 1){
 							ins = FALSE;
 							if(it > 1000){
-								print_binary(NULL,k, bits);
-								number = numb;
-								fprintf(stderr,"Op-code %s and %s cannot be set at the same time.\n", manual_file_back[i], number);
+								char *numb2 = NULL;
+								numb2 = decimal_to_binary(k, bits);
+								fprintf(stderr,"Op-code %s and %s cannot be set at the same time.\n", manual_file_back[i], numb2);
+								free(numb2);
 								return 2;
 							}
 						}
 						opcodes[k] = 1;
 					}
+					free(numb);
 				}
 			}
 

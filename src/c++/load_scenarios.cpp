@@ -170,21 +170,20 @@ bool readScenario()
 		if (g[n-1].e[i][j] == 2) ntran++;
 	}
 	
-	fprintf(fpLOG,"%d events, %d dependencies (%d non-transitive, %d transitive), %d predicates\n", nv, ntran + nnontran, nnontran, ntran, npred);
+	//printf("%d events, %d dependencies (%d non-transitive, %d transitive), %d predicates\n", nv, ntran + nnontran, nnontran, ntran, npred);
 	
 	return true;
 }
 
 int loadScenarios(char* file_in, FILE *fp){
-	if (!alternative)
+	/*if (!alternative)
 		fprintf(fpLOG,"Using 'f = x + y * predicate' to deal with predicates.\n");
 	else
-		fprintf(fpLOG,"Using 'f = x * (y + predicate)' to deal with predicates.\n");
+		fprintf(fpLOG,"Using 'f = x * (y + predicate)' to deal with predicates.\n");*/
 
 	fp = freopen(file_in, "r", stdin);
 	if (fp == NULL){
 		fprintf(stderr, "Error opening %s\n", file_in);
-		removeTempFiles();
 		return -1;
 	}
 
@@ -196,7 +195,6 @@ int loadScenarios(char* file_in, FILE *fp){
 			if(fgets(s, sizeof(s), stdin) == NULL){
 				fprintf(stderr,"Error reading scenario.\n");
 				fclose(fp);
-				removeTempFiles();
 				return -1;
 			}
 			continue;
@@ -207,15 +205,13 @@ int loadScenarios(char* file_in, FILE *fp){
 			if(scanf("%s", s) == EOF){
 				fprintf(stderr,"Error reading scenario.\n");
 				fclose(fp);
-				removeTempFiles();
 				return -1;
 			}
-			fprintf(fpLOG,"Loading scenario '%s'... ", s);
+			//printf("Loading scenario '%s'... ", s);
 			scenarioNames.push_back(s);
 			if (!readScenario()) {
 				fprintf(stderr,"Error reading scenario.\n");
 				fclose(fp);
-				removeTempFiles();
 				return -1;
 			}
 		}
@@ -223,7 +219,6 @@ int loadScenarios(char* file_in, FILE *fp){
 		{
 			fprintf(stderr,"Wrong file format.\n");
 			fclose(fp);
-			removeTempFiles();
 			return -1;
 		}
 	}
@@ -242,20 +237,20 @@ int predicateSearch(){
 		if (!predicates_found)
 		{
 			predicates_found = true;
-			fprintf(fpLOG,"\nList of predicates:");
+			//printf("\nList of predicates:");
 		}
-		fprintf(fpLOG,"%s:", eventNames_str[i].c_str());
+		//printf("%s:", eventNames_str[i].c_str());
 		map<string, int>::iterator p = eventPredicates[i].begin(), 
 			q = eventPredicates[i].end();
 		while(p != q)
 		{
 			string pr = p->first;
-			fprintf(fpLOG," %s", pr.c_str());
+			//printf(" %s", pr.c_str());
 			p++;
 		}
 		//fprintf(fpLOG,"");
 	}
-	if (!predicates_found) fprintf(fpLOG,"\nNo predicates found.");
+	//if (!predicates_found) printf("\nNo predicates found.");
 
 	return 0;
 }
@@ -809,21 +804,16 @@ int readingGraphStructure(){
 
 	int err;
 
-	fprintf(fpLOG, "First reading of constraint file...");
 	if( (err = read_cons(CONSTRAINTS_FILE)) ){
 		fprintf(stderr,"Error occured while reading constraints\
 			file, error code: %d", err);
-		removeTempFiles();
 		return -1;
 	}
-	fprintf(fpLOG,"DONE\n");
 
 	/*CPOG ALLOCATION*/
-	fprintf(fpLOG,"CPOG data structure allocation...");
 	cpog = (CPOG_TYPE**) malloc(sizeof(CPOG_TYPE*) * (num_vert));
 	if(cpog == NULL){
 		fprintf(stderr,"Allocation of CPOG memory failed.\n");
-		removeTempFiles();
 		return -1;
 	}
 	for(int i=0;i<num_vert; i++){
@@ -831,7 +821,6 @@ int readingGraphStructure(){
 		if(cpog[i] == NULL){
 			fprintf(stderr,"Allocation of CPOG memory (%d)\
 				failed.\n", i);
-			removeTempFiles();
 			return -1;
 		}
 		for(int j = 0; j<num_vert;j++){
@@ -844,7 +833,6 @@ int readingGraphStructure(){
 			cpog[i][j].fun_cond = NULL;
 		}
 	}
-	fprintf(fpLOG,"DONE\n");
 
 	nv = num_vert; /*Due to overwriting problem*/
 
@@ -865,10 +853,13 @@ int readingGraphStructure(){
 			}
 
 	/*SECOND READING OF ENCODING FILE*/
-	fprintf(fpLOG,"Second reading of constraint file (parsing CPOG)...");
 	parsing_cpog(CONSTRAINTS_FILE);
-	fprintf(fpLOG,"DONE\n");
-	fprintf(fpLOG,"CPOG read properly.\n");
 
 	return 0;
+}
+
+void computeCodesAvailable(){
+	tot_enc = 1;
+	for(int k=0;k<bits;k++) tot_enc *= 2;
+	return;
 }

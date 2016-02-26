@@ -1,6 +1,5 @@
 int compute_HD(int n1,int i, int n2,int j,int bits,int cpog_count){
 	int ones,bit_diff,q;
-	char *number;
 
 	ones = 0;
 	if(SET){
@@ -13,34 +12,34 @@ int compute_HD(int n1,int i, int n2,int j,int bits,int cpog_count){
 			return ones;
 		}
 		if(DC_custom[i] && !DC_custom[j]){
-			print_binary(NULL,n2, bits);
-			number = numb;
+			char *str, *numb;
+			numb = decimal_to_binary(n2, bits);
 			ones = 0;
-			char *str;
 			str = (char*) malloc(sizeof(char) * (bits +1));
 			int_to_string_DC(bits, i, n1, str);
 			for(q = 0; q<bits; q++){
-				if(str[q] == '0' && number[q] == '1')
+				if(str[q] == '0' && numb[q] == '1')
 					ones++;
-				if(str[q] == '1' && number[q] == '0')
+				if(str[q] == '1' && numb[q] == '0')
 					ones++;
 			}
 			free(str);
+			free(numb);
 			return ones;
 		}
 		if(!DC_custom[i] && DC_custom[j]){
-			print_binary(NULL,n1, bits);
-			number = numb;
-			char *str;
+			char *str, *numb;
+			numb = decimal_to_binary(n1, bits);
 			str = (char*) malloc(sizeof(char) * (bits +1));						
 			int_to_string_DC(bits, j, n2, str);
 			for(q = 0; q<bits; q++){
-				if(str[q] == '0' && number[q] == '1')
+				if(str[q] == '0' && numb[q] == '1')
 					ones++;
-				if(str[q] == '1' && number[q] == '0')
+				if(str[q] == '1' && numb[q] == '0')
 					ones++;
 			}
 			free(str);
+			free(numb);
 			return ones;
 		}
 		if(DC_custom[i] && DC_custom[j]){
@@ -137,12 +136,6 @@ int heuristic_choice(){
 	loadScenarioOpcodes(iRand);
 
         return 0;
-}
-
-void computeCodesAvailable(){
-	tot_enc = 1;
-	for(int k=0;k<bits;k++) tot_enc *= 2;
-	return;
 }
 
 void allocateEncodingsSynthesis(){

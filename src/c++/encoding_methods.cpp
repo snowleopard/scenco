@@ -10,7 +10,7 @@ int singleLiteralEncoding(int total){
 	
 		for(unsigned int i = 0; i < cgv.size(); i++) literal[i] = -1;
 	
-		fprintf(fpLOG," [%d]", cnt++);
+		//printf(" [%d]", cnt++);
 	
 		bool res = false;
 		res = encode(0, limit, 0);
@@ -23,7 +23,7 @@ int singleLiteralEncoding(int total){
 		else L = limit;
 	}
 
-	fprintf(fpLOG,"DONE.\nThe best encoding uses %d operational variables:\n", R);
+	//printf("DONE.\nThe best encoding uses %d operational variables:\n", R);
 
 	scenarioOpcodes.resize(n);
 	clear_scenarios();
@@ -39,9 +39,9 @@ int singleLiteralEncoding(int total){
 	
 		if (bestLiteral[id] == -1) inv = 1;
 	
-		fprintf(fpLOG,"%s        ", cgv[id].c_str());
-		if (inv) fprintf(fpLOG,"!");
-		fprintf(fpLOG,"x[%d]\n", bestLiteral[id + inv]);
+		//printf("%s        ", cgv[id].c_str());
+		//if (inv) printf("!");
+		//printf("x[%d]\n", bestLiteral[id + inv]);
 	
 		encodings[i].literal = bestLiteral[id + inv];
 		encodings[i].inverted = inv;
@@ -78,7 +78,7 @@ int singleLiteralEncoding(int total){
 		}
 	}
 
-	fprintf(fpLOG,"\nVertex conditions:\n");
+	//printf("\nVertex conditions:\n");
 
 	for(int i = 0; i < V; i++)
 	{
@@ -105,10 +105,10 @@ int singleLiteralEncoding(int total){
 		}
 		if (f.find("0 + ") == 0) f.erase(0, 4);
 		if (f.find("1 * ") == 0) f.erase(0, 4);
-		fprintf(fpLOG,"%10s: %s\n", eventNames_str[i].c_str(), f.c_str());
+		//printf("%10s: %s\n", eventNames_str[i].c_str(), f.c_str());
 	}
 
-	fprintf(fpLOG,"\nArc conditions:\n");
+	//printf("\nArc conditions:\n");
 
 	for(int i = 0; i < V; i++)
 	for(int j = 0; j < V; j++)
@@ -117,7 +117,7 @@ int singleLiteralEncoding(int total){
 		string f = aConditions[i][j];
 		if (f == "0") continue;
 
-		fprintf(fpLOG,"%10s -> %-10s: %s\n", eventNames_str[i].c_str(), eventNames_str[j].c_str(), f.c_str());
+		//printf("%10s -> %-10s: %s\n", eventNames_str[i].c_str(), eventNames_str[j].c_str(), f.c_str());
 	}
 
 	return 0;
@@ -132,9 +132,11 @@ int sequentialEncoding(){
 	scenarioOpcodes.resize(n);
 	
 	for(int i = 0; i < n; i++){
-		print_binary(NULL, i, bits);
+		char *numb = NULL;
+		numb = decimal_to_binary(i, bits);
 		scenarioOpcodes[i] = string(numb);
 		perm[0][i] = i;
+		free(numb);
 	}
 
 
@@ -244,7 +246,6 @@ int randomEncoding(){
 	int *v_min_i = NULL, *v_min_j = NULL;
 	int *solution = NULL;
 	boolean ins, out = FALSE;
-	char *number;
 
 	int fails = 0;
 
@@ -325,14 +326,15 @@ int randomEncoding(){
 						custom_perm[i] = conv_int(manual_file[i], i);
 						solution[i] = custom_perm[i];
 						for(k=0; k<tot_enc; k++){
-							print_binary(NULL,k, bits);
-							number = numb;
-							if(!strDCcmp(number,manual_file[i],bits)){
+							char *numb = NULL;
+							numb = decimal_to_binary(k, bits);
+							if(!strDCcmp(numb,manual_file[i],bits)){
 								if(encod[k] == 1){
 									ins = FALSE;
 								}
 								encod[k] = 1;
 							}
+							free(numb);
 						}
 					}
 				}
@@ -473,7 +475,6 @@ int randomEncoding(){
 		//STOP ENCODINGS GENERATION
 		if(fails > 100){
 			num_perm = c;
-			fprintf(fpLOG,"\nFunction was able to generate just %lld permutations.\n",num_perm);
 			out = TRUE;
 		}
 
@@ -634,11 +635,12 @@ int filter_encodings(int n_cpog, int bits, int tot_enc){
 
 			// OPCODE FIXED
 			if(custom_perm[j] != -1){
-				print_binary(NULL,perm[i][j], bits);
-				number = numb;
-				if( strDCcmp(number, manual_file[j], bits) ){
+				char *numb = NULL;
+				numb = decimal_to_binary(perm[i][j], bits);
+				if( strDCcmp(numb, manual_file[j], bits) ){
 					out = TRUE;
 				}
+				free(numb);
 			}
 		}
 
@@ -652,7 +654,8 @@ int filter_encodings(int n_cpog, int bits, int tot_enc){
 			if (DC_custom[j] == TRUE &&  out == FALSE){
 
 				// CONVERT OPCODE INT INTO A STRING
-				print_binary(NULL,perm[i][j], bits);
+				char *numb = NULL;
+				numb = decimal_to_binary(perm[i][j], bits);
 				number = numb;
 
 				// SUBSTITUTE THE X BIT OF THE OPCODE WITH THE REAL VALUES GENERATED
@@ -667,12 +670,13 @@ int filter_encodings(int n_cpog, int bits, int tot_enc){
 
 				// CHECK THAT EACH OPCODE WITH DON'T CARE REPRESENTS ONE AND ONLY ONE PO
 				for(k=0; k<tot_enc;k++){
-					print_binary(NULL,k, bits);
-					number = numb;
+					char *numb = NULL;
+					numb = decimal_to_binary(k, bits);
 
-					if( !strDCcmp(number, manual_file[j], bits) && opcodesF[k] == 1){
+					if( !strDCcmp(numb, manual_file[j], bits) && opcodesF[k] == 1){
 						present++;
 					}
+					free(numb);
 				}
 
 				(present > 1) ? out =  TRUE : FALSE;

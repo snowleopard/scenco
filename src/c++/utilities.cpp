@@ -1,11 +1,3 @@
-// Check file existance
-int FileExists(char *filename)
-{
-	FILE *fp = fopen (filename, "r");
-	if (fp!=NULL) fclose (fp);
-	return (fp!=NULL);
-}
-
 /*It concatenates two strings creating the right portion in the memory.*/
 char* catMem(char *str1, char *str2){
 
@@ -33,46 +25,64 @@ char* catChar(char *str1, char c){
 	return newStr;
 }
 
+// Check file existance
+int FileExists(char *filename)
+{
+	FILE *fp = fopen (filename, "r");
+	if (fp!=NULL) fclose (fp);
+	return (fp!=NULL);
+}
+
 // removing temporary files from the HDD
 void removeTempFiles(){
 	char *command;
 
 #if defined(__linux) || defined(__APPLE__)
-	command = strdup("rm -f ");
-	command = catMem(command, TMP_FILE);
-	if (system(command) == -1){
-		fprintf(stderr,"Error on removing %s.\n", TMP_FILE);
-		return;
+	if(FileExists(TMP_FILE)){
+		command = strdup("rm -f ");
+		command = catMem(command, TMP_FILE);
+		if (system(command) == -1){
+			fprintf(stderr,"Error on removing %s.\n", TMP_FILE);
+			return;
+		}
+		free(command);
 	}
-	free(command);
-    	command = strdup("rm -f ");
-	command = catMem(command, SCRIPT_PATH);
-	if (system(command) == -1){
-		fprintf(stderr,"Error on removing %s.\n", SCRIPT_PATH);
-		return;
+	if(FileExists(SCRIPT_PATH)){
+	    	command = strdup("rm -f ");
+		command = catMem(command, SCRIPT_PATH);
+		if (system(command) == -1){
+			fprintf(stderr,"Error on removing %s.\n", SCRIPT_PATH);
+			return;
+		}
+		free(command);
 	}
-	free(command);
-	command = strdup("rm -f ");
-	command = catMem(command, TRIVIAL_ENCODING_FILE);
-	if (system(command) == -1){
-		fprintf(stderr,"Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
-		return;
+	if(FileExists(TRIVIAL_ENCODING_FILE)){
+		command = strdup("rm -f ");
+		command = catMem(command, TRIVIAL_ENCODING_FILE);
+		if (system(command) == -1){
+			fprintf(stderr,"Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
+			return;
+		}
+		free(command);
 	}
-	free(command);
-	command = strdup("rm -f ");
-	command = catMem(command, CONSTRAINTS_FILE);
-	if (system(command) == -1){
-		fprintf(stderr,"Error on removing %s.\n", CONSTRAINTS_FILE);
-		return;
+	if(FileExists(CONSTRAINTS_FILE)){
+		command = strdup("rm -f ");
+		command = catMem(command, CONSTRAINTS_FILE);
+		if (system(command) == -1){
+			fprintf(stderr,"Error on removing %s.\n", CONSTRAINTS_FILE);
+			return;
+		}
+		free(command);
 	}
-	free(command);
-	command = strdup("rm -f ");
-	command = catMem(command, BOOL_PATH);
-	if (system(command) == -1){
-		fprintf(stderr,"Error on removing %s.\n", BOOL_PATH);
-		return;
+	if(FileExists(BOOL_PATH)){
+		command = strdup("rm -f ");
+		command = catMem(command, BOOL_PATH);
+		if (system(command) == -1){
+			fprintf(stderr,"Error on removing %s.\n", BOOL_PATH);
+			return;
+		}
+		free(command);
 	}
-	free(command);
 #else
 	if(FileExists(TMP_FILE)){
 	    	command = strdup("del ");
@@ -123,33 +133,81 @@ void removeTempFiles(){
 	return;
 }
 
+void safe_exit(const char* message){
+	fprintf(stderr,"%s\n", message);
+	removeTempFiles();
+	fflush(stderr);
+	return;
+}
+
+/*PRINT BINARY FUNCTION*/
+/*Following function print the binary representation of an integer number.*/
+void print_binary(FILE *fp,int n, int bits){
+	int *vett,j;
+
+	vett = (int*)calloc(bits, sizeof(int));
+
+	for(int i=0;i<bits; i++){
+		if(n & 1) vett[i] = 1;
+		n >>=1;
+	}
+	j = 0;
+	for(int i=bits-1; i>= 0;i--){
+		fprintf(fp,"%d", vett[i]);
+	}
+	if (fp != NULL)
+		fprintf(fp," ");
+
+	free(vett);
+
+	return;
+}
+
+char* decimal_to_binary(int n, int bits){
+	int *vett,j;
+	char *binary = NULL;
+
+	vett = (int*)calloc(bits, sizeof(int));
+	binary = (char*) malloc(sizeof(char) * (bits+1));
+
+	for(int i=0;i<bits; i++){
+		if(n & 1) vett[i] = 1;
+		n >>=1;
+	}
+	j = 0;
+	for(int i=bits-1; i>= 0;i--){
+		if(vett[i]) binary[j++] = '1';
+		else	binary[j++] = '0';
+	}
+	binary[bits] = '\0';
+
+	free(vett);
+
+	return binary;
+}
+
 int temporary_files_creation(){
 #if defined(__linux) || defined(__APPLE__)
 	if (mkstemp(TRIVIAL_ENCODING_FILE) == -1){
 		fprintf(stderr,"Error on opening trivial temporary file: %s.\n",
 			TRIVIAL_ENCODING_FILE);
-		removeTempFiles();
 		return -1;
 	}
 	if (mkstemp(CONSTRAINTS_FILE) == -1){
 		fprintf(stderr,"Error on opening constraint temporary file: %s.\n",
 			CONSTRAINTS_FILE);
-		removeTempFiles();
 		return -1;
 	}
 	if (mkstemp(TMP_FILE) == -1){
 		fprintf(stderr,"Error on opening temporary file: %s.\n", TMP_FILE);
-		removeTempFiles();
 		return -1;
 	}
 	if (mkstemp(SCRIPT_PATH) == -1){
 		fprintf(stderr,"Error on opening temporary file: %s.\n", SCRIPT_PATH);
-		removeTempFiles();
 		return -1;
 	}
 	if (mkstemp(BOOL_PATH) == -1){
 		fprintf(stderr,"Error on opening temporary file: %s.\n", BOOL_PATH);
-		removeTempFiles();
 		return -1;
 	}
 #else
@@ -166,35 +224,6 @@ int temporary_files_creation(){
 /*Following function simply computes logarithm base 2 of input parameter.*/
 int logarithm2(int n){
 	return ceil(log2(n));
-}
-
-/*PRINT BINARY FUNCTION*/
-/*Following function print the binary representation of an integer number.*/
-void print_binary(FILE *fp,int n, int bits){
-	int i, *vett,j;
-	vett = (int*)calloc(bits, sizeof(int));
-
-	if(numb != NULL) free(numb);
-
-	numb = (char*) malloc(sizeof(char) * (bits+1));
-
-	for(i=0;i<bits; i++){
-		if(n & 1) vett[i] = 1;
-		n >>=1;
-	}
-	j = 0;
-	for(i=bits-1; i>= 0;i--){
-		if(fp != NULL)
-			fprintf(fp,"%d", vett[i]);
-		if(vett[i]) numb[j++] = '1';
-		else	numb[j++] = '0';
-	}
-	numb[bits] = '\0';
-
-	if (fp != NULL)
-		fprintf(fp," ");
-
-	return;
 }
 
 /*STRING COMPARE WITH DON'T CARE SUPPORT*/
@@ -302,10 +331,6 @@ int export_variables(encodingType encoding){
 
 	encodingReformat(encoding);
 
-	fprintf(fpLOG,"\nOpcodes assigned to the graphs:\n");
-	for(int i = 0; i < cpog_count; i++)
-		fprintf(fpLOG,"%s\n",scenarioOpcodes[i].c_str());
-
 	// set opcode length
 	bits = scenarioOpcodes[0].length();
 
@@ -335,8 +360,10 @@ void loadScenarioOpcodes(int index){
 	scenarioOpcodes.resize(cpog_count);
 	clear_scenarios();
 	for(int i = 0; i < cpog_count; i++){
-		print_binary(NULL, perm[index][i], bits);
+		char *numb = NULL;
+		numb = decimal_to_binary(perm[index][i], bits);
 		scenarioOpcodes[i] = string(numb);
+		free(numb);
 	}
 
 	opcodesForSynthesis(index);
@@ -624,4 +651,33 @@ void resetVariables(){
 	graphRead = FALSE;
 
 	return;
+}
+
+int parse_area_result_abc(){
+
+	FILE *fp = NULL;
+	char string[50];
+	char c;
+
+	fp = fopen(TMP_FILE, "r");
+	while( fscanf(fp,"%s", string) != EOF ){
+		if(!strcmp(string, "TOTAL")){
+			while((c = fgetc(fp)) != '=');
+			if (fscanf(fp,"%d", &gates) != 1){
+				return -1;
+		
+			}
+			while((c = fgetc(fp)) != '=');
+			if(fscanf(fp,"%f", &area) != 1){
+				return -1;
+		
+			}
+			break;
+		} else {
+			while((c = fgetc(fp)) != '\n');
+		}
+	}
+	fclose(fp);
+	
+	return 0;
 }

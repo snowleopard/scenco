@@ -89,8 +89,6 @@ typedef struct Encoding_st
 	char LOG[] = "scenco.log";
 
 // Alex's tool
-FILE *fpLOG = NULL;
-char *numb = NULL;
 char **manual_file = NULL;
 char **manual_file_back = NULL;
 int *custom_perm = NULL;
