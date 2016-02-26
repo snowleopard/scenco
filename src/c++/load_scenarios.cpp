@@ -468,7 +468,7 @@ int read_file(char *file_in){
 	while ( (c = fgetc (fp)) != '\n' ) i++;
 	i++;
 	fclose(fp);
-	string = (char*) malloc(sizeof(char) * i);
+	string = (char*) malloc(sizeof(char) * (i+1));
 
 	fp = fopen(file_in, "r");
 	if(fscanf(fp,"%s", string) == EOF){

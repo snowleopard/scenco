@@ -13,7 +13,7 @@ testPath :: FilePath
 testPath = "test"
 
 abcPath :: FilePath
-abcPath = ("abc")
+abcPath = "abc"
 
 techLibPath :: FilePath
 techLibPath = (testPath </> "90nm.genlib")
@@ -90,9 +90,8 @@ testEncoding (x:xs) (y:ys) = do
 
 assertSynthesis :: FilePath -> IO ()
 assertSynthesis verilogPath = do
-    result <- synthesis abcPath Controller
-    check result "\tBoolean equations generation: OK\n" "Boolean equations generation: ERROR"
-    area <- estimateArea abcPath techLibPath
+    synthesis Controller
+    area <- estimateArea techLibPath
     putStrLn ("\tArea of the controller: " ++ show area)
 --  resultV <- writeVerilog abcPath techLibPath verilogPath
 --  check resultV "\tVerilog file generation: OK\n" "Verilog file generation: ERROR"
@@ -100,7 +99,7 @@ assertSynthesis verilogPath = do
 
 check :: Int -> String -> String -> IO ()
 check result msgOk msgError
-    | result == 0 = putStr msgOk
+    | result == 0 = putStrLn msgOk
     | otherwise   = error $ msgError ++ " (code " ++ show result ++ ")"
 
 assertLoad :: FilePath -> FilePath -> IO ()

@@ -24,8 +24,6 @@ extern "C" {
 		FILE *fp;
 		int trivial = 0;
 		int err=0;
-		int elements;
-		int min_disp;
 
 		if(first){
 			first = FALSE;
@@ -101,70 +99,30 @@ extern "C" {
 		/***************************************************************
 		*               Variable preparation for encoding              *
 		***************************************************************/
-		strcpy(file_in,TRIVIAL_ENCODING_FILE);
 		file_cons = strdup(CONSTRAINTS_FILE);
 
-		/*READ NON-TRIVIAL ENCODING FILE*/
-		if( (err = read_file(file_in)) ){
+		// reading non-trivial encoding file
+		if( (err = read_file(TRIVIAL_ENCODING_FILE)) ){
 			safe_exit("Error occured while reading non-trivial\
 				   encoding file.");
 			return -1;
 		}
 
-		/*SEED FOR RAND*/
+		// seed for rand
 		srand(time(NULL));
 
-		/*ALLOCATING AND ZEROING DIFFERENCE MATRIX*/
+		// difference matrix allocation
 		opt_diff = (int**) calloc(n, sizeof(int*));
 		for(int i=0;i<n;i++)
 			opt_diff[i] = (int*) calloc(n, sizeof(int));
 
-		/*NUMBER OF POSSIBLE ENCODING*/
-		tot_enc = 1;
-		for(int i=0;i<bits;i++) tot_enc *= 2;
-
-		/*ANALYSIS IF IT'S A PERMUTATION OR A DISPOSITION*/
-		num_perm = 1;
-		if (n == tot_enc){
-			/*PERMUTATION*/
-			if(!unfix && !SET){
-				for(int i = 1; i< tot_enc; i++)
-					num_perm *= i;
-			}else{
-				for(int i = 1; i<= tot_enc; i++)
-					num_perm *= i;
-			}
-		}
-		else{
-			/*DISPOSITION*/
-			if(!unfix && !SET){
-				elements = tot_enc-1;
-				min_disp = elements - (n- 1) + 1;
-			}else{
-				elements = tot_enc;
-				min_disp = elements - (n) + 1;
-			}
-				num_perm = 1;
-			for(int i=elements; i>= min_disp; i--)
-				num_perm *= i;
-		}
-
-		all_perm = num_perm;
-
-		/*PREPARATION DATA FOR ENCODING PERMUTATIONS*/
-		enc = (int*) calloc(tot_enc, sizeof(int));
-
-		/*First element is fixed*/
-		if (!unfix && !SET)
-			enc[0] = 1;
-
-		sol = (int*) calloc(tot_enc, sizeof(int));
-		if (sol == NULL){
-			safe_exit("Error on allocating array for the solution.");
+		if(encoding_memory_allocation() != 0){
+			safe_exit("Error on allocating space for encoding\
+				   (graph loading phase).");
 			return -1;
 		}
 
-		/*BUILDING DIFFERENCE MATRIX*/
+		// building difference matrix
 		if( (err = difference_matrix(cpog_count)) ){
 			safe_exit("Error occurred while building difference\
 				   matrix");
@@ -338,7 +296,6 @@ extern "C" {
 		int err;
 
 		if (get_formulae_nodes(abcPath) != 0){
-			removeTempFiles();
 			safe_exit("Error using ABC for getting Boolean formulae\
 				   of nodes and arcs (CPOG synthesis).");
 			return -1;

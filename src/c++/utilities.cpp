@@ -321,12 +321,6 @@ int set_opcodes(int cpog_count){
 	return  0;
 }
 
-void clear_scenarios(){
-	for(int i; i<cpog_count;i++){
-		if ( !scenarioOpcodes[i].empty() ) scenarioOpcodes[i].clear();
-	}
-}
-
 int export_variables(encodingType encoding){
 
 	encodingReformat(encoding);
@@ -357,8 +351,8 @@ void opcodesForSynthesis(int index){
 void loadScenarioOpcodes(int index){
 
 	// for haskell
+	if(!scenarioOpcodes.empty()) scenarioOpcodes.clear();
 	scenarioOpcodes.resize(cpog_count);
-	clear_scenarios();
 	for(int i = 0; i < cpog_count; i++){
 		char *numb = NULL;
 		numb = decimal_to_binary(perm[index][i], bits);
@@ -680,4 +674,59 @@ int parse_area_result_abc(){
 	fclose(fp);
 	
 	return 0;
+}
+
+int encoding_memory_allocation(){
+
+	int elements;
+	int min_disp;
+
+	// number of possible encoding
+	tot_enc = 1;
+	for(int i=0;i<bits;i++) tot_enc *= 2;
+
+	// permutation or disposition?
+	num_perm = 1;
+	if (n == tot_enc){
+		// permutation case
+		if(!unfix && !SET){
+			for(int i = 1; i< tot_enc; i++)
+				num_perm *= i;
+		}else{
+			for(int i = 1; i<= tot_enc; i++)
+				num_perm *= i;
+		}
+	}
+	else{
+		// disposition
+		if(!unfix && !SET){
+			elements = tot_enc-1;
+			min_disp = elements - (n- 1) + 1;
+		}else{
+			elements = tot_enc;
+			min_disp = elements - (n) + 1;
+		}
+			num_perm = 1;
+		for(int i=elements; i>= min_disp; i--)
+			num_perm *= i;
+	}
+
+	all_perm = num_perm;
+
+	// space for codes available
+	enc = (int*) calloc(tot_enc, sizeof(int));
+	if( enc == NULL){
+		return -1;
+	}
+
+	// First element is fixed
+	if (!unfix && !SET)
+		enc[0] = 1;
+
+	sol = (int*) calloc(tot_enc, sizeof(int));
+	if (sol == NULL){
+		return -1;
+	}	
+
+	return -1;
 }

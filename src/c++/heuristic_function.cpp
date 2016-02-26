@@ -152,14 +152,12 @@ int allocate_encodings_space(int mem){
 	perm = (int**) malloc(sizeof(int*) * mem);
 	if ( perm == NULL){
 		fprintf(stderr,"perm variable = null\n");
-		removeTempFiles();
 		return -1;
 	}
 	for(long long int i=0;i<mem;i++){
 		perm[i] = (int*) malloc(n * sizeof(int));
 		if (perm[i] == NULL){
 			fprintf(stderr,"perm[%lld] = null\n",i);
-			removeTempFiles();
 			return -1;
 		}
 	}

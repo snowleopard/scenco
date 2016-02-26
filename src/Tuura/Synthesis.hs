@@ -6,12 +6,9 @@ import Tuura.Formula
 data SynthesisType = Controller
                    | CPOG
 
---synthesis :: FilePath -> IO [Formula]
---synthesis espressoPath = do
-
-synthesis :: FilePath -> SynthesisType -> IO Int
-synthesis abcPath Controller   = generateController abcPath
-synthesis abcPath CPOG         = generateCPOG      abcPath
+synthesis :: SynthesisType -> IO [Formula]
+synthesis Controller   = generateController
+synthesis CPOG         = generateCPOG
 
 unloadController :: IO ()
 unloadController = freeFormulae

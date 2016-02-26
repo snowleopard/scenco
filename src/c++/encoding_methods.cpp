@@ -25,8 +25,8 @@ int singleLiteralEncoding(int total){
 
 	//printf("DONE.\nThe best encoding uses %d operational variables:\n", R);
 
+	scenarioOpcodes.clear();
 	scenarioOpcodes.resize(n);
-	clear_scenarios();
 
 	for(int i = 0; i < n; i++) for(int j = 0; j < R; j++) scenarioOpcodes[i] += "-";
     
@@ -128,7 +128,7 @@ int singleLiteralEncoding(int total){
 *******************************************************************************/
 int sequentialEncoding(){
 	int bits = logarithm2(n);
-	clear_scenarios();
+	if ( !scenarioOpcodes.empty() ) scenarioOpcodes.clear();
 	scenarioOpcodes.resize(n);
 	
 	for(int i = 0; i < n; i++){
