@@ -1,9 +1,9 @@
-module Tuura.Library (Library, getLibraryPath, createLibrary) where
+module Tuura.Library (Library, libraryFile, loadLibrary) where
 
-data Library = Library FilePath
+newtype Library = Library FilePath
 
-getLibraryPath :: Library -> FilePath
-getLibraryPath (Library file) = file
+libraryFile :: Library -> FilePath
+libraryFile (Library file) = file
 
-createLibrary :: FilePath -> Library
-createLibrary file = (Library file)
+loadLibrary :: FilePath -> Library
+loadLibrary = Library

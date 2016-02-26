@@ -1,4 +1,4 @@
-module Tuura.TechnologyMapping (technologyMapping, Area, getArea, setArea,
+module Tuura.TechnologyMapping (technologyMapping, Area, GateCount, 
                                 estimateArea, writeVerilog) where
 
 import Foreign.C.String
@@ -7,31 +7,32 @@ import Tuura.Circuit
 import Tuura.Formula
 import Tuura.Library
 
-data Area = Area Double
+type Area      = Double
+type GateCount = Int
+type ErrorCode = Int
 
-getArea :: Area -> Double
-getSize (area size) = size
-
-setArea :: Double -> Area
-setSize size = (area size)
+-- TODO: Move to a separate file
+abcCommand :: FilePath
+abcCommand = "abc"
 
 foreign import ccall unsafe "map_and_get_area_circuit"
-    mapAndGetAreaCircuit :: CString -> CString -> IO (Double)
+    mapAndGetAreaCircuit :: CString -> CString -> IO Area
 
 foreign import ccall unsafe "generate_verilog"
-    generateVerilog :: CString -> CString -> CString -> IO (Int)
+    generateVerilog :: CString -> CString -> CString -> IO ErrorCode
 
---technologyMapping :: Library -> [Formula] -> Circuit
---technologyMapping = undefined
+technologyMapping :: Library -> [Formula] -> Circuit
+technologyMapping = undefined
 
-estimateArea :: Library -> IO (Area)
-estimateArea techLibPath = do
-    library <- newCString $ (getLibraryPath techLib)
-    size <- mapAndGetAreaCircuit library
-    setArea size
+-- TODO: Add missing parameters
+estimateArea :: Library -> IO Area
+estimateArea library = do
+    file <- newCString $ libraryFile library
+    mapAndGetAreaCircuit file
 
-writeVerilog :: Library -> FilePath -> IO (Int)
-writeVerilog techLib verilogPath = do
-    library <- newCString $ (getLibraryPath techLib)
-    vFile <- newCString verilogPath
-    generateVerilog abc library vFile
+-- TODO: Add missing parameters
+writeVerilog :: Library -> FilePath -> IO ErrorCode
+writeVerilog library verilogFile = do
+    lFile <- newCString $ libraryFile library
+    vFile <- newCString verilogFile
+    generateVerilog abcCommand lFile vFile
