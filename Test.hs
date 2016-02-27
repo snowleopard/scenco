@@ -12,105 +12,94 @@ testPath = "test"
 testArm8 :: IO ()
 testArm8 = do
     putStrLn "========== ARM Cortex M0+ (8 Partial orders)"
-    runAsserts "arm_8.cpog" "arm_8.opcodes" 8
-    putStrLn "=========="
+    runTests "arm_8" "arm_8.opcodes" 8
 
 testArm11 :: IO ()
 testArm11 = do
     putStrLn "========== ARM Cortex M0+ (11 Partial orders)"
-    runAsserts "arm_11.cpog" "arm_11.opcodes" 11
-    putStrLn "=========="
+    runTests "arm_11" "arm_11" 11
 
 testIntel7 :: IO ()
 testIntel7 = do
     putStrLn "========== Intel 8051 (7 Partial orders)"
-    runAsserts "Intel8051_7.cpog" "Intel8051_7.opcodes" 7
-    putStrLn "=========="
+    runTests "Intel8051_7" "Intel8051_7" 7
 
 testIntel8 :: IO ()
 testIntel8 = do
     putStrLn "========== Intel 8051 (8 Partial orders)"
-    runAsserts "Intel8051_8.cpog" "Intel8051_8.opcodes" 8
-    putStrLn "=========="
+    runTests "Intel8051_8" "Intel8051_8" 8
 
 testIntel9 :: IO ()
 testIntel9 = do
     putStrLn "========== Intel 8051 (9 Partial orders)"
-    runAsserts "Intel8051_9.cpog" "Intel8051_9.opcodes" 9
-    putStrLn "=========="
+    runTests "Intel8051_9" "Intel8051_9" 9
 
-runAsserts :: FilePath -> FilePath -> Int -> IO ()
-runAsserts cpogFile codesFile numPartialOrders = do
-    assertLoad (testPath </> cpogFile) (testPath </> codesFile)
-    customCodes <- parseCustomCode (testPath </> codesFile)
-    runAllAlgorithms numPartialOrders customCodes
-    assertUnload
-
-runAllAlgorithms :: Int -> [CodeWithUnknowns] -> IO ()
-runAllAlgorithms numPartialOrders customCodes = do
-    assertSingleLiteral
-    assertSequential
-    assertRandom numPartialOrders customCodes
-    assertHeuristic numPartialOrders customCodes
-    --assertExhaustive numPartialOrders customCodes
-
-testEncoding :: [CodeWithUnknowns] -> [CodeWithoutUnknowns] -> IO ()
-testEncoding [] [] = putStrLn "Valid encoding"
-testEncoding [] ys = error $ "Extra codes found " ++ show ys
-testEncoding xs [] = error $ "Missing codes for " ++ show xs
-testEncoding (x:xs) (y:ys) = do
-    let result = validate x y
-    when (result /= Valid) . error $
-        show result ++ ": " ++ show x ++ " => " ++ show y
-    testEncoding xs ys
+runTests :: FilePath -> FilePath -> Int -> IO ()
+runTests cpog codes numPartialOrders = do
+    loadTest (testPath </> cpog <.> "cpog") (testPath </> codes <.> "opcodes")
+    codeConstraints <- parseCustomCode (testPath </> codes <.> "opcodes")
+    testSingleLiteral
+    testSequential
+    testRandom numPartialOrders codeConstraints
+    testHeuristic numPartialOrders codeConstraints
+    unloadTest
 
 check :: Int -> String -> String -> IO ()
 check result msgOk msgError
     | result == 0 = putStrLn msgOk
     | otherwise   = error $ msgError ++ " (code " ++ show result ++ ")"
 
-assertLoad :: FilePath -> FilePath -> IO ()
-assertLoad cpogFile codesFile = do
+loadTest :: FilePath -> FilePath -> IO ()
+loadTest cpogFile codesFile = do
     result <- loadGraphsAndCodes cpogFile codesFile
     check result "Graphs and codes loaded" "Error loading graphs"
 
-assertUnload :: IO ()
-assertUnload = do
+unloadTest :: IO ()
+unloadTest = do
     result <- unloadGraphsAndCodes
     check result "Graphs and codes unloaded" "Error unloading graphs"
 
-assertSingleLiteral :: IO ()
-assertSingleLiteral = do
+testSingleLiteral :: IO ()
+testSingleLiteral = do
     result <- encodeGraphs SingleLiteral Nothing
     check result "Single literal encoding: OK" "Single literal encoding: ERROR"
 
-assertSequential :: IO ()
-assertSequential = do
+testSequential :: IO ()
+testSequential = do
     result <- encodeGraphs Sequential Nothing
     check result "Sequential encoding: OK" "Sequential encoding: ERROR"
 
-assertRandom :: Int -> [CodeWithUnknowns] -> IO ()
-assertRandom numPartialOrders customCodes = do
+testRandom :: Int -> [CodeWithUnknowns] -> IO ()
+testRandom numPartialOrders codeConstraints = do
     result <- encodeGraphs Random (Just 10)
     check result "Random encoding..." "Random encoding: ERROR"
-    runCodeAssert getCodesLength numPartialOrders customCodes
+    verifyEncoding getCodesLength numPartialOrders codeConstraints
 
-assertHeuristic :: Int -> [CodeWithUnknowns] -> IO ()
-assertHeuristic numPartialOrders customCodes = do
+testHeuristic :: Int -> [CodeWithUnknowns] -> IO ()
+testHeuristic numPartialOrders codeConstraints = do
     result <- encodeGraphs Heuristic (Just 10)
     check result "Heuristic encoding..." "Heuristic encoding: ERROR"
-    runCodeAssert getCodesLength numPartialOrders customCodes
+    verifyEncoding getCodesLength numPartialOrders codeConstraints
 
--- TODO: Do we need this? If not, remove.
--- assertExhaustive :: Int -> [CodeWithUnknowns] -> IO ()
--- assertExhaustive numPartialOrders customCodes = do
+-- testExhaustive :: Int -> [CodeWithUnknowns] -> IO ()
+-- testExhaustive numPartialOrders codeConstraints = do
 --     result <- encodeGraphs Exhaustive (Just 10)
 --     if result /= 0
 --         then error $ "Exhaustive encoding... ERROR"
 --         else putStrLn "Heuristic encoding... OK"
---     runCodeAssert getCodesLength numPartialOrders customCodes
+--     verifyEncoding getCodesLength numPartialOrders codeConstraints
 
-runCodeAssert :: Int -> Int -> [CodeWithUnknowns] -> IO ()
-runCodeAssert bitLength numPartialOrders customCodes = do
-    randomCodes <- getCodes numPartialOrders bitLength
-    testEncoding customCodes randomCodes
+verifyEncoding :: Int -> Int -> [CodeWithUnknowns] -> IO ()
+verifyEncoding bitLength numPartialOrders codeConstraints = do
+    codes <- getCodes numPartialOrders bitLength
+    codes `shouldMeet` codeConstraints
+
+shouldMeet :: [CodeWithoutUnknowns] -> [CodeWithUnknowns] -> IO ()
+shouldMeet [] [] = putStrLn "Valid encoding"
+shouldMeet xs [] = error $ "Extra codes found " ++ show xs
+shouldMeet [] ys = error $ "Missing codes for " ++ show ys
+shouldMeet (x:xs) (y:ys) = do
+    let result = validate y x
+    when (result /= Valid) . error $
+        show result ++ ": " ++ show y ++ " => " ++ show x
+    shouldMeet xs ys
