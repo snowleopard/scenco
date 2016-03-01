@@ -30,12 +30,13 @@ install:
     - ghc --version
     - cabal --version
     - cabal install --only-dependencies
+    - pwd
     - wget -O abc.zip https://bitbucket.org/alanmi/abc/get/b637ae1ad4ff.zip
     - unzip abc.zip -d abc_folder
     - cd abc_folder/alanmi-abc-b637ae1ad4ff/
     - make
     - cd ../../
-    - PATH=$PATH:/abc_folder/alanmi-abc-b637ae1ad4ff
+    #- PATH=$PATH:/abc_folder/alanmi-abc-b637ae1ad4ff
 
 script:
     - cabal configure --enable-tests
