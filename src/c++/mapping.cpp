@@ -586,11 +586,7 @@ char* abcCommandOutNull(char *abcPath){
 
 	char *command = NULL;
 
-#if defined(__linux) || defined(__APPLE__)
-	command = strdup("./");
-#else
 	command = strdup("");
-#endif
 	command = catMem(command, abcPath);
 	command = catMem(command, " < ");
 	command = catMem(command, SCRIPT_PATH);
@@ -606,11 +602,7 @@ char* abcCommandOutTmp(char *abcPath){
 
 	char *command = NULL;
 
-#if defined(__linux) || defined(__APPLE__)
-	command = strdup("./");
-#else
 	command = strdup("");
-#endif
 	command = catMem(command, abcPath);
 	command = catMem(command, " < ");
 	command = catMem(command, SCRIPT_PATH);
