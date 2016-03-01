@@ -36,7 +36,8 @@ install:
     - cd abc_folder/alanmi-abc-b637ae1ad4ff/
     - make
     - cd ../../
-    #- PATH=$PATH:/abc_folder/alanmi-abc-b637ae1ad4ff
+    - PATH="abc_folder/alanmi-abc-b637ae1ad4ff:$PATH"
+    - export PATH
 
 script:
     - cabal configure --enable-tests
