@@ -1,6 +1,5 @@
 int compute_HD(int n1,int i, int n2,int j,int bits,int cpog_count){
 	int ones,bit_diff,q;
-	char *number;
 
 	ones = 0;
 	if(SET){
@@ -13,34 +12,34 @@ int compute_HD(int n1,int i, int n2,int j,int bits,int cpog_count){
 			return ones;
 		}
 		if(DC_custom[i] && !DC_custom[j]){
-			print_binary(NULL,n2, bits);
-			number = numb;
+			char *str, *numb;
+			numb = decimal_to_binary(n2, bits);
 			ones = 0;
-			char *str;
 			str = (char*) malloc(sizeof(char) * (bits +1));
 			int_to_string_DC(bits, i, n1, str);
 			for(q = 0; q<bits; q++){
-				if(str[q] == '0' && number[q] == '1')
+				if(str[q] == '0' && numb[q] == '1')
 					ones++;
-				if(str[q] == '1' && number[q] == '0')
+				if(str[q] == '1' && numb[q] == '0')
 					ones++;
 			}
 			free(str);
+			free(numb);
 			return ones;
 		}
 		if(!DC_custom[i] && DC_custom[j]){
-			print_binary(NULL,n1, bits);
-			number = numb;
-			char *str;
+			char *str, *numb;
+			numb = decimal_to_binary(n1, bits);
 			str = (char*) malloc(sizeof(char) * (bits +1));						
 			int_to_string_DC(bits, j, n2, str);
 			for(q = 0; q<bits; q++){
-				if(str[q] == '0' && number[q] == '1')
+				if(str[q] == '0' && numb[q] == '1')
 					ones++;
-				if(str[q] == '1' && number[q] == '0')
+				if(str[q] == '1' && numb[q] == '0')
 					ones++;
 			}
 			free(str);
+			free(numb);
 			return ones;
 		}
 		if(DC_custom[i] && DC_custom[j]){
@@ -139,25 +138,51 @@ int heuristic_choice(){
         return 0;
 }
 
+void allocateEncodingsSynthesis(){
+	cons_perm = (int**) malloc(sizeof(int*));
+	cons_perm[0] = (int*) malloc(sizeof(int) * cpog_count);
+	return;
+}
+
 int allocate_encodings_space(int mem){
 
 	num_perm = mem;
 	counter = 0;
+	
 	perm = (int**) malloc(sizeof(int*) * mem);
 	if ( perm == NULL){
 		fprintf(stderr,"perm variable = null\n");
-		removeTempFiles();
 		return -1;
 	}
 	for(long long int i=0;i<mem;i++){
 		perm[i] = (int*) malloc(n * sizeof(int));
 		if (perm[i] == NULL){
 			fprintf(stderr,"perm[%lld] = null\n",i);
-			removeTempFiles();
 			return -1;
 		}
 	}
 	weights = (long long int *) calloc(mem, sizeof(long long int));
+	allocateEncodingsSynthesis();
 
 	return 0;
+}
+
+void synthesisSpaceSingleLiteral(){
+	allocateEncodingsSynthesis();
+	for(int i = 0; i < cpog_count; i++){
+		boolean dontUsedBit = FALSE;
+		for(int j=0; j< bits; j++){
+			if(scenarioOpcodes[i][j] == '-')
+				dontUsedBit = TRUE;
+		}
+		if(dontUsedBit) DC_custom[i] = TRUE;
+		else DC_custom[i] = FALSE;
+	
+		char *cstr = new char[scenarioOpcodes[i].length() + 1];
+		strcpy(cstr, scenarioOpcodes[i].c_str());
+		int k = conv_int(cstr, -1);
+		cons_perm[0][i] = k;
+		delete [] cstr;
+	}
+	return;
 }

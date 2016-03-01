@@ -26,11 +26,12 @@ library
         Tuura.Encode
         Tuura.Synthesis
         Tuura.TechnologyMapping
+        Tuura.Graph
+        Tuura.Library
     other-modules:
         Tuura.Circuit
         Tuura.Formula
-        Tuura.Graph
-        Tuura.Library
+        Tuura.Abc
     c-sources:        src/c++/scenco.cpp
     include-dirs:     src/c++
     build-depends:    base >= 4.7 && < 5

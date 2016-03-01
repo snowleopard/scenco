@@ -1,14 +1,20 @@
 module Tuura.Code (
-    CodeWithUnknowns, CodeWithoutUnknowns, Bit,
-    known, unknown, used, unused, CodeValidation (..), validate, parseCustomCode
+    CodeWithUnknowns, CodeWithoutUnknowns, Bit, CodesFile, codesFilepath, loadCodes,
+    known, unknown, used, unused, CodeValidation (..), validate, parseCustomCode,
     ) where
 
 type BoolWithUnknowns = Maybe Bool
 type Bit a = Maybe a
-
 type CodeWithUnknowns = [Bit BoolWithUnknowns]
-
 type CodeWithoutUnknowns = [Bit Bool]
+
+newtype CodesFile = CodesFile FilePath
+
+codesFilepath :: CodesFile -> FilePath
+codesFilepath (CodesFile file) = file
+
+loadCodes :: FilePath -> CodesFile
+loadCodes = CodesFile
 
 known :: Bool -> Bit BoolWithUnknowns
 known value = Just (Just value)
@@ -42,10 +48,11 @@ validate (a:as) (b:bs)
   where
     condition `thenError` result = if condition then result else validate as bs
 
-parseCustomCode :: FilePath -> IO ([CodeWithUnknowns])
-parseCustomCode codePath = do
-    contents <- lines <$> readFile codePath
-    let codes       = readCodes contents
+parseCustomCode :: CodesFile -> IO ([CodeWithUnknowns])
+parseCustomCode codesPath = do
+    let codesF = codesFilepath codesPath
+    contents <- lines <$> readFile codesF
+    let codes = readCodes contents
     return codes
 
 readBit :: Char -> Bit BoolWithUnknowns
