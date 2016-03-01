@@ -8,12 +8,11 @@ import Tuura.Encode
 import Tuura.Code
 import Tuura.Synthesis
 import Tuura.TechnologyMapping
+import Tuura.Graph
+import Tuura.Library
 
 testPath :: FilePath
 testPath = "test"
-
-abcPath :: FilePath
-abcPath = "abc"
 
 techLibPath :: FilePath
 techLibPath = (testPath </> "90nm.genlib")
@@ -21,46 +20,65 @@ techLibPath = (testPath </> "90nm.genlib")
 testArm8 :: IO ()
 testArm8 = do
     putStrLn "========== ARM Cortex M0+ (8 Partial orders)"
-    runTests "arm_8" "arm_8.opcodes" 8
+    runTests "arm_8" "arm_8"
 
 testArm11 :: IO ()
 testArm11 = do
     putStrLn "========== ARM Cortex M0+ (11 Partial orders)"
-    runTests "arm_11" "arm_11" 11
+    runTests "arm_11" "arm_11"
 
 testIntel7 :: IO ()
 testIntel7 = do
     putStrLn "========== Intel 8051 (7 Partial orders)"
-    runTests "Intel8051_7" "Intel8051_7" 7
+    runTests "Intel8051_7" "Intel8051_7"
 
 testIntel8 :: IO ()
 testIntel8 = do
     putStrLn "========== Intel 8051 (8 Partial orders)"
-    runTests "Intel8051_8" "Intel8051_8" 8
+    runTests "Intel8051_8" "Intel8051_8"
 
 testIntel9 :: IO ()
 testIntel9 = do
     putStrLn "========== Intel 8051 (9 Partial orders)"
-    runTests "Intel8051_9" "Intel8051_9" 9
+    runTests "Intel8051_9" "Intel8051_9"
 
-runTests :: FilePath -> FilePath -> Int -> IO ()
-runTests cpog codes numPartialOrders = do
+testTexasInstrument7 :: IO ()
+testTexasInstrument7 = do
+    putStrLn "========== Texas Instrument MSP 430 (7 Partial orders)"
+    runTests "TI_MSP_430_7" "TI_MSP_430_7"
+
+testTexasInstrument8 :: IO ()
+testTexasInstrument8 = do
+    putStrLn "========== Texas Instrument MSP 430 (8 Partial orders)"
+    runTests "TI_MSP_430_8" "TI_MSP_430_8"
+
+runTests :: FilePath -> FilePath -> IO ()
+runTests cpog codes = do
+    let codesPath = (testPath </> codes <.> "opcodes")
+        codesFile = loadCodes codesPath
     loadTest (testPath </> cpog <.> "cpog") (testPath </> codes <.> "opcodes")
-    codeConstraints <- parseCustomCode (testPath </> codes <.> "opcodes")
-    testSingleLiteral
-    testSequential
-    testRandom numPartialOrders codeConstraints
-    testHeuristic numPartialOrders codeConstraints
+    codeConstraints <- parseCustomCode codesFile
+    codeSingleLiteral <- testSingleLiteral
+    assertSynthesisAndMapping (testPath </> cpog <.> "cpog") codeSingleLiteral --("single_literal" <.> "v")
+    codesSequential <- testSequential
+    assertSynthesisAndMapping (testPath </> cpog <.> "cpog") codesSequential --("sequential_literal" <.> "v")
+    codesRandom <- testRandom codeConstraints
+    assertSynthesisAndMapping (testPath </> cpog <.> "cpog") codesRandom --("random_literal" <.> "v")
+    codesHeuristic <- testHeuristic codeConstraints
+    assertSynthesisAndMapping (testPath </> cpog <.> "cpog") codesHeuristic --("heuristic_literal" <.> "v")
     unloadTest
 
-assertSynthesis :: FilePath -> IO ()
-assertSynthesis verilogPath = do
-    synthesis Controller
-    area <- estimateArea techLibPath
-    putStrLn ("\tArea of the controller: " ++ show area)
---  resultV <- writeVerilog abcPath techLibPath verilogPath
---  check resultV "\tVerilog file generation: OK\n" "Verilog file generation: ERROR"
-    unloadController
+assertSynthesisAndMapping :: FilePath -> [CodeWithoutUnknowns] -> IO ()
+assertSynthesisAndMapping graphs codes = do
+    let graphsFile = loadGraph graphs
+        libFile    = loadLibrary techLibPath
+    formulae <- synthesiseControllerIO graphsFile codes
+    area <- estimateArea libFile formulae
+    let size = parseArea area
+    putStrLn ("\tArea of the controller: " ++ show size)
+--  resultV <- writeVerilog libFile formulae verilogPath
+--  let err = readError resultV
+--  check err "\tVerilog file generation: OK" "Verilog file generation: ERROR"
 
 check :: Int -> String -> String -> IO ()
 check result msgOk msgError
@@ -69,35 +87,45 @@ check result msgOk msgError
 
 loadTest :: FilePath -> FilePath -> IO ()
 loadTest cpogFile codesFile = do
-    result <- loadGraphsAndCodes cpogFile codesFile
-    check result "Graphs and codes loaded\n" "Error loading graphs"
+    let graphs = loadGraph cpogFile
+        codes = loadCodes codesFile
+    result <- loadGraphsAndCodes graphs codes
+    let err = readError result
+    check err "Graphs and codes loaded" "Error loading graphs"
 
 unloadTest :: IO ()
 unloadTest = do
     result <- unloadGraphsAndCodes
-    check result "Graphs and codes unloaded\n" "Error unloading graphs"
+    let err = readError result
+    check err "Graphs and codes unloaded" "Error unloading graphs"
 
-testSingleLiteral :: IO ()
+testSingleLiteral :: IO [CodeWithoutUnknowns]
 testSingleLiteral = do
     result <- encodeGraphs SingleLiteral Nothing
-    check result "> Single literal encoding: OK\n" "Single literal encoding: ERROR"
+    let err = readError result
+    check err "Single literal encoding: OK" "Single literal encoding: ERROR"
+    getCodes
 
-testSequential :: IO ()
+testSequential :: IO [CodeWithoutUnknowns]
 testSequential = do
     result <- encodeGraphs Sequential Nothing
-    check result "> Sequential encoding: OK\n" "Sequential encoding: ERROR"
+    let err = readError result
+    check err "Sequential encoding: OK" "Sequential encoding: ERROR"
+    getCodes
 
-testRandom :: Int -> [CodeWithUnknowns] -> IO ()
-testRandom numPartialOrders codeConstraints = do
-    result <- encodeGraphs Random (Just 10)
-    check result "Random encoding..." "Random encoding: ERROR"
-    verifyEncoding getCodesLength numPartialOrders codeConstraints
+testRandom :: [CodeWithUnknowns] -> IO [CodeWithoutUnknowns]
+testRandom codeConstraints = do
+    codesFinal <- encode Random (Just 10)
+    putStr "Random encoding: "
+    shouldMeet codesFinal codeConstraints
+    return codesFinal
 
-testHeuristic :: Int -> [CodeWithUnknowns] -> IO ()
-testHeuristic numPartialOrders codeConstraints = do
-    result <- encodeGraphs Heuristic (Just 10)
-    check result "Heuristic encoding..." "Heuristic encoding: ERROR"
-    verifyEncoding getCodesLength numPartialOrders codeConstraints
+testHeuristic :: [CodeWithUnknowns] -> IO [CodeWithoutUnknowns]
+testHeuristic codeConstraints = do
+    codesFinal <- encode Heuristic (Just 10)
+    putStr "Heuristic encoding: "
+    shouldMeet codesFinal codeConstraints
+    return codesFinal
 
 -- testExhaustive :: Int -> [CodeWithUnknowns] -> IO ()
 -- testExhaustive numPartialOrders codeConstraints = do
@@ -106,11 +134,6 @@ testHeuristic numPartialOrders codeConstraints = do
 --         then error $ "Exhaustive encoding... ERROR"
 --         else putStrLn "Heuristic encoding... OK"
 --     verifyEncoding getCodesLength numPartialOrders codeConstraints
-
-verifyEncoding :: Int -> Int -> [CodeWithUnknowns] -> IO ()
-verifyEncoding bitLength numPartialOrders codeConstraints = do
-    codes <- getCodes numPartialOrders bitLength
-    codes `shouldMeet` codeConstraints
 
 shouldMeet :: [CodeWithoutUnknowns] -> [CodeWithUnknowns] -> IO ()
 shouldMeet [] [] = putStrLn "Valid encoding"

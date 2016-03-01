@@ -1,49 +1,35 @@
-module Tuura.Synthesis (synthesise, encodeAndSynthesiseIO) where
+module Tuura.Synthesis (synthesiseControllerIO, synthesiseCpogIO) where
 
 import Tuura.Formula
-
-import System.FilePath
+import Tuura.Abc
+import Tuura.Code
+import Tuura.Graph
 import Foreign.C.String
+import Control.Monad
 
-abcCommand :: FilePath
-abcCommand = "abc"
+--synthesise :: [(Graph, CodeWithoutUnknowns)] -> [Formula]
+--synthesise = undefined
 
-synthesise :: [(Graph, CodeWithoutUnknowns)] -> [Formula]
-synthesise = undefined
+synthesiseControllerIO :: GraphsFile -> [CodeWithoutUnknowns] -> IO Formulae
+synthesiseControllerIO _ _ = do
+    abcC <- newCString abcCommand
+    errorCode <- generateController abcC
+    when (errorCode /= 0) $ error "Controller synthesis failed"
+    f <- getFormulae
+    unloadFormulae
+    return f
 
-encodeAndSynthesiseIO :: FilePath -> FilePath -> IO [Formula]
-encodeAndSynthesiseIO = do
-    nFormulae <- getNumFormulae
-    abcC <- newCString abc
-    errorCode <- generateFormulaeController abcC
-    when (errorCode /= 0) $ error "Error message"
-    result <- getFormulae nFormulae
-    unloadController
-    return result
-
-unloadController :: IO ()
-unloadController = freeFormulae
+synthesiseCpogIO :: GraphsFile -> [CodeWithoutUnknowns] -> IO Formulae
+synthesiseCpogIO _ _ = do
+    abcC <- newCString abcCommand
+    errorCode <- generateCPOG abcC
+    when (errorCode /= 0) $ error "CPOG synthesis failed"
+    f <- getFormulae
+    unloadFormulae
+    return f
 
 foreign import ccall unsafe "get_controller_formulae"
-    generateFormulaeController :: CString -> IO Int
+    generateController :: CString -> IO Int
 
 foreign import ccall unsafe "get_CPOG_formulae"
-    generateFormulaeCPOG :: CString -> IO Int
-
-foreign import ccall unsafe "get_equation"
-    getEquation :: Int -> IO CString
-
-foreign import ccall unsafe "get_num_equations"
-    getNumFormulae :: IO Int
-
-foreign import ccall unsafe "free_formulae"
-    freeFormulae :: IO ()
-
-getFormula :: Int -> IO Formula
-getFormula formulaID = do
-    formulaCString <- getEquation formulaID
-    formulaString <- peekCString formulaCString
-    return $ parseFormula formulaString
-
-getFormulae :: Int -> IO [Formula]
-getFormulae nFormulae = traverse getFormula [0..nFormulae-1]
+    generateCPOG :: CString -> IO Int

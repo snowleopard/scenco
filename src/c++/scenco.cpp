@@ -18,6 +18,10 @@ extern "C" {
 		return bits;
 	}
 
+	int get_n_graphs(){
+		return cpog_count;
+	}
+
 	int load_graphs_codes(char *file_in,
 			char *custom_file_name){
 
@@ -118,7 +122,7 @@ extern "C" {
 
 		if(encoding_memory_allocation() != 0){
 			safe_exit("Error on allocating space for encoding\
-				   (graph loading phase).");
+				   \(graph loading phase).");
 			return -1;
 		}
 
@@ -312,6 +316,52 @@ extern "C" {
 		return 0;
 	}
 
+	int get_num_inputs(){		
+		return nInputs;
+	}
+
+	char* get_input(int n){
+		if(n >= nInputs){
+			safe_exit("Wrong input ID.");
+			return NULL;
+		}
+		return inputs[n];
+	}
+
+	void push_input(char* input){
+		nInputs++;
+		inputs = (char **) realloc(inputs, (nInputs) * sizeof(char*));
+		if(inputs == NULL){
+			safe_exit("Error on inputs allocation.");
+			return;
+		}
+		inputs[nInputs-1] = strdup(input);
+		return;
+	}
+
+	int get_num_outputs(){		
+		return nOutputs;
+	}
+
+	char* get_output(int n){
+		if(n >= nOutputs){
+			safe_exit("Wrong output ID.");
+			return NULL;
+		}
+		return outputs[n];
+	}
+
+	void push_output(char* output){
+		nOutputs++;
+		outputs = (char **) realloc(outputs, (nOutputs) * sizeof(char*));
+		if(outputs == NULL){
+			safe_exit("Error on outputs allocation.");
+			return;
+		}
+		outputs[nOutputs-1] = strdup(output);
+		return;
+	}
+
 	int get_num_equations(){		
 		return nEquations;
 	}
@@ -324,11 +374,35 @@ extern "C" {
 		return equations[n];
 	}
 
+	void push_equation(char* equation){
+		nEquations++;
+		equations = (char **) realloc(equations, (nEquations) * sizeof(char*));
+		if(equations == NULL){
+			safe_exit("Error on equations allocation.");
+			return;
+		}
+		equations[nEquations-1] = strdup(equation);
+		return;
+	}
+
+	double get_area(){
+		return area;
+	}
+
+	int get_gate_count(){
+		return gates;
+	}
+
 	double map_and_get_area_circuit(char *abcPath, char *techLibrary){
 
 		char *command;
 
 		command = abcCommandOutTmp(abcPath);
+
+		if(fill_up_mapping_file() != 0){
+			safe_exit("Error writing equation into the tmp file.");
+			return -1;
+		}
 
 		if(writeMappingScript(techLibrary) != 0){
 			safe_exit("Error writing mapping script for ABC.");
@@ -359,6 +433,11 @@ extern "C" {
 
 		command = abcCommandOutNull(abcPath);
 
+		if(fill_up_mapping_file() != 0){
+			safe_exit("Error writing equation into the tmp file.");
+			return -1;
+		}
+
 		if(writeVerilogGenScript(techLibrary, vFile) != 0){
 			safe_exit("Error writing verilog script for ABC.");
 			return -1;
@@ -376,6 +455,24 @@ extern "C" {
 	}
 
 	void free_formulae(){
+
+		if(inputs != NULL){
+			for(int i = 0; i<nInputs;i++){
+				if(inputs[i] != NULL) free(inputs[i]);
+			}
+			free(inputs);
+			inputs = NULL;
+			nInputs = 0;
+		}
+
+		if(outputs != NULL){
+			for(int i = 0; i<nOutputs;i++){
+				if(outputs[i] != NULL) free(outputs[i]);
+			}
+			free(outputs);
+			outputs = NULL;
+			nOutputs = 0;
+		}
 
 		if(equations != NULL){
 			for(int i = 0; i<nEquations;i++){

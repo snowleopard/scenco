@@ -38,36 +38,47 @@ int equations_abc(int cpog_count, int bits){
 		}
 
 		//INPUT NAMES
+		inputs = NULL;
 		fprintf(fp,"INORDER =");
 		if(!decode_flag)
-			for(k=0;k<bits;k++)
+			for(k=0;k<bits;k++){
+				char buffer[33];
+				nInputs++;
+				inputs = (char **) realloc(inputs, (nInputs) * sizeof(char*));
+				inputs[nInputs-1] = strdup("");
+				snprintf(buffer, sizeof(buffer), "%d", k);
+				inputs[nInputs-1] = catMem(inputs[nInputs-1], "x_");
+				inputs[nInputs-1] = catMem(inputs[nInputs-1], buffer);
 				fprintf(fp," x_%d",k);
-		for(k=0;k<nv;k++)
+			}
+		for(k=0;k<nv;k++){
+			nInputs++;
+			inputs = (char **) realloc(inputs, (nInputs) * sizeof(char*));
+			inputs[nInputs-1] = strdup("");
+			inputs[nInputs-1] = catMem(inputs[nInputs-1], "ACK_");
+			inputs[nInputs-1] = catMem(inputs[nInputs-1], cpog[k][k].source);
 			fprintf(fp," ACK_%s",cpog[k][k].source);
-		for(k=0;k<n_cond;k++)
+		}
+		for(k=0;k<n_cond;k++){
+			nInputs++;
+			inputs = (char **) realloc(inputs, (nInputs) * sizeof(char*));
+			inputs[nInputs-1] = strdup(name_cond[k]);
 			fprintf(fp," %s",name_cond[k]);
-		if(decode_flag){
-			for(k=0;k<min_bits;k++)
-				fprintf(fp," Y%d",k);
 		}
 		fprintf(fp,";\n");
 
 		//OUTPUT NAMES
+		outputs = NULL;
 		fprintf(fp,"OUTORDER =");
-		if(decode_flag)
-			for(k=0;k<bits;k++)
-				fprintf(fp," x_%d",k);
-		for(k=0;k<nv;k++)
+		for(k=0;k<nv;k++){
+			nOutputs++;
+			outputs = (char **) realloc(outputs, (nOutputs) * sizeof(char*));
+			outputs[nOutputs-1] = strdup("");
+			outputs[nOutputs-1] = catMem(outputs[nOutputs-1], "REQ_");
+			outputs[nOutputs-1] = catMem(outputs[nOutputs-1], cpog[k][k].source);
 			fprintf(fp," REQ_%s",cpog[k][k].source);
-		fprintf(fp,";\n");
-
-		//DECODER
-		if(decode_flag){
-			for(i = 0;i<bits;i++){
-				fprintf(fp,"x_%d = ", i);
-				fprintf(fp,"%s;\n",decoder[i]);
-			}
 		}
+		fprintf(fp,";\n");
 
 		//FUNCTIONS
 		equations = NULL;
@@ -424,23 +435,47 @@ int equations_abc_cpog_size(int cpog_count, int bits){
 
 
 		//INPUT NAMES
+		inputs = NULL;
 		fprintf(fp,"INORDER =");
-		for(k=0;k<bits;k++)
+		for(k=0;k<bits;k++){
+			char buffer[33];
+			nInputs++;
+			inputs = (char **) realloc(inputs, (nInputs) * sizeof(char*));
+			inputs[nInputs-1] = strdup("");
+			snprintf(buffer, sizeof(buffer), "%d", k);
+			inputs[nInputs-1] = catMem(inputs[nInputs-1], "x_");
+			inputs[nInputs-1] = catMem(inputs[nInputs-1], buffer);
 			fprintf(fp," x_%d",k);
-		for(k=0;k<n_cond;k++)
+		
+		}
+		for(k=0;k<n_cond;k++){
+			nInputs++;
+			inputs = (char **) realloc(inputs, (nInputs) * sizeof(char*));
+			inputs[nInputs-1] = strdup(name_cond[k]);
 			fprintf(fp," %s",name_cond[k]);
+		}
 		fprintf(fp,";\n");
 
 		//OUTPUT NAMES
+		outputs = NULL;
 		fprintf(fp,"OUTORDER =");
 		for(k=0;k<nv;k++)
 			for(j=0; j<nv; j++)
 				if(cpog[k][j].type == 'v'){
 					if((cpog[k][j].fun[c][0] != '0' && cpog[k][j].fun[c][0] != '1') || cpog[k][j].condition){
+						nOutputs++;
+						outputs = (char **) realloc(outputs, (nOutputs) * sizeof(char*));
+						outputs[nOutputs-1] = strdup(cpog[k][j].source);
 						fprintf(fp," %s",cpog[k][j].source);
 					}
 				} else {
 					if(cpog[k][j].fun[c][0] != '0' && cpog[k][j].fun[c][0] != '1'){
+						nOutputs++;
+						outputs = (char **) realloc(outputs, (nOutputs) * sizeof(char*));
+						outputs[nOutputs-1] = strdup("");
+						outputs[nOutputs-1] = catMem(outputs[nOutputs-1], cpog[k][j].source);
+						outputs[nOutputs-1] = catMem(outputs[nOutputs-1], "->");
+						outputs[nOutputs-1] = catMem(outputs[nOutputs-1], cpog[k][j].dest);
 						fprintf(fp, " %s->%s", cpog[k][j].source, cpog[k][j].dest);
 					}
 				}
@@ -583,4 +618,34 @@ char* abcCommandOutTmp(char *abcPath){
 	command = catMem(command, TMP_FILE);
 	command = catMem(command, " 2>&1");
 	return command;
+}
+
+int fill_up_mapping_file(){
+	
+	FILE *fp = NULL;
+
+	// opening file
+	if( (fp = fopen(BOOL_PATH,"w")) == NULL ){
+		return -1;
+	}
+
+	fprintf(fp, "INORDER =");
+	for(int i=0; i<nInputs; i++){
+		fprintf(fp, " %s", inputs[i]);
+	}
+	fprintf(fp, ";\n");
+
+	fprintf(fp, "OUTORDER =");
+	for(int i=0; i<nOutputs; i++){
+		fprintf(fp, " %s", outputs[i]);
+	}
+	fprintf(fp, ";\n");
+
+	for(int i=0; i<nEquations; i++){
+		fprintf(fp, "%s\n", equations[i]);
+	}
+
+	fclose(fp);
+
+	return 0;
 }

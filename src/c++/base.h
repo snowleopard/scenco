@@ -128,6 +128,10 @@ int n_cond = 0;
 int num_vert = 0;
 char **decoder = NULL;
 
+char **inputs = NULL;
+int nInputs = 0;
+char **outputs = NULL;
+int nOutputs = 0;
 char **equations = NULL;
 int nEquations = 0;
 

@@ -728,5 +728,5 @@ int encoding_memory_allocation(){
 		return -1;
 	}	
 
-	return -1;
+	return 0;
 }
