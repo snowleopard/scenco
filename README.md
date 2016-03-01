@@ -25,12 +25,11 @@ We use `ABC` either for the synthesis and mapping process. All the functionaliti
 
 ###### Linux & Mac OS X 
 1) Refer to the following website for the download and compilation of the most up to date version of the tool: http://www.eecs.berkeley.edu/~alanmi/abc/
+
 2) Type and run in the terminal: `export PATH="$PATH:[ABC_absolute_folder_path]"` to add `ABC` into the system variable `PATH`
 
 ###### Windows
 1) A ready-to-use binary version could be downloaded at the following link: http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe
+
 2) Type and run in the command line: `set "PATH=%PATH%;[ABC_absolute_folder_path]"` to add `ABC` into the system variable `PATH`
 
-##### Note
-
-Scenco might show up some issues running under Mac OS X. We are working for fixing them.
