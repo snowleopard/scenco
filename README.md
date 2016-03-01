@@ -21,11 +21,15 @@ concepts.
 
 http://www.eecs.berkeley.edu/~alanmi/abc/
 
-We use `ABC` either for the synthesis and mapping process. All the functionalities provided by `SCENCO`, can be used only when ABC is installed in the system. Place the binary of ABC in the root folder of SCENCO in order to run the tool properly, or add the main folder where ABC is present into the `PATH` variable of the system.
+We use `ABC` either for the synthesis and mapping process. All the functionalities provided by `SCENCO`, can be used only when ABC is properly installed. Add the folder, where the binary is present, into the `PATH` variable of the system. Follow the following instructions depending on the OS that you use.
 
-- Linux & Mac OS X : for these two OSes, refer to the following website for the download and compilation of the most up to date version of the tool: http://www.eecs.berkeley.edu/~alanmi/abc/
+###### Linux & Mac OS X 
+1) Refer to the following website for the download and compilation of the most up to date version of the tool: http://www.eecs.berkeley.edu/~alanmi/abc/
+2) Type and run in the terminal: `export PATH="$PATH:[ABC_absolute_folder_path]"` to add `ABC` into the system variable `PATH`
 
-- Windows: for those of you having Windows installed on your machine, a ready-to-use binary version could be downaload at the following link: http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe
+###### Windows
+1) A ready-to-use binary version could be downloaded at the following link: http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe
+2) Type and run in the command line: `set "PATH=%PATH%;[ABC_absolute_folder_path]"` to add `ABC` into the system variable `PATH`
 
 ##### Note
 

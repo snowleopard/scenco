@@ -1,4 +1,4 @@
-module Tuura.TechnologyMapping (Area, GateCount, parseArea,
+module Tuura.TechnologyMapping (Area, GateCount, parseArea, parseGateCount,
                                 estimateArea, writeVerilog, getArea, getGateCount
                                 ) where
 
@@ -16,6 +16,9 @@ newtype ErrorCode = ErrorCode Int
 
 parseArea :: Area -> Double
 parseArea (Area a) = a
+
+parseGateCount :: GateCount -> Int
+parseGateCount (GateCount gc) = gc
 
 estimateArea :: Library -> Formulae -> IO Area
 estimateArea library formulae = do

@@ -56,17 +56,58 @@ runTests :: FilePath -> FilePath -> IO ()
 runTests cpog codes = do
     let codesPath = (testPath </> codes <.> "opcodes")
         codesFile = loadCodes codesPath
-    loadTest (testPath </> cpog <.> "cpog") (testPath </> codes <.> "opcodes")
+        graphsPath = (testPath </> cpog <.> "cpog")
     codeConstraints <- parseCustomCode codesFile
-    codeSingleLiteral <- testSingleLiteral
-    assertSynthesisAndMapping (testPath </> cpog <.> "cpog") codeSingleLiteral --("single_literal" <.> "v")
-    codesSequential <- testSequential
-    assertSynthesisAndMapping (testPath </> cpog <.> "cpog") codesSequential --("sequential_literal" <.> "v")
-    codesRandom <- testRandom codeConstraints
-    assertSynthesisAndMapping (testPath </> cpog <.> "cpog") codesRandom --("random_literal" <.> "v")
-    codesHeuristic <- testHeuristic codeConstraints
-    assertSynthesisAndMapping (testPath </> cpog <.> "cpog") codesHeuristic --("heuristic_literal" <.> "v")
+    loadTest graphsPath codesPath
+    testSingleLiteral graphsPath
+    testSequential graphsPath --("sequential_literal" <.> "v")
+    testRandom graphsPath codeConstraints --("random_literal" <.> "v")
+    testHeuristic graphsPath codeConstraints --("heuristic_literal" <.> "v")
     unloadTest
+
+loadTest :: FilePath -> FilePath -> IO ()
+loadTest cpogFile codesFile = do
+    let graphs = loadGraph cpogFile
+        codes = loadCodes codesFile
+    result <- loadGraphsAndCodes graphs codes
+    let err = readError result
+    check err "Graphs and codes loaded" "Error loading graphs"
+
+testSingleLiteral :: FilePath -> IO ()
+testSingleLiteral graphsPath = do
+    result <- encodeGraphs SingleLiteral Nothing
+    let err = readError result
+    check err "Single literal encoding: OK" "Single literal encoding: ERROR"
+    codeSingleLiteral <- getCodes
+    assertSynthesisAndMapping graphsPath codeSingleLiteral
+
+testSequential :: FilePath -> IO ()
+testSequential graphsPath = do
+    result <- encodeGraphs Sequential Nothing
+    let err = readError result
+    check err "Sequential encoding: OK" "Sequential encoding: ERROR"
+    codesSequential <- getCodes
+    assertSynthesisAndMapping graphsPath codesSequential
+
+testRandom :: FilePath -> [CodeWithUnknowns] -> IO ()
+testRandom graphsPath codeConstraints = do
+    codesFinal <- encode Random (Just 10)
+    putStr "Random encoding: "
+    shouldMeet codesFinal codeConstraints
+    assertSynthesisAndMapping graphsPath codesFinal
+
+testHeuristic :: FilePath -> [CodeWithUnknowns] -> IO ()
+testHeuristic graphsPath codeConstraints = do
+    codesFinal <- encode Heuristic (Just 10)
+    putStr "Heuristic encoding: "
+    shouldMeet codesFinal codeConstraints
+    assertSynthesisAndMapping graphsPath codesFinal
+
+unloadTest :: IO ()
+unloadTest = do
+    result <- unloadGraphsAndCodes
+    let err = readError result
+    check err "Graphs and codes unloaded" "Error unloading graphs"
 
 assertSynthesisAndMapping :: FilePath -> [CodeWithoutUnknowns] -> IO ()
 assertSynthesisAndMapping graphs codes = do
@@ -84,56 +125,6 @@ check :: Int -> String -> String -> IO ()
 check result msgOk msgError
     | result == 0 = putStrLn msgOk
     | otherwise   = error $ msgError ++ " (code " ++ show result ++ ")"
-
-loadTest :: FilePath -> FilePath -> IO ()
-loadTest cpogFile codesFile = do
-    let graphs = loadGraph cpogFile
-        codes = loadCodes codesFile
-    result <- loadGraphsAndCodes graphs codes
-    let err = readError result
-    check err "Graphs and codes loaded" "Error loading graphs"
-
-unloadTest :: IO ()
-unloadTest = do
-    result <- unloadGraphsAndCodes
-    let err = readError result
-    check err "Graphs and codes unloaded" "Error unloading graphs"
-
-testSingleLiteral :: IO [CodeWithoutUnknowns]
-testSingleLiteral = do
-    result <- encodeGraphs SingleLiteral Nothing
-    let err = readError result
-    check err "Single literal encoding: OK" "Single literal encoding: ERROR"
-    getCodes
-
-testSequential :: IO [CodeWithoutUnknowns]
-testSequential = do
-    result <- encodeGraphs Sequential Nothing
-    let err = readError result
-    check err "Sequential encoding: OK" "Sequential encoding: ERROR"
-    getCodes
-
-testRandom :: [CodeWithUnknowns] -> IO [CodeWithoutUnknowns]
-testRandom codeConstraints = do
-    codesFinal <- encode Random (Just 10)
-    putStr "Random encoding: "
-    shouldMeet codesFinal codeConstraints
-    return codesFinal
-
-testHeuristic :: [CodeWithUnknowns] -> IO [CodeWithoutUnknowns]
-testHeuristic codeConstraints = do
-    codesFinal <- encode Heuristic (Just 10)
-    putStr "Heuristic encoding: "
-    shouldMeet codesFinal codeConstraints
-    return codesFinal
-
--- testExhaustive :: Int -> [CodeWithUnknowns] -> IO ()
--- testExhaustive numPartialOrders codeConstraints = do
---     result <- encodeGraphs Exhaustive (Just 10)
---     if result /= 0
---         then error $ "Exhaustive encoding... ERROR"
---         else putStrLn "Heuristic encoding... OK"
---     verifyEncoding getCodesLength numPartialOrders codeConstraints
 
 shouldMeet :: [CodeWithoutUnknowns] -> [CodeWithUnknowns] -> IO ()
 shouldMeet [] [] = putStrLn "Valid encoding"
