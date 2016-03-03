@@ -6,10 +6,6 @@ build: off
 before_test:
     - curl -ostack.zip -L --insecure http://www.stackage.org/stack/windows-i386
     - 7z x stack.zip stack.exe
-    - curl -ocabal.tar.gz https://www.haskell.org/cabal/release/cabal-install-1.22.0.0/cabal-1.22.0.0-i386-unknown-mingw32.tar.gz
-    - 7z x cabal.tar.gz
-    - 7z x cabal.tar
-    - ren cabal-1.22.0.0-i386-unknown-mingw32.exe cabal.exe
     - curl -oabc.exe http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe
     - set "PATH=%PATH%;%cd%"
 
@@ -21,5 +17,6 @@ environment:
 test_script:
     - stack init
     - stack setup > nul
-    - echo "" | stack --no-terminal build
+    - stack exec -- ghc --version
+    - stack build
     - stack test
