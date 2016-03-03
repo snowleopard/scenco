@@ -16,7 +16,7 @@ environment:
 
 test_script:
     - stack init
-    - stack setup
+    - stack setup > nul
     - stack exec -- ghc --version
     - stack build
     - stack test
