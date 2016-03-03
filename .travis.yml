@@ -33,7 +33,7 @@ install:
     - wget -O abc.zip https://bitbucket.org/alanmi/abc/get/b637ae1ad4ff.zip
     - unzip abc.zip -d abc_folder
     - cd abc_folder/alanmi-abc-b637ae1ad4ff/
-    - make
+    - make > /dev/null
     - export PATH="$PATH:$PWD"
     - cd ../../
 
