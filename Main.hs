@@ -15,3 +15,9 @@ main = do
     testIntel9
     testTexasInstrument7
     testTexasInstrument8
+    putStrLn " "
+    putStrLn "========== Event Log Tests =========="
+    putStrLn " "
+    testLog9
+    testLog167
+    testLog651

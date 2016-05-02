@@ -599,6 +599,7 @@ void parsing_cpog(char* file_cons){
 	boolean ins, condit;
 
 	truth = (char*) malloc(sizeof(char) * (cpog_count + 2));
+
 	fp = fopen(file_cons, "r");
 	while(  !feof(fp) ){
 		if(fscanf(fp,"%s",truth) == 0){

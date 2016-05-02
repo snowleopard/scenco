@@ -7,6 +7,7 @@
 #include "encoding_methods.cpp"
 #include "mapping.cpp"
 #include "bool_minimisation.cpp"
+#include "log_files.cpp"
 
 extern "C" {
 
@@ -49,7 +50,13 @@ extern "C" {
 			***************************************************************/
 
 			// loading scenarios
-			if(loadScenarios(file_in, fp) != 0){
+			if(parseScenarios(file_in) != 0){
+				safe_exit("Conversion from log to scenarios failed.");
+				return -1;
+			}
+
+			// loading scenarios
+			if(loadScenarios(SCENARIOS, fp) != 0){
 				safe_exit("Loading scenarios failed.");
 				return -1;
 			}
@@ -209,7 +216,7 @@ extern "C" {
 				return -1;
 			}
 
-			if(heuristic_choice() != 0) {
+			if(heuristic_choice(randomE) != 0) {
 				safe_exit("Error on choosing best results on random encoding.");
 				return -1;
 			}
@@ -246,7 +253,7 @@ extern "C" {
 				return -1;
 			}
 
-			if(heuristic_choice() != 0) {
+			if(heuristic_choice(heuristic) != 0) {
 				safe_exit("Error on choosing best results on heuristic encoding.");
 				return -1;
 			}
@@ -283,7 +290,7 @@ extern "C" {
 
 			}
 
-			if(heuristic_choice() != 0) {
+			if(heuristic_choice(exhaustive) != 0) {
 				safe_exit("Error on choosing best results on exhaustive encoding.");
 				return -1;
 			}

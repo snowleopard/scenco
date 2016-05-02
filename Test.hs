@@ -1,5 +1,6 @@
 module Test (testArm8, testArm11, testIntel7, testIntel8, testIntel9,
-             testTexasInstrument7, testTexasInstrument8) where
+             testTexasInstrument7, testTexasInstrument8, testLog9,
+             testLog167, testLog651) where
 
 import System.FilePath
 import Control.Monad
@@ -52,6 +53,21 @@ testTexasInstrument8 = do
     putStrLn "========== Texas Instrument MSP 430 (8 Partial orders)"
     runTests "TI_MSP_430_8" "TI_MSP_430_8"
 
+testLog9 :: IO ()
+testLog9 = do
+    putStrLn "========== DigitalCopier (9 Partial orders)"
+    runLogTests "DigitalCopier" "DigitalCopier"
+
+testLog167 :: IO ()
+testLog167 = do
+    putStrLn "========== colibrilog (167 Partial orders)"
+    runLogTests "colibrilog" "colibrilog"
+
+testLog651 :: IO ()
+testLog651 = do
+    putStrLn "========== documentflow (651 Partial orders)"
+    runLogTests "documentflow" "documentflow"
+
 runTests :: FilePath -> FilePath -> IO ()
 runTests cpog codes = do
     let codesPath = (testPath </> codes <.> "opcodes")
@@ -62,6 +78,17 @@ runTests cpog codes = do
     testSingleLiteral graphsPath
     testSequential graphsPath --("sequential_literal" <.> "v")
     testRandom graphsPath codeConstraints --("random_literal" <.> "v")
+    testHeuristic graphsPath codeConstraints --("heuristic_literal" <.> "v")
+    unloadTest
+
+runLogTests :: FilePath -> FilePath -> IO ()
+runLogTests cpog codes = do
+    let codesPath = (testPath </> codes <.> "opcodes")
+        codesFile = loadCodes codesPath
+        graphsPath = (testPath </> cpog <.> "cpog")
+    codeConstraints <- parseCustomCode codesFile
+    loadTest graphsPath codesPath
+    testSequential graphsPath --("sequential_literal" <.> "v")
     testHeuristic graphsPath codeConstraints --("heuristic_literal" <.> "v")
     unloadTest
 

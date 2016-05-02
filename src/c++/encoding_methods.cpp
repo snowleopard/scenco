@@ -497,7 +497,7 @@ int randomEncoding(){
 int start_simulated_annealing(){
 	int i,m,n,tmp,start,it;
 	double proba;
-	double alpha =0.996;
+	double alpha =0.9;
 	double temperature;
 	double epsilon = 0.1;
 	double delta;
@@ -513,7 +513,7 @@ int start_simulated_annealing(){
 	}
 	if(cn < cpog_count -4)
 	for(i=0;i<num_perm;i++){
-		temperature = 10.0;
+		temperature = 5.0;
 		it = 0;
 
 		weight_current = compute_weight(cpog_count, bits, i);
