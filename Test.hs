@@ -1,6 +1,6 @@
 module Test (testArm8, testArm11, testIntel7, testIntel8, testIntel9,
              testTexasInstrument7, testTexasInstrument8, testLog9,
-             testLog167, testLog651) where
+             testLog167, testLog400) where
 
 import System.FilePath
 import Control.Monad
@@ -63,9 +63,9 @@ testLog167 = do
     putStrLn "========== colibrilog (167 Partial orders)"
     runLogTests "colibrilog" "colibrilog"
 
-testLog651 :: IO ()
-testLog651 = do
-    putStrLn "========== documentflow (651 Partial orders)"
+testLog400 :: IO ()
+testLog400 = do
+    putStrLn "========== documentflow (400 Partial orders)"
     runLogTests "documentflow" "documentflow"
 
 runTests :: FilePath -> FilePath -> IO ()

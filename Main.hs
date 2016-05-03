@@ -20,4 +20,4 @@ main = do
     putStrLn " "
     testLog9
     testLog167
-    testLog651
+    testLog400
