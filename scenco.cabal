@@ -35,17 +35,18 @@ library
     c-sources:        src/c++/scenco.cpp
     include-dirs:     src/c++
     build-depends:    base >= 4.7 && < 5
+                    , data-ordlist >= 0.4.7 && < 0.5
                     , mtl == 2.2.*
                     , transformers >= 0.4 && < 0.6
     default-language: Haskell2010
-    other-extensions: TypeFamilies
+    other-extensions: TypeFamilies, FlexibleContexts
     GHC-options:      -Wall -fwarn-tabs
     extra-libraries:  stdc++
-    
+
 test-suite scenco-test
     type:             exitcode-stdio-1.0
     main-is:          Main.hs
-    build-depends:    base >= 4.7 && < 5  
+    build-depends:    base >= 4.7 && < 5
                     , filepath
                     , scenco
     other-extensions: TypeFamilies
