@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies, FlexibleContexts #-}
 module Tuura.Graph (
-    Graph (..), GraphFamily (..), GraphNormalForm,
+    Graph (..), GraphFamily (..), GraphNormalForm, printGraph,
     GraphsFile, graphFilepath, loadGraph
     ) where
 
@@ -44,6 +44,23 @@ instance (Ord a, Num a) => Num (GraphNormalForm a) where
     signum      = const empty
     fromInteger = vertex . fromInteger
     negate      = id
+
+data GraphExpression = Open String | Closed String deriving (Eq, Ord)
+
+close :: GraphExpression -> String
+close (Open   s) = "(" ++ s ++ ")"
+close (Closed s) = s
+
+printGraph :: GraphExpression -> String
+printGraph (Open   s) = s
+printGraph (Closed s) = s
+
+instance Graph GraphExpression where
+    type Vertex GraphExpression = String
+    empty       = Closed "()"
+    vertex      = Closed . id
+    overlay p q = Open $ printGraph p ++ " + " ++ printGraph q
+    connect p q = Closed $ close p ++ " -> " ++ close q
 
 -- | An abstract class for graph families that in addition to graphs have an
 -- associated type of graph predicates.
