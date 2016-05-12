@@ -83,6 +83,15 @@ void removeTempFiles(){
 		}
 		free(command);
 	}
+	if(FileExists(SCENARIOS)){
+		command = strdup("rm -f ");
+		command = catMem(command, SCENARIOS);
+		if (system(command) == -1){
+			fprintf(stderr,"Error on removing %s.\n", SCENARIOS);
+			return;
+		}
+		free(command);
+	}
 #else
 	if(FileExists(TMP_FILE)){
 	    	command = strdup("del ");
@@ -125,6 +134,15 @@ void removeTempFiles(){
 		command = catMem(command, BOOL_PATH);
 		if (system(command) == -1){
 			fprintf(stderr,"Error on removing %s.\n", BOOL_PATH);
+			return;
+		}
+		free(command);
+	}
+	if(FileExists(SCENARIOS)){
+		command = strdup("del ");
+		command = catMem(command, SCENARIOS);
+		if (system(command) == -1){
+			fprintf(stderr,"Error on removing %s.\n", SCENARIOS);
 			return;
 		}
 		free(command);
@@ -210,12 +228,17 @@ int temporary_files_creation(){
 		fprintf(stderr,"Error on opening temporary file: %s.\n", BOOL_PATH);
 		return -1;
 	}
+	if (mkstemp(SCENARIOS) == -1){
+		fprintf(stderr,"Error on opening temporary file: %s.\n", SCENARIOS);
+		return -1;
+	}
 #else
 	tmpnam(TRIVIAL_ENCODING_FILE);
 	tmpnam(CONSTRAINTS_FILE);
 	tmpnam(TMP_FILE);
 	tmpnam(SCRIPT_PATH);
 	tmpnam(BOOL_PATH);
+	tmpnam(SCENARIOS);
 #endif
 	return 0;
 }

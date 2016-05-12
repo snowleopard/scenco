@@ -1,0 +1,9 @@
+g1 = ADC -> Interpolation + CCSO -> PD + CI -> DIR + CQE -> SQP + CS -> CCSO + CTNQE -> Subtract + DIR -> SC + EDM -> LQP + EDM -> NQEP + FI -> CI + FLB -> ADC + ID -> MSH + Interpolation -> FI + Job -> CS + LQP -> Subtract + MSH -> FLB + NQEP -> CTNQE + PD -> ID + PQR -> EDM + SC -> PQR + Subtract -> TBMQ + TBMQ -> CQE
+g2 = ADC -> Interpolation + CCSO -> PD + CI -> DIR + CS -> CCSO + CTNQE -> Subtract + DIR -> SC + EDM -> LQP + EDM -> NQEP + FI -> CI + FLB -> ADC + ID -> MSH + Interpolation -> FI + Job -> CS + LQP -> Subtract + MSH -> FLB + NQEP -> CTNQE + PD -> ID + PQR -> EDM + SC -> PQR + SQP -> CQE + Subtract -> TBMQ + TBMQ -> SQP
+g3 = ADC -> Interpolation + CCSO -> PD + CI -> DIR + CS -> CCSO + DIR -> SC + FI -> CI + FLB -> ADC + ID -> MSH + Interpolation -> FI + Job -> CS + MSH -> FLB + PD -> ID + PQR -> Zooming + SC -> PQR + Zooming -> X-Zoom + Zooming -> Y-Zoom
+g4 = CQE -> Compression + Compression -> SI + EDM -> Subtract + Overlay -> CQE + Rotate -> Overlay + SI -> TI + SMTP -> Job + SQP -> Rotate + Send -> SMTP + Subtract -> TBMQ + TBMQ -> SQP + TI -> Send
+g5 = CQE -> SQP + CTNQE -> Subtract + EDM -> LQP + EDM -> NQEP + LQP -> Subtract + NQEP -> CTNQE + Subtract -> TBMQ + TBMQ -> CQE + Zooming -> EDM
+g6 = CTNQE -> Subtract + EDM -> LQP + EDM -> NQEP + LQP -> Subtract + NQEP -> CTNQE + SQP -> CQE + Subtract -> TBMQ + TBMQ -> SQP + Zooming -> EDM
+g7 = Compression -> SI + EDM -> Overlay + Overlay -> Rotate + Rotate -> Compression + SFTP -> Job + SI -> TI + TI -> SFTP
+g8 = Compression -> SI + EDM -> Overlay + Overlay -> Rotate + Rotate -> Compression + SI -> TI + SMTP -> Job + Send -> SMTP + TI -> Send
+g9 = Compression -> SI + EDM -> Rotate + Overlay -> Compression + Rotate -> Overlay + SFTP -> Job + SI -> TI + TI -> SFTP

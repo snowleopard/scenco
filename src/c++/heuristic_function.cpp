@@ -94,7 +94,7 @@ double compute_weight(int cpog_count,int bits,int index){
 /*AREA FUNCTION SSD*/
 /*Following function computes both the maximum and minimum weight for each encoding permutation
 following SSD criterion.*/
-int heuristic_choice(){
+int heuristic_choice(encodingType encodingT){
         int ones = 0;
 	long long int wg = 0;
 	int minEnc = 0;
@@ -106,6 +106,11 @@ int heuristic_choice(){
 	if( counter == 0){
 		fprintf(stderr,"No encodings match the custom opcodes fixed.\n");
 		return -1;
+	}
+
+	if(encodingT == randomE){
+		loadScenarioOpcodes(0);
+		return 0;
 	}
 
         for(int i = 0; i<counter; i++){
