@@ -32,6 +32,11 @@ instance Ord a => Graph (GraphNormalForm a) where
                                   (arcs     p `union` arcs     q `union`
                                   [ (u, v) | u <- vertices p, v <- vertices q ])
 
+instance Functor GraphNormalForm where
+    fmap f (GraphNormalForm vs as) = GraphNormalForm (fmap f vs) (fmap ff as)
+      where
+        ff (u, v) = (f u, f v)
+
 -- | Graphs can be manipulated as if they were numbers. For example, (1 + 2) * 3
 -- is a graph with three vertices 1, 2 and 3, and arcs (1, 3) and (2, 3).
 -- Note, the negation is not very useful at the moment, but all Num laws are
