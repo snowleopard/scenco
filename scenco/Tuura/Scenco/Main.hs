@@ -6,10 +6,15 @@ import Tuura.Scenco
 import Tuura.Encode
 import Tuura.Code
 import Tuura.Scenco.Options
+import Tuura.Abc
+import Tuura.Library
 
 main :: IO ()
 main = do
     putStrLn scencoVersion
+
+    abcInstalled <- abcCheck
+    when (abcInstalled == False) . error $ "ABC is not installed properly in your machine."
 
     options <- getOptions
     let graphs       = optInput    options
@@ -20,6 +25,9 @@ main = do
         encodingMode = optMode     options
         numberSol    = optNumSol   options
         microSynth   = optTarget   options
+
+    libPresent <- libCheck techLib
+    when (libPresent == False) . putStrLn $ "Gate library not defined properly."
 
     (bf, enc) <- case encodingMode of
         Sequential -> do
