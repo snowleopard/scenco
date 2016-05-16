@@ -72,6 +72,8 @@ typedef struct Encoding_st
 	bool inverted;
 }Encoding;
 
+static char dictionary[5] = {'0','1','X','x','-'};
+
 //TEMPORARY FILES
 #if defined(__linux) || defined(__APPLE__)
 	char TRIVIAL_ENCODING_FILE[] = "/tmp/trivial.XXXXXX";
@@ -79,12 +81,14 @@ typedef struct Encoding_st
 	char TMP_FILE[] = "/tmp/tmpfile.XXXXXX";
 	char SCRIPT_PATH[] = "/tmp/synth.XXXXXX";
 	char BOOL_PATH[] = "/tmp/bool_eq.XXXXXX";
+	char CODE_CONSTRAINTS[] = "/tmp/code_cons.XXXXXX";
 #else
 	char TRIVIAL_ENCODING_FILE[L_tmpnam];
 	char CONSTRAINTS_FILE[L_tmpnam];
 	char TMP_FILE[L_tmpnam];
 	char SCRIPT_PATH[L_tmpnam];
 	char BOOL_PATH[L_tmpnam];
+	char CODE_CONSTRAINTS[L_tmpnam];
 #endif
 	char LOG[] = "scenco.log";
 

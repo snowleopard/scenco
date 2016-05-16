@@ -1,7 +1,7 @@
 module Tuura.Code (
-    CodeWithUnknowns, CodeWithoutUnknowns, Bit, CodesFile, codesFilepath, loadCodes,
+    CodeWithUnknowns, CodeWithoutUnknowns, Bit, CodesFile, codesFilepath, getCodesFile,
     known, unknown, used, unused, CodeValidation (..), validate, parseCustomCode,
-    ) where
+    showEncoding, constraintFreeCodes ) where
 
 type BoolWithUnknowns = Maybe Bool
 type Bit a = Maybe a
@@ -13,8 +13,8 @@ newtype CodesFile = CodesFile FilePath
 codesFilepath :: CodesFile -> FilePath
 codesFilepath (CodesFile file) = file
 
-loadCodes :: FilePath -> CodesFile
-loadCodes = CodesFile
+getCodesFile :: FilePath -> CodesFile
+getCodesFile = CodesFile
 
 known :: Bool -> Bit BoolWithUnknowns
 known value = Just (Just value)
@@ -55,6 +55,18 @@ parseCustomCode codesPath = do
     let codes = readCodes contents
     return codes
 
+-- not sure how to remove the warning generate by the next line
+constraintFreeCodes :: Int -> [CodeWithUnknowns]
+constraintFreeCodes n = getConstFreeCodes (ceiling (logBase (2.0) (fromIntegral n))) n
+
+getConstFreeCodes :: Int -> Int -> [CodeWithUnknowns]
+getConstFreeCodes _ 0 = []
+getConstFreeCodes b n = (getConstFreeCode b) : (getConstFreeCodes b (n-1))
+
+getConstFreeCode :: Int -> CodeWithUnknowns
+getConstFreeCode 0 = []
+getConstFreeCode b = (Just Nothing) : (getConstFreeCode (b-1))
+
 readBit :: Char -> Bit BoolWithUnknowns
 readBit x
     | x == '0'       = known False
@@ -68,3 +80,13 @@ readCode = map readBit
 
 readCodes :: [String] -> [CodeWithUnknowns]
 readCodes = map readCode
+
+showEncoding :: [CodeWithoutUnknowns] -> String
+showEncoding []         = ""
+showEncoding (x : xs)   = showCode x ++ "\n" ++ showEncoding xs
+
+showCode :: [Bit Bool] -> String
+showCode []                   = ""
+showCode ((Just False) : xs)  = "0" ++ showCode xs
+showCode ((Just True)  : xs)  = "1" ++ showCode xs
+showCode (Nothing      : xs)  = "-" ++ showCode xs

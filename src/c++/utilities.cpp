@@ -83,6 +83,15 @@ void removeTempFiles(){
 		}
 		free(command);
 	}
+	if(FileExists(CODE_CONSTRAINTS)){
+		command = strdup("rm -f ");
+		command = catMem(command, CODE_CONSTRAINTS);
+		if (system(command) == -1){
+			fprintf(stderr,"Error on removing %s.\n", CODE_CONSTRAINTS);
+			return;
+		}
+		free(command);
+	}
 #else
 	if(FileExists(TMP_FILE)){
 	    	command = strdup("del ");
@@ -125,6 +134,15 @@ void removeTempFiles(){
 		command = catMem(command, BOOL_PATH);
 		if (system(command) == -1){
 			fprintf(stderr,"Error on removing %s.\n", BOOL_PATH);
+			return;
+		}
+		free(command);
+	}
+	if(FileExists(CODE_CONSTRAINTS)){
+		command = strdup("del ");
+		command = catMem(command, CODE_CONSTRAINTS);
+		if (system(command) == -1){
+			fprintf(stderr,"Error on removing %s.\n", CODE_CONSTRAINTS);
 			return;
 		}
 		free(command);
@@ -210,12 +228,17 @@ int temporary_files_creation(){
 		fprintf(stderr,"Error on opening temporary file: %s.\n", BOOL_PATH);
 		return -1;
 	}
+	if (mkstemp(CODE_CONSTRAINTS) == -1){
+		fprintf(stderr,"Error on opening temporary file: %s.\n", CODE_CONSTRAINTS);
+		return -1;
+	}
 #else
 	tmpnam(TRIVIAL_ENCODING_FILE);
 	tmpnam(CONSTRAINTS_FILE);
 	tmpnam(TMP_FILE);
 	tmpnam(SCRIPT_PATH);
 	tmpnam(BOOL_PATH);
+	tmpnam(CODE_CONSTRAINTS);
 #endif
 	return 0;
 }
@@ -489,6 +512,10 @@ void freeVariables(){
 		free(custom_perm_back);
 		custom_perm_back = NULL;
 	}
+	if(DC_custom != NULL){
+		free(DC_custom);
+		DC_custom = NULL;
+	}
 	if(opt_diff != NULL) {
 		for(int i = 0; i<cpog_count; i++)
 			if(opt_diff[i] != NULL) free(opt_diff[i]);
@@ -728,5 +755,69 @@ int encoding_memory_allocation(){
 		return -1;
 	}	
 
+	return 0;
+}
+
+void writeDummyConstraints(){
+	FILE *fp = NULL;
+	int b = logarithm2 (n);
+
+	fp = fopen(CODE_CONSTRAINTS, "w");
+	for(int i = 0; i < n; i++){
+		for(int j = 0; j < b; j++){
+			fprintf(fp, "X");
+		}
+		if (i != n-1) fprintf(fp, "\n");
+	}
+	fclose(fp);
+
+	return;
+}
+
+void copyConstraints(char *cons){
+	FILE *fs = NULL;
+	FILE *fd = NULL;
+	char c;
+
+	fs = fopen(cons, "r");
+	fd = fopen(CODE_CONSTRAINTS, "w");
+	while( (c = fgetc(fs)) != EOF ){
+		fputc(c, fd);
+	}
+	fclose(fs);
+	fclose(fd);
+	return;
+}
+
+int isAllowed (char c){
+
+	int dictLen = strlen(dictionary);
+
+	for(int i = 0; i < dictLen; i++){
+		if(c == dictionary[i]){
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+int checkCodeFile(char *cons){
+	FILE *fp = NULL;
+	char c;
+
+	if( (fp = fopen(cons, "r")) == NULL){
+		//fprintf(stderr, "Error opening code constraints file.\n");
+		return -1;
+	}
+
+	while( (c = fgetc(fp)) != EOF ){
+		if ( c != '\n' && isAllowed(c) != 0){
+			fprintf(stderr, "Character %c not allowed in code constraints file.\n", c);
+			return -1;
+		}
+	}
+
+	fclose(fp);
 	return 0;
 }
