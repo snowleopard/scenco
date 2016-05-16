@@ -175,9 +175,8 @@ void synthesisSpaceSingleLiteral(){
 			if(scenarioOpcodes[i][j] == '-')
 				dontUsedBit = TRUE;
 		}
-		if(dontUsedBit) DC_custom[i] = TRUE;
-		else DC_custom[i] = FALSE;
-	
+		//if(dontUsedBit) DC_custom[i] = TRUE;
+		//else DC_custom[i] = FALSE;
 		char *cstr = new char[scenarioOpcodes[i].length() + 1];
 		strcpy(cstr, scenarioOpcodes[i].c_str());
 		int k = conv_int(cstr, -1);

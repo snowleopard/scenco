@@ -4,18 +4,60 @@ Collection of encoding algorithms for conditional graphs. Various pieces of code
 
 [![Build Status](https://travis-ci.org/tuura/scenco.svg?branch=master)](https://travis-ci.org/tuura/scenco) [![Build status](https://ci.appveyor.com/api/projects/status/k93mdkwlnxkgibwj/branch/master?svg=true)](https://ci.appveyor.com/project/snowleopard/scenco/branch/master)
 
-Compositional specification of asynchronous circuits using behavioural
-concepts.
+Compositional specification of asynchronous circuits using behavioural concepts.
+
+## Getting the sources
+
+Navigate to a directory to store the library and run this command to clone the code:
+
+`git clone https://github.com/tuura/scenco.git`
+
+## Building Scenco from command line
+
+Enter the scenco directory and compile Scenco using the following command:
+
+```bash
+ghc --make -isrc -iscenco -lstdc++ src/c++/scenco.cpp -O2 scenco/Main.hs -o Scenco -Wall -fwarn-tabs
+```
+
+## Building Scenco from cabal
+
+You can build the library and executables using Cabal.
+
+## Using Scenco
+
+The following usage info can be obtained by running `Scenco --help`:
+
+```
+Usage: Scenco [input file] [tech lib] [OPTIONS...]
+  -m                   --microcontroller               Synthesise controller targeting the microcontroller optimisation
+  -e SEARCH-TYPE       --encoding=SEARCH-TYPE          Available: sequential - single-literal - random - heuristic - exhaustive
+  -c FILE-CONSTRAINTS  --constraints=FILE-CONSTRAINTS  Set encoding constraints
+  -n NUMBER            --number-solutions=NUMBER       Set number of solutions to generate (higher is better/slower)
+  -o FILE-ENCODING     --output=FILE-ENCODING          Write encoding into a file
+  -v FILE-VERILOG      --verilog=FILE-VERILOG          Output the controller into a verilog file
+  -h                   --help                          Show this help message
+```
 
 ### Build
 
-	cabal build
-
+```bash
+cabal configure --disable-tests
+cabal build
+```
 ### Test
 
-	cabal test --show-details=always
+```bash
+cabal test --show-details=always
+```
 
-#### How to install ABC
+### Run
+
+```
+cabal run Scenco -- [command line options]
+```
+
+## How to install ABC
 
 "ABC is a growing software system for synthesis and verification of binary sequential logic circuits appearing in synchronous hardware designs. ABC combines scalable logic optimization based on And-Inverter Graphs (AIGs), optimal-delay DAG-based technology mapping for look-up tables and standard cells, and innovative algorithms for sequential synthesis and verification." For further information, and for the download either of the sources or the binary of the tool, please refer to the reference website:
 
@@ -23,12 +65,12 @@ http://www.eecs.berkeley.edu/~alanmi/abc/
 
 We use `ABC` either for the synthesis and mapping process. All the functionalities provided by `SCENCO`, can be used only when ABC is properly installed. Add the folder, where the binary is present, into the `PATH` variable of the system. Follow the following instructions depending on the OS that you use.
 
-###### Linux & Mac OS X 
+##### Linux & Mac OS X 
 1) Refer to the following website for the download and compilation of the most up to date version of the tool: http://www.eecs.berkeley.edu/~alanmi/abc/
 
 2) Type and run in the terminal: `export PATH="$PATH:[ABC_absolute_folder_path]"` to add `ABC` into the system variable `PATH`
 
-###### Windows
+##### Windows
 1) A ready-to-use binary version could be downloaded at the following link: http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe
 
 2) Type and run in the command line: `set "PATH=%PATH%;[ABC_absolute_folder_path]"` to add `ABC` into the system variable `PATH`

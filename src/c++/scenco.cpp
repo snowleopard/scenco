@@ -19,11 +19,10 @@ extern "C" {
 	}
 
 	int get_n_graphs(){
-		return cpog_count;
+		return n; //TODO cpog_count
 	}
 
-	int load_graphs_codes(char *file_in,
-			char *custom_file_name){
+	int load_graphs(char *file_in){
 
 		FILE *fp;
 		int trivial = 0;
@@ -44,9 +43,9 @@ extern "C" {
 				return -1;
 			}
 
-			/***************************************************************
-			*                     Building CPOG Part                       *
-			***************************************************************/
+			/*******************************************************
+			*                     Building CPOG Part               *
+			*******************************************************/
 
 			// loading scenarios
 			if(loadScenarios(file_in, fp) != 0){
@@ -86,24 +85,54 @@ extern "C" {
 				safe_exit("Building conflict graph failed.");
 				return -1;
 			}
+		} catch(...) {
+			safe_exit("Undefined error during loading graphs.");
+			return -1;
+		}
 
-			/***************************************************************
-			*              Reading encoding set by the user                *
-			***************************************************************/
+		return 0;
+	}
 
-			if(read_set_encoding(custom_file_name,n,&bits) != 0){
+	int load_codes(char *custom_file_name){
+		
+		FILE *fp = NULL;
+
+		try{
+			/*******************************************************
+			*              Reading encoding set by the user        *
+			*******************************************************/
+
+			// assumes no constraints set
+			if( checkCodeFile(custom_file_name) != 0){
+				writeDummyConstraints();
+			} else {
+				copyConstraints(custom_file_name);
+			}
+
+			if(read_set_encoding(CODE_CONSTRAINTS,n,&bits) != 0){
 				safe_exit("Error on reading encoding set.");
 				return -1;
 			}
 
-			if(check_correctness(custom_file_name,n,tot_enc,bits) != 0){
+			if(check_correctness(CODE_CONSTRAINTS,n,tot_enc,bits) != 0){
 				safe_exit("Codes set by the user unfeasible.");
 				return -1;
 			}
+		} catch(...) {
+			safe_exit("Undefined error during loading codes.");
+			return -1;
+		}
 
-			/***************************************************************
-			*               Variable preparation for encoding              *
-			***************************************************************/
+		return 0;
+	}
+
+	int encoding_vars_alloc(){
+		int err=0;
+		
+		try{
+			/*******************************************************
+			*               Variable preparation for encoding      *
+			*******************************************************/
 			file_cons = strdup(CONSTRAINTS_FILE);
 
 			// reading non-trivial encoding file
@@ -131,7 +160,7 @@ extern "C" {
 				return -1;
 			}
 		} catch(...) {
-			safe_exit("Undefined error during loading graphs and codes.");
+			safe_exit("Undefined error during loading graphs.");
 			return -1;
 		}
 
@@ -273,14 +302,12 @@ extern "C" {
 			}
 
 			computeCodesAvailable();
-
+			
 			if(!unfix && !SET){
-				//permutation_stdalgo(cpog_count,tot_enc);
 				exhaustiveEncoding(sol,0,enc,cpog_count, tot_enc);
 			}else{
 				exhaustiveEncoding(sol,-1,enc,cpog_count, tot_enc);
 				filter_encodings(cpog_count, bits, tot_enc);
-
 			}
 
 			if(heuristic_choice() != 0) {
