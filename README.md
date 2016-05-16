@@ -30,13 +30,13 @@ The following usage info can be obtained by running `scenco --help`:
 
 ```
 Usage: scenco [input file] [tech lib] [OPTIONS...]
-  -m                   --microcontroller               Synthesise controller targeting the microcontroller optimisation
-  -e SEARCH-TYPE       --encoding=SEARCH-TYPE          Available: sequential - single-literal - random - heuristic - exhaustive
-  -c FILE-CONSTRAINTS  --constraints=FILE-CONSTRAINTS  Set encoding constraints
-  -n NUMBER            --number-solutions=NUMBER       Set number of solutions to generate (higher is better/slower)
-  -o FILE-ENCODING     --output=FILE-ENCODING          Write encoding into a file
-  -v FILE-VERILOG      --verilog=FILE-VERILOG          Output the controller into a verilog file
-  -h                   --help                          Show this help message
+  -e METHOD   --encoding=METHOD      Encoding method: sequential (default), single-literal, random, heuristic, exhaustive.
+  -c FILE     --constraints=FILE     Encoding constraints
+  -n INTEGER  --n-solutions=INTEGER  Number of solutions to generate (higher is better/slower)
+  -o FILE     --output=FILE          Output file
+  -m          --microcontroller      Optimise the resulting microcontroller instead of graph family
+  -v FILE     --verilog=FILE         Write the microcontroller into a Verilog file
+  -h          --help                 Show this help message
 ```
 
 ### Build
@@ -65,7 +65,7 @@ http://www.eecs.berkeley.edu/~alanmi/abc/
 
 We use `ABC` either for the synthesis and mapping process. Add the folder, where the binary is present, into the `PATH` variable of the system. Follow the following instructions depending on the OS that you use.
 
-##### Linux & Mac OS X 
+##### Linux & Mac OS X
 1) Refer to the following website for the download and compilation of the most up to date version of the tool: http://www.eecs.berkeley.edu/~alanmi/abc/
 
 2) Type and run in the terminal: `export PATH="$PATH:[ABC_absolute_folder_path]"` to add `ABC` into the system variable `PATH`
