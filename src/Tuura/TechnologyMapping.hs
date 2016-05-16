@@ -1,6 +1,6 @@
 module Tuura.TechnologyMapping (Area, GateCount, parseArea, parseGateCount,
-                                estimateArea, writeVerilog, getArea, getGateCount
-                                ) where
+                                estimateArea, writeVerilog, getArea, getGateCount,
+                                readErrVerilog) where
 
 import Tuura.Formula
 import Tuura.Library
@@ -13,6 +13,9 @@ import Foreign.C.String
 newtype Area      = Area Double
 newtype GateCount = GateCount Int
 newtype ErrorCode = ErrorCode Int
+
+readErrVerilog :: ErrorCode -> Int
+readErrVerilog (ErrorCode err) = err
 
 parseArea :: Area -> Double
 parseArea (Area a) = a

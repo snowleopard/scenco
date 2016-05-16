@@ -1,5 +1,5 @@
 module Tuura.Formula (Formulae, Input, Output, Equation,
-                      parseFormula, getFormulae, loadFormulae, unloadFormulae
+                      parseFormula, getFormulae, loadFormulae, unloadFormulae, selectOutputs
                       ) where
 
 import Foreign.C.String

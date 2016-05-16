@@ -1,11 +1,12 @@
-module Tuura.Encode (loadGraphsAndCodes, encode, encodeGraphs, getCodes,
+module Tuura.Encode (setGraphs, setCodes, encode, encodeGraphs, getCodes,
                      unloadGraphsAndCodes, EncodingType(..), ErrorCode,
-                     readError) where
+                     readError, encodingAllocation, getMode, getNumGraphs) where
 
 import Tuura.Code
 import Tuura.Graph
 import Foreign.C.String
 import Control.Monad
+import Data.Char
 
 newtype ErrorCode = ErrorCode Int
 
@@ -18,13 +19,17 @@ data EncodingType = SingleLiteral
                   | Heuristic
                   | Exhaustive
 
-loadGraphsAndCodes :: GraphsFile -> CodesFile -> IO ErrorCode
-loadGraphsAndCodes graphsPath codesPath = do
+setGraphs :: GraphsFile -> IO ErrorCode
+setGraphs graphsPath = do
     let graphsF = graphFilepath graphsPath
-        codesF = codesFilepath codesPath
     graphs      <- newCString graphsF
+    insertGraphs graphs
+
+setCodes :: CodesFile -> IO ErrorCode
+setCodes codesPath = do
+    let codesF = codesFilepath codesPath
     codesConstraints <- newCString codesF
-    insertGraphsAndCodes graphs codesConstraints
+    insertCodes codesConstraints
 
 encode :: EncodingType -> Maybe Int -> IO [CodeWithoutUnknowns]
 encode algorithm nEncoding = do
@@ -33,6 +38,16 @@ encode algorithm nEncoding = do
     when (err /= 0) $ error "Encoding failed"
     getCodes
 
+getMode :: String -> EncodingType
+getMode s = decodeMode (map toLower s)
+
+decodeMode :: String -> EncodingType
+decodeMode "sequential"     = Sequential
+decodeMode "single-literal" = SingleLiteral
+decodeMode "random"         = Random
+decodeMode "heuristic"      = Heuristic
+decodeMode "exhaustive"     = Exhaustive
+decodeMode s                = error $ s ++ " approach not recognised."
 
 encodeGraphs :: EncodingType -> Maybe Int -> IO ErrorCode
 encodeGraphs SingleLiteral      _       = singleLiteralEncoding
@@ -56,8 +71,14 @@ readCodes nPO bitLength = traverse (getCode bitLength) [0..nPO-1]
 foreign import ccall unsafe "unload_graphs_codes"
     unloadGraphsAndCodes :: IO ErrorCode
 
-foreign import ccall unsafe "load_graphs_codes"
-    insertGraphsAndCodes :: CString -> CString -> IO ErrorCode
+foreign import ccall unsafe "load_graphs"
+    insertGraphs :: CString -> IO ErrorCode
+
+foreign import ccall unsafe "load_codes"
+    insertCodes :: CString -> IO ErrorCode
+
+foreign import ccall unsafe "encoding_vars_alloc"
+    encodingAllocation :: IO ErrorCode
 
 foreign import ccall unsafe "get_bit"
     getBit :: Int -> Int -> IO Int
