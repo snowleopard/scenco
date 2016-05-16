@@ -55,7 +55,7 @@ test-suite scenco-test
     GHC-options:      -Wall -fwarn-tabs
     extra-libraries:  stdc++
 
-executable Scenco
+executable scenco
     hs-source-dirs:   scenco
     main-is:          Main.hs
     build-depends:    base >= 4.7 && < 5

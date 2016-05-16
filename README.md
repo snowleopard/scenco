@@ -1,4 +1,4 @@
-# SCENCO
+# Scenco
 
 Collection of encoding algorithms for conditional graphs. Various pieces of code currenctly available in https://github.com/allegroCoder/SCENCO and http://www.workcraft.org/ put together.
 
@@ -17,7 +17,7 @@ Navigate to a directory to store the library and run this command to clone the c
 Enter the scenco directory and compile Scenco using the following command:
 
 ```bash
-ghc --make -isrc -iscenco -lstdc++ src/c++/scenco.cpp -O2 scenco/Main.hs -o Scenco -Wall -fwarn-tabs
+ghc --make -isrc -iscenco -lstdc++ src/c++/scenco.cpp -O2 scenco/Main.hs -o scenco -Wall -fwarn-tabs
 ```
 
 ## Building Scenco from cabal
@@ -26,10 +26,10 @@ You can build the library and executables using Cabal.
 
 ## Using Scenco
 
-The following usage info can be obtained by running `Scenco --help`:
+The following usage info can be obtained by running `scenco --help`:
 
 ```
-Usage: Scenco [input file] [tech lib] [OPTIONS...]
+Usage: scenco [input file] [tech lib] [OPTIONS...]
   -m                   --microcontroller               Synthesise controller targeting the microcontroller optimisation
   -e SEARCH-TYPE       --encoding=SEARCH-TYPE          Available: sequential - single-literal - random - heuristic - exhaustive
   -c FILE-CONSTRAINTS  --constraints=FILE-CONSTRAINTS  Set encoding constraints
@@ -54,7 +54,7 @@ cabal test --show-details=always
 ### Run
 
 ```
-cabal run Scenco -- [command line options]
+cabal run scenco -- [command line options]
 ```
 
 ## How to install ABC
@@ -63,7 +63,7 @@ cabal run Scenco -- [command line options]
 
 http://www.eecs.berkeley.edu/~alanmi/abc/
 
-We use `ABC` either for the synthesis and mapping process. All the functionalities provided by `SCENCO`, can be used only when ABC is properly installed. Add the folder, where the binary is present, into the `PATH` variable of the system. Follow the following instructions depending on the OS that you use.
+We use `ABC` either for the synthesis and mapping process. Add the folder, where the binary is present, into the `PATH` variable of the system. Follow the following instructions depending on the OS that you use.
 
 ##### Linux & Mac OS X 
 1) Refer to the following website for the download and compilation of the most up to date version of the tool: http://www.eecs.berkeley.edu/~alanmi/abc/
