@@ -13,8 +13,7 @@ main :: IO ()
 main = do
     putStrLn scencoVersion
 
-    abcInstalled <- abcCheck
-    when (abcInstalled == False) . error $ "ABC is not installed properly in your machine."
+    abcCheck
 
     options <- getOptions
     let graphs       = optInput    options
@@ -26,8 +25,7 @@ main = do
         numberSol    = optNumSol   options
         microSynth   = optTarget   options
 
-    libPresent <- libCheck techLib
-    when (libPresent == False) . putStrLn $ "Gate library not defined properly."
+    libCheck techLib
 
     (bf, enc) <- case encodingMode of
         Sequential -> do

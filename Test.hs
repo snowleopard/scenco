@@ -5,7 +5,6 @@ import Tuura.Library
 import Tuura.Abc
 
 import System.FilePath
-import Control.Monad
 
 testPath :: FilePath
 testPath = "test"
@@ -16,8 +15,7 @@ techLibPath = (testPath </> "90nm.genlib")
 main :: IO ()
 main = do
     putStrLn scencoVersion
-    abcInstalled <- abcCheck
-    when (abcInstalled == False) . error $ "ABC is not installed properly in your machine."
+    abcCheck
     executeTests
 
 executeTests :: IO ()
