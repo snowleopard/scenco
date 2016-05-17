@@ -17,7 +17,7 @@ techLib = loadLibrary (testPath </> "90nm.genlib")
 
 -- automatic generation
 nGraphs :: Int
-nGraphs = 120
+nGraphs = 60
 
 nEvents :: Int
 nEvents = 5
