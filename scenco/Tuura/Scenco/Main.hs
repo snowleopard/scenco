@@ -6,10 +6,14 @@ import Tuura.Scenco
 import Tuura.Encode
 import Tuura.Code
 import Tuura.Scenco.Options
+import Tuura.Abc
+import Tuura.Library
 
 main :: IO ()
 main = do
     putStrLn scencoVersion
+
+    abcCheck
 
     options <- getOptions
     let graphs       = optInput    options
@@ -20,6 +24,8 @@ main = do
         encodingMode = optMode     options
         numberSol    = optNumSol   options
         microSynth   = optTarget   options
+
+    libCheck techLib
 
     (bf, enc) <- case encodingMode of
         Sequential -> do
