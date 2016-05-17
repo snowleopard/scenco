@@ -222,7 +222,7 @@ int loadScenarios(char* file_in, FILE *fp){
 			return -1;
 		}
 	}
-
+	fclose(fp);
 	return 0;
 
 }
