@@ -1,9 +1,10 @@
-import Tuura.Scenco
+import System.FilePath
+
+import Tuura.Abc
 import Tuura.Code
 import Tuura.Graph
 import Tuura.Library
-
-import System.FilePath
+import Tuura.Scenco
 
 testPath :: FilePath
 testPath = "test"
@@ -14,6 +15,7 @@ techLibPath = (testPath </> "90nm.genlib")
 main :: IO ()
 main = do
     putStrLn scencoVersion
+    abcCheck
     executeTests
 
 executeTests :: IO ()
