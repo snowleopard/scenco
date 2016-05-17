@@ -1,10 +1,10 @@
-import Tuura.Scenco
+import System.FilePath
+
+import Tuura.Abc
 import Tuura.Code
 import Tuura.Graph
 import Tuura.Library
-import Tuura.Abc
-
-import System.FilePath
+import Tuura.Scenco
 
 testPath :: FilePath
 testPath = "test"
