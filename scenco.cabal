@@ -41,6 +41,7 @@ library
                     , directory
                     , mtl == 2.2.*
                     , transformers >= 0.4 && < 0.6
+                    , directory
     default-language: Haskell2010
     other-extensions: TypeFamilies, FlexibleContexts
     GHC-options:      -Wall -fwarn-tabs -O2
