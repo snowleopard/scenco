@@ -1,12 +1,15 @@
 cache:
     - "c:\\sr -> appveyor.yml"
 
+install:
+    - ps: Start-FileDownload 'http://www.stackage.org/stack/windows-i386' -FileName stack.zip
+    - ps: Start-FileDownload 'http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe' -FileName abc.exe
+
 build: off
 
 before_test:
-    - curl -o stack.zip -L --insecure --insecure http://www.stackage.org/stack/windows-i386
+    - dir
     - 7z x stack.zip stack.exe
-    - curl -o abc.exe -L --insecure http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe
     - set "PATH=%PATH%;%cd%"
 
 clone_folder: "c:\\project\\scenco"

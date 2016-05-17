@@ -20,7 +20,9 @@ source-repository head
     location: https://github.com/tuura/scenco.git
 
 library
-    hs-source-dirs:   src
+    hs-source-dirs:
+        src
+        scenco
     exposed-modules:
         Tuura.Code
         Tuura.Encode
@@ -33,6 +35,8 @@ library
         Tuura.TechnologyMapping
         Tuura.Circuit
         Tuura.Formula
+        Main
+        Tuura.Scenco.Options
     c-sources:        src/c++/scenco.cpp
     include-dirs:     src/c++
     build-depends:    base >= 4.7 && < 5
