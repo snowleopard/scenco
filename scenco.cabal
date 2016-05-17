@@ -22,28 +22,25 @@ source-repository head
 library
     hs-source-dirs:
         src
-        scenco
     exposed-modules:
+        Tuura.Abc
         Tuura.Code
         Tuura.Encode
         Tuura.Graph
         Tuura.Library
         Tuura.Scenco
-        Tuura.Abc
     other-modules:
-        Tuura.Synthesis
-        Tuura.TechnologyMapping
         Tuura.Circuit
         Tuura.Formula
-        Main
-        Tuura.Scenco.Options
+        Tuura.Synthesis
+        Tuura.TechnologyMapping
     c-sources:        src/c++/scenco.cpp
     include-dirs:     src/c++
     build-depends:    base >= 4.7 && < 5
                     , data-ordlist >= 0.4.7 && < 0.5
+                    , directory
                     , mtl == 2.2.*
                     , transformers >= 0.4 && < 0.6
-                    , directory
     default-language: Haskell2010
     other-extensions: TypeFamilies, FlexibleContexts
     GHC-options:      -Wall -fwarn-tabs
@@ -53,9 +50,9 @@ test-suite scenco-test
     type:             exitcode-stdio-1.0
     main-is:          Test.hs
     build-depends:    base >= 4.7 && < 5
+                    , directory
                     , filepath
                     , scenco
-                    , directory
     other-extensions: TypeFamilies
     default-language: Haskell2010
     GHC-options:      -Wall -fwarn-tabs
@@ -65,9 +62,9 @@ executable scenco
     hs-source-dirs:   scenco
     main-is:          Main.hs
     build-depends:    base >= 4.7 && < 5
+                    , directory
                     , filepath
                     , scenco
-                    , directory
     other-extensions: TypeFamilies
     default-language: Haskell2010
     GHC-options:      -Wall -fwarn-tabs -O2
