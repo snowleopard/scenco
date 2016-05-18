@@ -10,15 +10,14 @@ import Tuura.Scenco
 import Tuura.Encode
 import Tuura.Library
 import Tuura.Code
-import Tuura.Graph
 
 data Options = Options
     { optHelp     :: Bool
     , optPrintVer :: Bool
     , optTarget   :: Target
     , optMode     :: EncodingType
-    , optInput    :: GraphsFile
-    , optCodes    :: CodesFile
+    , optInput    :: GraphFile
+    , optCodes    :: CodeFile
     , optVerilog  :: FilePath
     , optTechLib  :: Library
     , optNumSol   :: Int
@@ -30,8 +29,8 @@ defaultOptions    = Options
     , optPrintVer = False
     , optTarget   = CPOG
     , optMode     = Sequential
-    , optInput    = loadGraph ""
-    , optCodes    = getCodesFile ""
+    , optInput    = GraphFile ""
+    , optCodes    = CodeFile ""
     , optVerilog  = "cpog.v"
     , optTechLib  = loadLibrary ""
     , optOutput   = putStr
@@ -44,7 +43,7 @@ options =
       "Encoding method: sequential (default), single-literal, random, heuristic, exhaustive."
 
     , Option ['c'] ["constraints"]
-      (ReqArg (\f opts -> return opts { optCodes = getCodesFile f }) "FILE")
+      (ReqArg (\f opts -> return opts { optCodes = CodeFile f }) "FILE")
       "Encoding constraints"
 
     , Option ['n'] ["n-solutions"]
@@ -77,7 +76,7 @@ getOptions = do
         (_   , [_]   , []) -> ioError $ userError
                               "First two arguments must be [input file] [tech lib]"
         (opts, [f, t], []) -> foldlM (flip id)
-                              defaultOptions { optInput   = loadGraph   f
+                              defaultOptions { optInput   = GraphFile f
                                              , optTechLib = loadLibrary t } opts
         (_   , _     , []) -> ioError $ userError "Multiple input files"
         (_   , _     , es) -> ioError . userError $ concat es
