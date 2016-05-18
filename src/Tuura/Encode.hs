@@ -1,17 +1,16 @@
-module Tuura.Encode (setGraphs, setCodes, encode, encodeGraphs, getCodes,
-                     unloadGraphsAndCodes, EncodingType(..), ErrorCode,
-                     readError, encodingAllocation, getMode, getNumGraphs) where
+module Tuura.Encode (
+    setGraphs, setCodes, encode, encodeGraphs, getCodes, unloadGraphsAndCodes,
+    GraphFile (..), EncodingType (..), ErrorCode (..), getErrorCode,
+    encodingAllocation, getMode, getNumGraphs
+    ) where
 
 import Tuura.Code
-import Tuura.Graph
 import Foreign.C.String
 import Control.Monad
 import Data.Char
 
-newtype ErrorCode = ErrorCode Int
-
-readError :: ErrorCode -> Int
-readError (ErrorCode err) = err
+newtype GraphFile = GraphFile { graphFilePath :: FilePath }
+newtype ErrorCode = ErrorCode { getErrorCode  :: Int }
 
 data EncodingType = SingleLiteral
                   | Sequential
@@ -19,22 +18,21 @@ data EncodingType = SingleLiteral
                   | Heuristic
                   | Exhaustive
 
-setGraphs :: GraphsFile -> IO ErrorCode
+setGraphs :: GraphFile -> IO ErrorCode
 setGraphs graphsPath = do
-    let graphsF = graphFilepath graphsPath
+    let graphsF = graphFilePath graphsPath
     graphs      <- newCString graphsF
     insertGraphs graphs
 
-setCodes :: CodesFile -> IO ErrorCode
-setCodes codesPath = do
-    let codesF = codesFilepath codesPath
-    codesConstraints <- newCString codesF
+setCodes :: CodeFile -> IO ErrorCode
+setCodes codePath = do
+    codesConstraints <- newCString $ codeFilePath codePath
     insertCodes codesConstraints
 
 encode :: EncodingType -> Maybe Int -> IO [CodeWithoutUnknowns]
 encode algorithm nEncoding = do
     result <- encodeGraphs algorithm nEncoding
-    let err = readError result
+    let err = getErrorCode result
     when (err /= 0) $ error "Encoding failed"
     getCodes
 

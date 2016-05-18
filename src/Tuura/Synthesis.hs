@@ -3,14 +3,14 @@ module Tuura.Synthesis (synthesiseControllerIO, synthesiseCpogIO) where
 import Tuura.Formula
 import Tuura.Abc
 import Tuura.Code
-import Tuura.Graph
+import Tuura.Encode
 import Foreign.C.String
 import Control.Monad
 
 --synthesise :: [(Graph, CodeWithoutUnknowns)] -> [Formula]
 --synthesise = undefined
 
-synthesiseControllerIO :: GraphsFile -> [CodeWithoutUnknowns] -> IO Formulae
+synthesiseControllerIO :: GraphFile -> [CodeWithoutUnknowns] -> IO Formulae
 synthesiseControllerIO _ _ = do
     abcC <- newCString abcCommand
     errorCode <- generateController abcC
@@ -19,7 +19,7 @@ synthesiseControllerIO _ _ = do
     unloadFormulae
     return f
 
-synthesiseCpogIO :: GraphsFile -> [CodeWithoutUnknowns] -> IO Formulae
+synthesiseCpogIO :: GraphFile -> [CodeWithoutUnknowns] -> IO Formulae
 synthesiseCpogIO _ _ = do
     abcC <- newCString abcCommand
     errorCode <- generateCPOG abcC

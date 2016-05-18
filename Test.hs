@@ -5,7 +5,7 @@ import System.IO
 
 import Tuura.Abc
 import Tuura.Code
-import Tuura.Graph
+import Tuura.Encode
 import Tuura.Library
 import Tuura.Scenco
 
@@ -77,20 +77,20 @@ testTexasInstrument8 = do
 testAutomaticGeneration :: Int -> Int -> IO ()
 testAutomaticGeneration g e = do
     randGraphs <- generateGraphs g e
-    let graphs  = loadGraph    randGraphs
-        codes   = getCodesFile ""
+    let graphs  = GraphFile randGraphs
+        codes   = CodeFile ""
     runEncodings graphs codes
     removeFile randGraphs
 
 runTests :: FilePath -> FilePath -> IO ()
 runTests cpogPath codesSetPath = do
     let codesPath   = (testPath </> codesSetPath <.> "opcodes")
-        codes       = getCodesFile codesPath
+        codes       = CodeFile codesPath
         graphsPath  = (testPath </> cpogPath <.> "cpog")
-        graphs      = loadGraph graphsPath
+        graphs      = GraphFile graphsPath
     runEncodings graphs codes
 
-runEncodings :: GraphsFile -> CodesFile -> IO ()
+runEncodings :: GraphFile -> CodeFile -> IO ()
 runEncodings graphs codes = do
     codeConstraints <- loadGraphsAndCodes graphs codes
     _ <- sequentialSearch graphs techLib CPOG

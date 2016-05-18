@@ -7,115 +7,107 @@ import Tuura.Encode
 import Tuura.Code
 import Tuura.Synthesis
 import Tuura.TechnologyMapping
-import Tuura.Graph
 import Tuura.Library
 import Tuura.Formula
 import Control.Monad
 
 scencoVersion :: String
-scencoVersion = "Scenco v0.1"
+scencoVersion = "scenco v0.1"
 
 data Target = CPOG | MICROCONTROLLER
 
-loadGraphsAndCodes :: GraphsFile -> CodesFile -> IO ([CodeWithUnknowns])
-loadGraphsAndCodes cpogFile codesFile = do
-    loadGraphs cpogFile
-    c <- loadCodes (codesFilepath codesFile)
+loadGraphsAndCodes :: GraphFile -> CodeFile -> IO ([CodeWithUnknowns])
+loadGraphsAndCodes graphFile codeFile = do
+    loadGraphs graphFile
+    c <- loadCodes (codeFilePath codeFile)
     encodingPreparation
     return c
 
-loadOnlyGraphs :: GraphsFile -> IO ()
-loadOnlyGraphs cpogFile = do
-    loadGraphs cpogFile
+loadOnlyGraphs :: GraphFile -> IO ()
+loadOnlyGraphs graphFile = do
+    loadGraphs graphFile
     encodingPreparation
 
-loadGraphs :: GraphsFile -> IO ()
+loadGraphs :: GraphFile -> IO ()
 loadGraphs graphs = do
     result <- setGraphs graphs
-    let err = readError result
-    check err "Graphs loaded" "Error loading graphs"
+    check result "Load graphs"
 
 loadCodes :: FilePath -> IO ([CodeWithUnknowns])
 loadCodes ""        = do
     nGraphs <- getNumGraphs
     putStrLn ("Scenco will not set any constraints for the " ++ show nGraphs ++ " graphs.")
-    result <- setCodes (getCodesFile "")
-    let err = readError result
-    check err "Codes loaded" "Error loading codes"
+    result <- setCodes (CodeFile "")
+    check result "Load codes"
     return (constraintFreeCodes nGraphs)
-loadCodes codesFile = do
-    let codes = getCodesFile codesFile
+loadCodes codeFile = do
+    let codes = CodeFile codeFile
     codeConstraints <- parseCustomCode codes
     result <- setCodes codes
-    let err = readError result
-    check err "Codes loaded" "Error loading codes"
+    check result "Load codes"
     return codeConstraints
 
 encodingPreparation :: IO ()
 encodingPreparation = do
     result <- encodingAllocation
-    let err = readError result
-    check err "Scenco is ready to encode the graphs" "Error preparing Scenco for encoding"
+    check result "Encoding memory allocation"
 
-sequentialSearch :: GraphsFile -> Library -> Target -> IO (Formulae,[CodeWithoutUnknowns])
+sequentialSearch :: GraphFile -> Library -> Target -> IO (Formulae, [CodeWithoutUnknowns])
 sequentialSearch graphsPath techLibPath target = do
     result <- encodeGraphs Sequential Nothing
-    let err = readError result
-    check err "Sequential encoding: OK" "Sequential encoding: ERROR"
+    check result "Sequential encoding"
     codesSequential <- getCodes
     f <- synthesisTarget target graphsPath techLibPath codesSequential
     return (f, codesSequential)
 
-singleLiteralSearch :: GraphsFile -> Library -> Target -> IO (Formulae,[CodeWithoutUnknowns])
+singleLiteralSearch :: GraphFile -> Library -> Target -> IO (Formulae,[CodeWithoutUnknowns])
 singleLiteralSearch graphsPath techLibPath target = do
     result <- encodeGraphs SingleLiteral Nothing
-    let err = readError result
-    check err "Single literal encoding: OK" "Single literal encoding: ERROR"
+    check result "Single literal encoding"
     codeSingleLiteral <- getCodes
     f <- synthesisTarget target graphsPath techLibPath codeSingleLiteral
     return (f,codeSingleLiteral)
 
-randomSearch :: GraphsFile -> Library -> [CodeWithUnknowns] -> Int -> Target -> IO (Formulae,[CodeWithoutUnknowns])
+randomSearch :: GraphFile -> Library -> [CodeWithUnknowns] -> Int -> Target -> IO (Formulae,[CodeWithoutUnknowns])
 randomSearch graphsPath techLibPath codeConstraints sol target = do
     codesFinal <- encode Random (Just sol)
     putStr "Random encoding: "
-    shouldMeet codesFinal codeConstraints
+    codesFinal `shouldMeet` codeConstraints
     f <- synthesisTarget target graphsPath techLibPath codesFinal
     return (f,codesFinal)
 
-heuristicSearch :: GraphsFile -> Library -> [CodeWithUnknowns] -> Int -> Target -> IO (Formulae,[CodeWithoutUnknowns])
+heuristicSearch :: GraphFile -> Library -> [CodeWithUnknowns] -> Int -> Target -> IO (Formulae,[CodeWithoutUnknowns])
 heuristicSearch graphsPath techLibPath codeConstraints sol target = do
     codesFinal <- encode Heuristic (Just sol)
     putStr "Heuristic encoding: "
-    shouldMeet codesFinal codeConstraints
+    codesFinal `shouldMeet` codeConstraints
     f <- synthesisTarget target graphsPath techLibPath codesFinal
     return (f,codesFinal)
 
-exhaustiveSearch :: GraphsFile -> Library -> [CodeWithUnknowns] -> Int -> Target -> IO (Formulae,[CodeWithoutUnknowns])
+exhaustiveSearch :: GraphFile -> Library -> [CodeWithUnknowns] -> Int -> Target -> IO (Formulae,[CodeWithoutUnknowns])
 exhaustiveSearch graphsPath techLibPath codeConstraints sol target = do
     codesFinal <- encode Exhaustive (Just sol)
     putStr "Exhaustive encoding: "
-    shouldMeet codesFinal codeConstraints
+    codesFinal `shouldMeet` codeConstraints
     f <- synthesisTarget target graphsPath techLibPath codesFinal
     return (f,codesFinal)
 
-synthesisTarget :: Target -> GraphsFile -> Library -> [CodeWithoutUnknowns] -> IO Formulae
+synthesisTarget :: Target -> GraphFile -> Library -> [CodeWithoutUnknowns] -> IO Formulae
 synthesisTarget MICROCONTROLLER = synthesiseController
 synthesisTarget CPOG            = synthesiseCpog
 
 unloadGraphs :: IO ()
 unloadGraphs = do
     result <- unloadGraphsAndCodes
-    let err = readError result
-    check err "Graphs and codes unloaded" "Error unloading graphs"
+    check result "Unload graphs and codes"
 
-synthesiseController :: GraphsFile -> Library ->[CodeWithoutUnknowns] -> IO Formulae
+synthesiseController :: GraphFile -> Library ->[CodeWithoutUnknowns] -> IO Formulae
 synthesiseController graphs techLibPath codes = do
     formulae <- synthesiseControllerIO graphs codes
     areaEstimation techLibPath formulae
     return formulae
 
-synthesiseCpog :: GraphsFile -> Library ->[CodeWithoutUnknowns] -> IO Formulae
+synthesiseCpog :: GraphFile -> Library ->[CodeWithoutUnknowns] -> IO Formulae
 synthesiseCpog graphs techLib codes = do
     formulae <- synthesiseCpogIO graphs codes
     areaEstimation techLib formulae
@@ -125,18 +117,17 @@ areaEstimation :: Library -> Formulae -> IO ()
 areaEstimation libFile formulae = do
     area <- estimateArea libFile formulae
     let size = parseArea area
-    putStrLn ("\tArea of the controller: " ++ show size)
+    putStrLn $ "\tArea of the controller: " ++ show size
 
 mapVerilog :: Formulae -> Library -> FilePath -> IO ()
 mapVerilog formulae techLib verilogPath = do
     resultV <- writeVerilog techLib formulae verilogPath
-    let err = readErrVerilog resultV
-    check err "\tVerilog file generation: OK" "Verilog file generation: ERROR"
+    check (ErrorCode $ readErrVerilog resultV) "\tVerilog file generation"
 
-check :: Int -> String -> String -> IO ()
-check result msgOk msgError
-    | result == 0 = putStrLn msgOk
-    | otherwise   = error $ msgError ++ " (code " ++ show result ++ ")"
+check :: ErrorCode -> String -> IO ()
+check (ErrorCode code) msg
+    | code == 0 = putStrLn $ msg ++ ": OK"
+    | otherwise = error $ msg ++ ": ERROR (code " ++ show code ++ ")"
 
 shouldMeet :: [CodeWithoutUnknowns] -> [CodeWithUnknowns] -> IO ()
 shouldMeet [] [] = putStrLn "Valid encoding"

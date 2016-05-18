@@ -1,20 +1,15 @@
 module Tuura.Code (
-    CodeWithUnknowns, CodeWithoutUnknowns, Bit, CodesFile, codesFilepath, getCodesFile,
-    known, unknown, used, unused, CodeValidation (..), validate, parseCustomCode,
-    showEncoding, constraintFreeCodes ) where
+    CodeWithUnknowns, CodeWithoutUnknowns, Bit, known, unknown, used, unused,
+    CodeValidation (..), CodeFile (..), validate, parseCustomCode, showEncoding,
+    constraintFreeCodes
+    ) where
+
+import Data.Bits
 
 type BoolWithUnknowns = Maybe Bool
 type Bit a = Maybe a
 type CodeWithUnknowns = [Bit BoolWithUnknowns]
 type CodeWithoutUnknowns = [Bit Bool]
-
-newtype CodesFile = CodesFile FilePath
-
-codesFilepath :: CodesFile -> FilePath
-codesFilepath (CodesFile file) = file
-
-getCodesFile :: FilePath -> CodesFile
-getCodesFile = CodesFile
 
 known :: Bool -> Bit BoolWithUnknowns
 known value = Just (Just value)
@@ -48,32 +43,29 @@ validate (a:as) (b:bs)
   where
     condition `thenError` result = if condition then result else validate as bs
 
-parseCustomCode :: CodesFile -> IO ([CodeWithUnknowns])
-parseCustomCode codesPath = do
-    let codesF = codesFilepath codesPath
-    contents <- lines <$> readFile codesF
+newtype CodeFile = CodeFile { codeFilePath :: FilePath }
+
+parseCustomCode :: CodeFile -> IO ([CodeWithUnknowns])
+parseCustomCode codePath = do
+    contents <- lines <$> readFile (codeFilePath codePath)
     let codes = readCodes contents
     return codes
 
--- not sure how to remove the warning generate by the next line
 constraintFreeCodes :: Int -> [CodeWithUnknowns]
-constraintFreeCodes n = getConstFreeCodes (ceiling (logBase (2.0) (fromIntegral n))) n
+constraintFreeCodes num = unknowns bits num
+  where
+    bits = finiteBitSize num - countLeadingZeros num
 
-getConstFreeCodes :: Int -> Int -> [CodeWithUnknowns]
-getConstFreeCodes _ 0 = []
-getConstFreeCodes b n = (getConstFreeCode b) : (getConstFreeCodes b (n-1))
-
-getConstFreeCode :: Int -> CodeWithUnknowns
-getConstFreeCode 0 = []
-getConstFreeCode b = (Just Nothing) : (getConstFreeCode (b-1))
+unknowns :: Int -> Int -> [CodeWithUnknowns]
+unknowns bits num = replicate num (replicate bits unknown)
 
 readBit :: Char -> Bit BoolWithUnknowns
 readBit x
-    | x == '0'       = known False
-    | x == '1'       = known True
-    | x == 'X'       = unknown
-    | x == '-'       = unused
-    | otherwise      = error $ "readBit: character '" ++ show x ++ "' is not recognised."
+    | x == '0'  = known False
+    | x == '1'  = known True
+    | x == 'X'  = unknown
+    | x == '-'  = unused
+    | otherwise = error $ "readBit: character '" ++ show x ++ "' is not recognised."
 
 readCode :: String -> CodeWithUnknowns
 readCode = map readBit

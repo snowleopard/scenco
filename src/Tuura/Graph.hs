@@ -1,7 +1,6 @@
 {-# LANGUAGE TypeFamilies, FlexibleContexts #-}
 module Tuura.Graph (
-    Graph (..), GraphFamily (..), GraphNormalForm, printGraph,
-    GraphsFile, graphFilepath, loadGraph
+    Graph (..), GraphFamily (..), GraphNormalForm, printGraph
     ) where
 
 import Data.List.Ordered (union)
@@ -72,11 +71,3 @@ instance Graph GraphExpression where
 class Graph g => GraphFamily g where
     type Predicate g
     condition :: Predicate g -> g -> g
-
-newtype GraphsFile = GraphsFile FilePath
-
-graphFilepath :: GraphsFile -> FilePath
-graphFilepath (GraphsFile file) = file
-
-loadGraph :: FilePath -> GraphsFile
-loadGraph = GraphsFile
