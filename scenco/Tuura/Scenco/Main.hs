@@ -11,10 +11,6 @@ import Tuura.Library
 
 main :: IO ()
 main = do
-    putStrLn scencoVersion
-
-    abcCheck
-
     options <- getOptions
     let graphs       = optInput    options
         codes        = optCodes    options
@@ -25,6 +21,7 @@ main = do
         numberSol    = optNumSol   options
         microSynth   = optTarget   options
 
+    abcCheck
     libCheck techLib
 
     (bf, enc) <- case encodingMode of
