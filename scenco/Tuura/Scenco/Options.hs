@@ -60,7 +60,7 @@ options =
       (NoArg (\opts -> return opts { optTarget = MICROCONTROLLER }))
       "Optimise the resulting microcontroller instead of graph family"
 
-    , Option ['l'] ["verilog"]
+    , Option [] ["verilog"]
       (ReqArg (\f opts -> return opts { optPrintVer = True
                                       , optVerilog  = f }) "FILE")
       "Write the microcontroller into a Verilog file"
@@ -71,7 +71,7 @@ options =
 
     , Option ['v'] ["version"]
       (NoArg (\opts -> return opts { optVersion = True }))
-      "Show version of ScEnco"
+      "Show version of Scenco"
     ]
 
 getOptions :: IO Options
