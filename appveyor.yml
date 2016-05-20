@@ -1,13 +1,18 @@
 cache:
-    - "c:\\sr -> appveyor.yml"
-
-install:
-    - ps: Start-FileDownload 'http://www.stackage.org/stack/windows-i386' -FileName stack.zip
-    - ps: Start-FileDownload 'http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe' -FileName abc.exe
+    - "c:\\project\\scenco\\stack.zip -> appveyor.yml"
+    - "c:\\project\\scenco\\abc.exe -> appveyor.yml"
 
 build: off
 
 before_test:
+    - ps: |
+        if ( -not (Test-Path c:\\project\\scenco\\stack.zip) ) {
+            Start-FileDownload 'http://www.stackage.org/stack/windows-i386' -FileName stack.zip
+        }
+    - ps: |
+        if ( -not (Test-Path c:\\project\\scenco\\abc.exe) ) {
+            Start-FileDownload 'http://www.eecs.berkeley.edu/~alanmi/abc/abc10216.exe' -FileName abc.exe
+        }
     - 7z x stack.zip stack.exe
     - set "PATH=%PATH%;%cd%"
 
