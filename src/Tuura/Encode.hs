@@ -1,7 +1,7 @@
 module Tuura.Encode (
     setGraphs, setCodes, encode, encodeGraphs, getCodes, unloadGraphsAndCodes,
-    GraphFile (..), EncodingType (..), ErrorCode (..), getErrorCode,
-    encodingAllocation, getMode, getNumGraphs
+    GraphFile (..), EncodingType (..), ErrorCode (..), encodingAllocation,
+    getMode, getNumGraphs
     ) where
 
 import Tuura.Code

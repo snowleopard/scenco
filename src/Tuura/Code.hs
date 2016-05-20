@@ -54,7 +54,7 @@ parseCustomCode codePath = do
 constraintFreeCodes :: Int -> [CodeWithUnknowns]
 constraintFreeCodes num = unknowns bits num
   where
-    bits = finiteBitSize num - countLeadingZeros num
+    bits = finiteBitSize num - countLeadingZeros (num - 1)
 
 unknowns :: Int -> Int -> [CodeWithUnknowns]
 unknowns bits num = replicate num (replicate bits unknown)
