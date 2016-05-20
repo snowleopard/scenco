@@ -14,6 +14,7 @@ import Tuura.Code
 data Options = Options
     { optHelp     :: Bool
     , optPrintVer :: Bool
+    , optVersion  :: Bool
     , optTarget   :: Target
     , optMode     :: EncodingType
     , optInput    :: GraphFile
@@ -27,6 +28,7 @@ defaultOptions :: Options
 defaultOptions    = Options
     { optHelp     = False
     , optPrintVer = False
+    , optVersion  = False
     , optTarget   = CPOG
     , optMode     = Sequential
     , optInput    = GraphFile ""
@@ -58,7 +60,7 @@ options =
       (NoArg (\opts -> return opts { optTarget = MICROCONTROLLER }))
       "Optimise the resulting microcontroller instead of graph family"
 
-    , Option ['v'] ["verilog"]
+    , Option ['l'] ["verilog"]
       (ReqArg (\f opts -> return opts { optPrintVer = True
                                       , optVerilog  = f }) "FILE")
       "Write the microcontroller into a Verilog file"
@@ -66,6 +68,10 @@ options =
     , Option ['h'] ["help"]
       (NoArg (\opts -> return opts { optHelp = True }))
       "Show this help message"
+
+    , Option ['v'] ["version"]
+      (NoArg (\opts -> return opts { optVersion = True }))
+      "Show version of ScEnco"
     ]
 
 getOptions :: IO Options
@@ -85,5 +91,8 @@ getOptions = do
         let header = "Usage: " ++ progName ++ " [input file] [tech lib] [OPTIONS...]"
             helpMessage = usageInfo header options
         putStrLn helpMessage
+        exitSuccess
+    when (optVersion result) $ do
+        putStrLn scencoVersion
         exitSuccess
     return result
