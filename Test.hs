@@ -1,3 +1,4 @@
+import Control.Monad
 import Data.List
 import System.Directory
 import System.FilePath
@@ -22,6 +23,9 @@ nGraphs = 60
 nEvents :: Int
 nEvents = 5
 
+nCodes :: [Int]
+nCodes = [0..5]
+
 main :: IO ()
 main = do
     putStrLn scencoVersion
@@ -38,6 +42,7 @@ executeTests = do
     testTexasInstrument7
     testTexasInstrument8
     testAutomaticGeneration nGraphs nEvents
+    testFreeCodes nCodes
 
 testArm8 :: IO ()
 testArm8 = do
@@ -82,6 +87,16 @@ testAutomaticGeneration g e = do
     runEncodings graphs codes
     removeFile randGraphs
 
+testFreeCodes :: [Int] -> IO ()
+testFreeCodes tests = do
+    putStrLn "========== Free constraints codes test"
+    putStrLn ("Test code generation from " ++ show (minimum tests)
+             ++ " to " ++ show (maximum tests) ++ " graphs")
+    when (checkFreeCodes tests == False) . error $
+        "Not constrained codes generation failed"
+    putStrLn "Free constraints code generation: OK"
+    return ()
+
 runTests :: FilePath -> FilePath -> IO ()
 runTests cpogPath codesSetPath = do
     let codesPath   = (testPath </> codesSetPath <.> "opcodes")
@@ -124,3 +139,18 @@ convertIntoScenarios n (x:xs) =   (".scenario " ++ "graph_" ++ show n ++ "\n")
                                ++ x
                                ++ ".end\n\n"
                                ++ convertIntoScenarios (n+1) xs
+
+checkFreeCodes :: [Int] -> Bool
+checkFreeCodes = all checkFreeCode
+
+checkFreeCode :: Int -> Bool
+checkFreeCode n = checkCode n (constraintFreeCodes n)
+
+checkCode :: Int -> [CodeWithUnknowns] -> Bool
+checkCode 0 = (== [])
+checkCode 1 = (== [[]])
+checkCode 2 = (== replicate 2 (replicate 1 unknown))
+checkCode 3 = (== replicate 3 (replicate 2 unknown))
+checkCode 4 = (== replicate 4 (replicate 2 unknown))
+checkCode 5 = (== replicate 5 (replicate 3 unknown))
+checkCode n = error $ "Test result is not defined for " ++ show n
