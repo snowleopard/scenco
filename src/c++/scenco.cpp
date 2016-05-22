@@ -19,7 +19,7 @@ extern "C" {
 	}
 
 	int get_n_graphs(){
-		return n; //TODO cpog_count
+		return n;
 	}
 
 	int load_graphs(char *file_in){
@@ -170,6 +170,10 @@ extern "C" {
 	int single_literal_encoding(){
 
 		try{
+			if (n < 2) {
+				return 0;
+			}
+
 			computeCodesAvailable();
 
 			if(singleLiteralEncoding(total) != 0){
@@ -195,6 +199,10 @@ extern "C" {
 	int sequential_encoding(){
 
 		try{
+			if (n < 2) {
+				return 0;
+			}
+
 			computeCodesAvailable();
 
 			if(allocate_encodings_space(1) != 0){
@@ -225,6 +233,10 @@ extern "C" {
 	int random_encoding(int num_enc){
 
 		try{
+			if (n < 2) {
+				return 0;
+			}
+			
 			bits = bits_saved;
 			computeCodesAvailable();
 
@@ -259,6 +271,10 @@ extern "C" {
 	int heuristic_encoding(int num_enc){
 
 		try{
+			if (n < 2) {
+				return 0;
+			}
+
 			bits = bits_saved;
 			computeCodesAvailable();
 
@@ -296,6 +312,10 @@ extern "C" {
 	int exhaustive_encoding(int num_enc){
 
 		try{
+			if (n < 2) {
+				return 0;
+			}
+
 			if(allocate_encodings_space(num_enc) != 0){
 				safe_exit("Encoding allocating variables for exhaustive encoding.");
 				return -1;

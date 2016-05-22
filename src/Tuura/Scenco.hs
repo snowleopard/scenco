@@ -19,14 +19,19 @@ data Target = CPOG | MICROCONTROLLER
 loadGraphsAndCodes :: GraphFile -> CodeFile -> IO ([CodeWithUnknowns])
 loadGraphsAndCodes graphFile codeFile = do
     loadGraphs graphFile
-    c <- loadCodes (codeFilePath codeFile)
-    encodingPreparation
-    return c
+    n <- getNumGraphs
+    if (n < 2)
+    then return (constraintFreeCodes n)
+    else do
+        c <- loadCodes (codeFilePath codeFile)
+        encodingPreparation
+        return c
 
 loadOnlyGraphs :: GraphFile -> IO ()
 loadOnlyGraphs graphFile = do
     loadGraphs graphFile
-    encodingPreparation
+    n <- getNumGraphs
+    when (n > 1) $ encodingPreparation
 
 loadGraphs :: GraphFile -> IO ()
 loadGraphs graphs = do
