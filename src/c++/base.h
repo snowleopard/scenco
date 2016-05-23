@@ -88,12 +88,12 @@ static char dictionary[5] = {'0','1','X','x','-'};
 	char BOOL_PATH[] = "/tmp/bool_eq.XXXXXX";
 	char CODE_CONSTRAINTS[] = "/tmp/code_cons.XXXXXX";
 #else
-	char TRIVIAL_ENCODING_FILE[L_tmpnam];
-	char CONSTRAINTS_FILE[L_tmpnam];
-	char TMP_FILE[L_tmpnam];
-	char SCRIPT_PATH[L_tmpnam];
-	char BOOL_PATH[L_tmpnam];
-	char CODE_CONSTRAINTS[L_tmpnam];
+	char TRIVIAL_ENCODING_FILE[FILENAME_MAX];
+	char CONSTRAINTS_FILE[FILENAME_MAX];
+	char TMP_FILE[FILENAME_MAX];
+	char SCRIPT_PATH[FILENAME_MAX];
+	char BOOL_PATH[FILENAME_MAX];
+	char CODE_CONSTRAINTS[FILENAME_MAX];
 #endif
 	char LOG[] = "scenco.log";
 

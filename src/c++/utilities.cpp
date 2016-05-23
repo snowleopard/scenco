@@ -210,7 +210,7 @@ int win_tempFileName(char* tmpName){
 	char tmpString[L_tmpnam];
 
 	// getting std dir for temp files
-	if (GetTempPath(L_tmpnam,tmpName) == 0){
+	if (GetTempPath(FILENAME_MAX,tmpName) == 0){
 		fprintf(stderr, "Error getting temporary directory path.\n");
 		return -1;
 	}
