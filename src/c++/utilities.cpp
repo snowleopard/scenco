@@ -204,7 +204,7 @@ char* decimal_to_binary(int n, int bits){
 	return binary;
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(_WIN64)
 int win_tempFileName(char* tmpName){
 
 	char tmpString[L_tmpnam];
