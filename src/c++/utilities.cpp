@@ -204,6 +204,33 @@ char* decimal_to_binary(int n, int bits){
 	return binary;
 }
 
+#if defined(_WIN32) || defined(_WIN64)
+int win_tempFileName(char* tmpName){
+
+	char tmpString[L_tmpnam];
+
+	// getting std dir for temp files
+	if (GetTempPath(FILENAME_MAX,tmpName) == 0){
+		fprintf(stderr, "Error getting temporary directory path.\n");
+		return -1;
+	}
+
+	// removing double '\'
+    	tmpName[strlen(tmpName)-1] = '\0';
+
+	// creating unique fileName
+	if (tmpnam(tmpString) == NULL){
+		fprintf(stderr, "Error generating unique temp file name.\n");
+		return -1;
+	}
+
+	// concat temp file name
+	strcat(tmpName,tmpString);
+
+	return 0;
+}
+#endif
+
 int temporary_files_creation(){
 #if defined(__linux) || defined(__APPLE__)
 	if (mkstemp(TRIVIAL_ENCODING_FILE) == -1){
@@ -233,12 +260,12 @@ int temporary_files_creation(){
 		return -1;
 	}
 #else
-	tmpnam(TRIVIAL_ENCODING_FILE);
-	tmpnam(CONSTRAINTS_FILE);
-	tmpnam(TMP_FILE);
-	tmpnam(SCRIPT_PATH);
-	tmpnam(BOOL_PATH);
-	tmpnam(CODE_CONSTRAINTS);
+	win_tempFileName(TRIVIAL_ENCODING_FILE);
+	win_tempFileName(CONSTRAINTS_FILE);
+	win_tempFileName(TMP_FILE);
+	win_tempFileName(SCRIPT_PATH);
+	win_tempFileName(BOOL_PATH);
+	win_tempFileName(CODE_CONSTRAINTS);
 #endif
 	return 0;
 }
