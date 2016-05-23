@@ -13,6 +13,12 @@
 #include <limits>
 #include <unistd.h>
 
+#if defined(__linux) || defined(__APPLE__)
+	typedef enum {FALSE, TRUE} boolean;
+#else
+	#include <windows.h>
+#endif
+
 // constant definition
 #define stringLimit	300
 #define eventsLimit	200
@@ -40,7 +46,6 @@ typedef enum BitType
 } BitType;
 
 // type definition
-typedef enum {FALSE, TRUE} boolean;
 typedef struct struct_tag{
 	char type; 		/*v = vertex, e = edge*/
 	char* source, *dest; 	/*if n
