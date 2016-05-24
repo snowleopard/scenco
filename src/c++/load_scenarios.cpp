@@ -176,10 +176,6 @@ bool readScenario()
 }
 
 int loadScenarios(char* file_in, FILE *fp){
-	/*if (!alternative)
-		fprintf(fpLOG,"Using 'f = x + y * predicate' to deal with predicates.\n");
-	else
-		fprintf(fpLOG,"Using 'f = x * (y + predicate)' to deal with predicates.\n");*/
 
 	fp = freopen(file_in, "r", stdin);
 	if (fp == NULL){
@@ -237,20 +233,15 @@ int predicateSearch(){
 		if (!predicates_found)
 		{
 			predicates_found = true;
-			//printf("\nList of predicates:");
 		}
-		//printf("%s:", eventNames_str[i].c_str());
 		map<string, int>::iterator p = eventPredicates[i].begin(), 
 			q = eventPredicates[i].end();
 		while(p != q)
 		{
 			string pr = p->first;
-			//printf(" %s", pr.c_str());
 			p++;
 		}
-		//fprintf(fpLOG,"");
 	}
-	//if (!predicates_found) printf("\nNo predicates found.");
 
 	return 0;
 }

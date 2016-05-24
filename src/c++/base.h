@@ -95,7 +95,6 @@ static char dictionary[5] = {'0','1','X','x','-'};
 	char BOOL_PATH[FILENAME_MAX];
 	char CODE_CONSTRAINTS[FILENAME_MAX];
 #endif
-	char LOG[] = "scenco.log";
 
 // Alex's tool
 char **manual_file = NULL;
