@@ -246,7 +246,14 @@ int predicateSearch(){
 	return 0;
 }
 
-int nonTrivialConstraints(FILE *fp, int *total, int *trivial){
+int nonTrivialConstraints(int *total){
+
+	FILE *fp = NULL;
+
+	if( (fp = fopen(CONSTRAINTS_FILE,"w")) == NULL){
+		safe_exit("Error on opening constraints file for writing.");
+		return -1;
+	}
 
 	for(int i = 0; i < V; i++)
 	{
@@ -359,8 +366,7 @@ int nonTrivialConstraints(FILE *fp, int *total, int *trivial){
 	}
 	*total = constraints.size();
 
-	
-	for(int i = 0; i < (*total); i++) if (encodings[i].trivial) (*trivial)++;
+	fclose(fp);
 
 	return 0;
 }
@@ -446,48 +452,35 @@ int difference_matrix(int cpog_count){
 
 /*READ FILE FUNCTION*/
 /*Following function read non-trivial encoding constraints of the Conditional Partial Order Graphs.*/
-int read_file(char *file_in){
-	FILE *fp = NULL;
-	char *string, dump, c;
-	int i = 0, j = 0;
+int read_constraints(){
+	int i = 0;
+	int j = 0;
+	int k = 0;
 
-	fp = fopen(file_in, "r");
-	if(feof(fp)){
-		fprintf(stderr,"File is empty. Please, introduce another file.\n");
-		return -1;
+	len_sequence = 0;
+	while( i < encodings.size()){
+		if(!encodings[i].trivial){
+			cpog_count = encodings[i].constraint.size();
+			len_sequence++;
+		}
+		i++;
 	}
-	while ( (c = fgetc (fp)) != '\n' ) i++;
-	i++;
-	fclose(fp);
-	string = (char*) malloc(sizeof(char) * (i+1));
-
-	fp = fopen(file_in, "r");
-	if(fscanf(fp,"%s", string) == EOF){
-		fprintf(stderr,"Error reading the file.\n");
-		return -1;
-	}
-	len_sequence = 1;
-	cpog_count = strlen(string);
-	
-	while(fscanf(fp,"%s", string) != EOF)
-		len_sequence++;
-	fclose(fp);
 
 	diff = (char**) malloc(sizeof(char*) * (len_sequence));
 	for(i=0;i<len_sequence;i++)
 		diff[i] = (char*) malloc(sizeof(char) * cpog_count);
-
-	fp = fopen(file_in, "r");
+	k = 0;
 	for(i = 0; i< len_sequence;i++){
+		while(encodings[k].trivial) k++;
+		char *constraint = NULL;
+		constraint = (char *) malloc(sizeof(char) * (encodings[k].constraint.size() + 1));
+		strcpy(constraint, encodings[k].constraint.c_str());
 		for(j = 0; j< cpog_count; j++){
-			if(fscanf(fp, "%c", &diff[i][j]) == EOF){
-				fprintf(stderr,"Error on reading custom encodings.\n");
-				return -1;
-			}
+			diff[i][j] = constraint[j];
 		}
-		j = fscanf(fp,"%c", &dump);
+		free(constraint);
+		k++;
 	}
-	fclose(fp);
 
 	return 0;
 }

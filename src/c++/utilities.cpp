@@ -56,15 +56,6 @@ void removeTempFiles(){
 		}
 		free(command);
 	}
-	if(FileExists(TRIVIAL_ENCODING_FILE)){
-		command = strdup("rm -f ");
-		command = catMem(command, TRIVIAL_ENCODING_FILE);
-		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
-			return;
-		}
-		free(command);
-	}
 	if(FileExists(CONSTRAINTS_FILE)){
 		command = strdup("rm -f ");
 		command = catMem(command, CONSTRAINTS_FILE);
@@ -107,15 +98,6 @@ void removeTempFiles(){
 		command = catMem(command, SCRIPT_PATH);
 		if (system(command) == -1){
 			fprintf(stderr,"Error on removing %s.\n", SCRIPT_PATH);
-			return;
-		}
-		free(command);
-	}
-	if(FileExists(TRIVIAL_ENCODING_FILE)){
-		command = strdup("del ");
-		command = catMem(command, TRIVIAL_ENCODING_FILE);
-		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
 			return;
 		}
 		free(command);
@@ -233,11 +215,6 @@ int win_tempFileName(char* tmpName){
 
 int temporary_files_creation(){
 #if defined(__linux) || defined(__APPLE__)
-	if (mkstemp(TRIVIAL_ENCODING_FILE) == -1){
-		fprintf(stderr,"Error on opening trivial temporary file: %s.\n",
-			TRIVIAL_ENCODING_FILE);
-		return -1;
-	}
 	if (mkstemp(CONSTRAINTS_FILE) == -1){
 		fprintf(stderr,"Error on opening constraint temporary file: %s.\n",
 			CONSTRAINTS_FILE);
@@ -260,7 +237,6 @@ int temporary_files_creation(){
 		return -1;
 	}
 #else
-	win_tempFileName(TRIVIAL_ENCODING_FILE);
 	win_tempFileName(CONSTRAINTS_FILE);
 	win_tempFileName(TMP_FILE);
 	win_tempFileName(SCRIPT_PATH);

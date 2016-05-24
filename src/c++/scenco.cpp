@@ -25,7 +25,6 @@ extern "C" {
 	int load_graphs(char *file_in){
 
 		FILE *fp;
-		int trivial = 0;
 		int err=0;
 
 		try{
@@ -60,26 +59,10 @@ extern "C" {
 			}
 
 			// looking for non-trivial constraints
-			if( (fp = fopen(CONSTRAINTS_FILE,"w")) == NULL){
-				safe_exit("Error on opening constraints file for writing.");
-				return -1;
-			}
-			if(nonTrivialConstraints(fp, &total, &trivial) != 0){
+			if(nonTrivialConstraints(&total) != 0){
 				safe_exit("Non-trivial constraints searching failed.");
 				return -1;
 			}
-			fclose(fp);
-
-			// writing non-trivial constraints into a file
-			if( (fp = fopen(TRIVIAL_ENCODING_FILE,"w")) == NULL){
-				safe_exit("Error on opening constraints file for writing.");
-				return -1;
-			}
-			for(int i = 0; i < total; i++)
-				if (!encodings[i].trivial) {
-					fprintf(fp,"%s\n",encodings[i].constraint.c_str());
-			}
-			fclose(fp);
 
 			if(conflictGraph(&total) != 0){
 				safe_exit("Building conflict graph failed.");
@@ -133,11 +116,10 @@ extern "C" {
 			/*******************************************************
 			*               Variable preparation for encoding      *
 			*******************************************************/
-			file_cons = strdup(CONSTRAINTS_FILE);
 
 			// reading non-trivial encoding file
-			if( (err = read_file(TRIVIAL_ENCODING_FILE)) ){
-				safe_exit("Error occured while reading non-trivial encoding file.");
+			if( (err = read_constraints()) ){
+				safe_exit("Error occured while reading non-trivial constraints.");
 				return -1;
 			}
 
