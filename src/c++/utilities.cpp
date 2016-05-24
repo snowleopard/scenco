@@ -47,11 +47,11 @@ void removeTempFiles(){
 		}
 		free(command);
 	}
-	if(FileExists(SCRIPT_PATH)){
+	if(FileExists(SCRIPT_TMP)){
 	    	command = strdup("rm -f ");
-		command = catMem(command, SCRIPT_PATH);
+		command = catMem(command, SCRIPT_TMP);
 		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", SCRIPT_PATH);
+			fprintf(stderr,"Error on removing %s.\n", SCRIPT_TMP);
 			return;
 		}
 		free(command);
@@ -93,11 +93,11 @@ void removeTempFiles(){
 		}
 	}
 	free(command);
-	if(FileExists(SCRIPT_PATH)){
+	if(FileExists(SCRIPT_TMP)){
 	    	command = strdup("del ");
-		command = catMem(command, SCRIPT_PATH);
+		command = catMem(command, SCRIPT_TMP);
 		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", SCRIPT_PATH);
+			fprintf(stderr,"Error on removing %s.\n", SCRIPT_TMP);
 			return;
 		}
 		free(command);
@@ -224,8 +224,8 @@ int temporary_files_creation(){
 		fprintf(stderr,"Error on opening temporary file: %s.\n", TMP_FILE);
 		return -1;
 	}
-	if (mkstemp(SCRIPT_PATH) == -1){
-		fprintf(stderr,"Error on opening temporary file: %s.\n", SCRIPT_PATH);
+	if (mkstemp(SCRIPT_TMP) == -1){
+		fprintf(stderr,"Error on opening temporary file: %s.\n", SCRIPT_TMP);
 		return -1;
 	}
 	if (mkstemp(BOOL_PATH) == -1){
@@ -239,7 +239,7 @@ int temporary_files_creation(){
 #else
 	win_tempFileName(CONSTRAINTS_FILE);
 	win_tempFileName(TMP_FILE);
-	win_tempFileName(SCRIPT_PATH);
+	win_tempFileName(SCRIPT_TMP);
 	win_tempFileName(BOOL_PATH);
 	win_tempFileName(CODE_CONSTRAINTS);
 #endif

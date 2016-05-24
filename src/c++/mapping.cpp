@@ -532,10 +532,21 @@ int equations_abc_cpog_size(int cpog_count, int bits){
 	return 0;
 }
 
+void boolEqOptimisationAbc(FILE *fp){
+	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
+	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
+	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
+	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
+	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
+	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
+	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
+	return;
+}
+
 int writeMappingScript(char *techLibrary){
 	FILE *fp = NULL;
 
-	if( (fp = fopen(SCRIPT_PATH,"w")) == NULL ){
+	if( (fp = fopen(SCRIPT_TMP,"w")) == NULL ){
 		printf("Error on opening script file.\n");
 		return 2;
 	}
@@ -543,13 +554,7 @@ int writeMappingScript(char *techLibrary){
 	// script
 	fprintf(fp,"read_eqn %s\n",BOOL_PATH);
 	fprintf(fp,"read_library %s\n", techLibrary);
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
+	boolEqOptimisationAbc(fp);
 	fprintf(fp,"print_gates\n");
 	fprintf(fp,"quit");
 	fclose(fp);
@@ -560,7 +565,7 @@ int writeMappingScript(char *techLibrary){
 int writeVerilogGenScript(char *techLibrary, char *vFile){
 	FILE *fp = NULL;
 
-	if( (fp = fopen(SCRIPT_PATH,"w")) == NULL ){
+	if( (fp = fopen(SCRIPT_TMP,"w")) == NULL ){
 		printf("Error on opening script file.\n");
 		return 2;
 	}
@@ -568,13 +573,7 @@ int writeVerilogGenScript(char *techLibrary, char *vFile){
 	// script
 	fprintf(fp,"read_eqn %s\n",BOOL_PATH);
 	fprintf(fp,"read_library %s\n", techLibrary);
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
-	fprintf(fp,"fraig_store; balance; rewrite; rewrite -z; balance; rewrite -z; balance; fraig_store; balance; rewrite; refactor; balance; rewrite; rewrite -z; balance;  refactor -z; rewrite -z; balance; fraig_store; fraig_restore; map\n");
+	boolEqOptimisationAbc(fp);
 	fprintf(fp,"write_verilog %s\n", vFile);
 	fprintf(fp,"quit");
 	fclose(fp);
@@ -589,7 +588,7 @@ char* abcCommandOutNull(char *abcPath){
 	command = strdup("");
 	command = catMem(command, abcPath);
 	command = catMem(command, " < ");
-	command = catMem(command, SCRIPT_PATH);
+	command = catMem(command, SCRIPT_TMP);
 #if defined(__linux) || defined(__APPLE__)
 	command = catMem(command, " 1>/dev/null 2>&1");
 #else
@@ -605,7 +604,7 @@ char* abcCommandOutTmp(char *abcPath){
 	command = strdup("");
 	command = catMem(command, abcPath);
 	command = catMem(command, " < ");
-	command = catMem(command, SCRIPT_PATH);
+	command = catMem(command, SCRIPT_TMP);
 	command = catMem(command, " > ");
 	command = catMem(command, TMP_FILE);
 	command = catMem(command, " 2>&1");
