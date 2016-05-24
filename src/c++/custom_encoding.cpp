@@ -1,28 +1,20 @@
 /*READ ENCODING SET FUNCTION*/
 /*This function reads the encoding set by designer in order to fix them.*/
-int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
+int read_set_encoding(int cpog_count, int *bits){
 	FILE *fp = NULL;
 	int i,k,b=0;
 	char *number;
-	char *tmp_str;
 	char c;
 	boolean acq = FALSE, freeCode = TRUE, dontUse = FALSE;
 
-	fp = fopen(custom_file_name,"r");
- 	while ( ( c = fgetc ( fp ) ) != '\n' ) b++;
-	number = (char*) malloc(sizeof(char) * (b+2));
-	fclose(fp);	
+	b = codeConstraints[i].size();
 
-	fp = fopen(custom_file_name,"r");
 	custom_perm = (int*) malloc(sizeof(int) * cpog_count);
 	custom_perm_back = (int*) malloc(sizeof(int) * cpog_count);
 	DC_custom = (boolean*) calloc(cpog_count,sizeof(boolean));
 
 	for (i=0;i<cpog_count;i++){
-		if( (fscanf(fp,"%s", number) == EOF)){
-			fprintf(stderr,"Error: not enough encoding for this CPOG, they must be %d.\n",cpog_count);
-			return 1;
-		}
+		number = strdup(codeConstraints[i].c_str());
 
 		freeCode = TRUE;
 		if(number[0] != '/'){
@@ -59,46 +51,34 @@ int read_set_encoding(char *custom_file_name,int cpog_count, int *bits){
 		}
 	}
 	bits_saved = *bits;
-	fclose(fp);
 
 	
 	manual_file = (char**) malloc(sizeof(char*) * cpog_count);
 	manual_file_back = (char**) malloc(sizeof(char*) * cpog_count);
-	tmp_str = (char*) malloc(sizeof(char) * ((*bits)+1));
 	for(i=0;i<cpog_count;i++){
 		manual_file[i] = (char*) malloc(sizeof(char) * ((*bits)+1));
 		manual_file_back[i] = (char*) malloc(sizeof(char) * ((*bits)+1));
 	}
 
-
-	if( (fp = fopen(custom_file_name,"r")) == NULL ){
-		fprintf(stderr,"Error on opening manual file.\n");
-		return 2;
-	}
-
 	for(i=0;i<cpog_count;i++){
-		if(fscanf(fp,"%s",tmp_str) == EOF){
-			fprintf(stderr,"Error on reading custom encodings.\n");
-			return 3;
-		}
+
+		number = strdup(codeConstraints[i].c_str());
 		freeCode = TRUE;
 		for(int j=0; j<(*bits) && freeCode; j++){
-			if(tmp_str[j] != 'X') freeCode = FALSE;
+			if(number[j] != 'X') freeCode = FALSE;
 		}
 		if(freeCode) strcpy(manual_file[i], "/");
-		else strcpy(manual_file[i], tmp_str);
+		else strcpy(manual_file[i], number);
 		strcpy(manual_file_back[i],manual_file[i]);
 	}
 
-	free(tmp_str);
 	free(number);
 
-	fclose(fp);
 	return 0;
 	
 }
 
-int check_correctness(char *custom_file_name, int cpog_count, int tot_enc, int bits){
+int check_correctness(int cpog_count, int tot_enc, int bits){
 
 	int result = 0, *opcodes,i,k, it = 0, limit, res_back;
 	opcodes = (int*) calloc(tot_enc, sizeof(int));

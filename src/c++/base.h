@@ -81,21 +81,16 @@ static char dictionary[5] = {'0','1','X','x','-'};
 
 //TEMPORARY FILES
 #if defined(__linux) || defined(__APPLE__)
-	char TRIVIAL_ENCODING_FILE[] = "/tmp/trivial.XXXXXX";
 	char CONSTRAINTS_FILE[] = "/tmp/constraints.XXXXXX";
 	char TMP_FILE[] = "/tmp/tmpfile.XXXXXX";
-	char SCRIPT_PATH[] = "/tmp/synth.XXXXXX";
+	char SCRIPT_TMP[] = "/tmp/synth.XXXXXX";
 	char BOOL_PATH[] = "/tmp/bool_eq.XXXXXX";
-	char CODE_CONSTRAINTS[] = "/tmp/code_cons.XXXXXX";
 #else
-	char TRIVIAL_ENCODING_FILE[FILENAME_MAX];
 	char CONSTRAINTS_FILE[FILENAME_MAX];
 	char TMP_FILE[FILENAME_MAX];
-	char SCRIPT_PATH[FILENAME_MAX];
+	char SCRIPT_TMP[FILENAME_MAX];
 	char BOOL_PATH[FILENAME_MAX];
-	char CODE_CONSTRAINTS[FILENAME_MAX];
 #endif
-	char LOG[] = "scenco.log";
 
 // Alex's tool
 char **manual_file = NULL;
@@ -164,6 +159,7 @@ map<string, int> *eventPredicates = NULL;
 
 vector<string> scenarioNames;
 vector<string> scenarioOpcodes;
+vector<string> codeConstraints;
 
 string** ev = NULL;
 string** ee = NULL;

@@ -37,7 +37,7 @@ int boolean_function(int co, char* abcPath){
 	command = abcCommandOutNull(abcPath);
 
 	// building script
-	if( (fp = fopen(SCRIPT_PATH, "w")) == NULL){
+	if( (fp = fopen(SCRIPT_TMP, "w")) == NULL){
 		fprintf(stderr,"Error preparing script for Abc synthesis.\n");
 		return -1;
 	}

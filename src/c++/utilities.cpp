@@ -47,20 +47,11 @@ void removeTempFiles(){
 		}
 		free(command);
 	}
-	if(FileExists(SCRIPT_PATH)){
+	if(FileExists(SCRIPT_TMP)){
 	    	command = strdup("rm -f ");
-		command = catMem(command, SCRIPT_PATH);
+		command = catMem(command, SCRIPT_TMP);
 		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", SCRIPT_PATH);
-			return;
-		}
-		free(command);
-	}
-	if(FileExists(TRIVIAL_ENCODING_FILE)){
-		command = strdup("rm -f ");
-		command = catMem(command, TRIVIAL_ENCODING_FILE);
-		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
+			fprintf(stderr,"Error on removing %s.\n", SCRIPT_TMP);
 			return;
 		}
 		free(command);
@@ -79,15 +70,6 @@ void removeTempFiles(){
 		command = catMem(command, BOOL_PATH);
 		if (system(command) == -1){
 			fprintf(stderr,"Error on removing %s.\n", BOOL_PATH);
-			return;
-		}
-		free(command);
-	}
-	if(FileExists(CODE_CONSTRAINTS)){
-		command = strdup("rm -f ");
-		command = catMem(command, CODE_CONSTRAINTS);
-		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", CODE_CONSTRAINTS);
 			return;
 		}
 		free(command);
@@ -102,20 +84,11 @@ void removeTempFiles(){
 		}
 	}
 	free(command);
-	if(FileExists(SCRIPT_PATH)){
+	if(FileExists(SCRIPT_TMP)){
 	    	command = strdup("del ");
-		command = catMem(command, SCRIPT_PATH);
+		command = catMem(command, SCRIPT_TMP);
 		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", SCRIPT_PATH);
-			return;
-		}
-		free(command);
-	}
-	if(FileExists(TRIVIAL_ENCODING_FILE)){
-		command = strdup("del ");
-		command = catMem(command, TRIVIAL_ENCODING_FILE);
-		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", TRIVIAL_ENCODING_FILE);
+			fprintf(stderr,"Error on removing %s.\n", SCRIPT_TMP);
 			return;
 		}
 		free(command);
@@ -134,15 +107,6 @@ void removeTempFiles(){
 		command = catMem(command, BOOL_PATH);
 		if (system(command) == -1){
 			fprintf(stderr,"Error on removing %s.\n", BOOL_PATH);
-			return;
-		}
-		free(command);
-	}
-	if(FileExists(CODE_CONSTRAINTS)){
-		command = strdup("del ");
-		command = catMem(command, CODE_CONSTRAINTS);
-		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", CODE_CONSTRAINTS);
 			return;
 		}
 		free(command);
@@ -233,11 +197,6 @@ int win_tempFileName(char* tmpName){
 
 int temporary_files_creation(){
 #if defined(__linux) || defined(__APPLE__)
-	if (mkstemp(TRIVIAL_ENCODING_FILE) == -1){
-		fprintf(stderr,"Error on opening trivial temporary file: %s.\n",
-			TRIVIAL_ENCODING_FILE);
-		return -1;
-	}
 	if (mkstemp(CONSTRAINTS_FILE) == -1){
 		fprintf(stderr,"Error on opening constraint temporary file: %s.\n",
 			CONSTRAINTS_FILE);
@@ -247,25 +206,19 @@ int temporary_files_creation(){
 		fprintf(stderr,"Error on opening temporary file: %s.\n", TMP_FILE);
 		return -1;
 	}
-	if (mkstemp(SCRIPT_PATH) == -1){
-		fprintf(stderr,"Error on opening temporary file: %s.\n", SCRIPT_PATH);
+	if (mkstemp(SCRIPT_TMP) == -1){
+		fprintf(stderr,"Error on opening temporary file: %s.\n", SCRIPT_TMP);
 		return -1;
 	}
 	if (mkstemp(BOOL_PATH) == -1){
 		fprintf(stderr,"Error on opening temporary file: %s.\n", BOOL_PATH);
 		return -1;
 	}
-	if (mkstemp(CODE_CONSTRAINTS) == -1){
-		fprintf(stderr,"Error on opening temporary file: %s.\n", CODE_CONSTRAINTS);
-		return -1;
-	}
 #else
-	win_tempFileName(TRIVIAL_ENCODING_FILE);
 	win_tempFileName(CONSTRAINTS_FILE);
 	win_tempFileName(TMP_FILE);
-	win_tempFileName(SCRIPT_PATH);
+	win_tempFileName(SCRIPT_TMP);
 	win_tempFileName(BOOL_PATH);
-	win_tempFileName(CODE_CONSTRAINTS);
 #endif
 	return 0;
 }
@@ -786,33 +739,38 @@ int encoding_memory_allocation(){
 }
 
 void writeDummyConstraints(){
-	FILE *fp = NULL;
 	int b = logarithm2 (n);
 
-	fp = fopen(CODE_CONSTRAINTS, "w");
+	codeConstraints.clear();
+	codeConstraints.resize(n);
 	for(int i = 0; i < n; i++){
+		codeConstraints[i].clear();
+		codeConstraints[i].resize(b);
 		for(int j = 0; j < b; j++){
-			fprintf(fp, "X");
+			codeConstraints[i][j] = 'X';
 		}
-		if (i != n-1) fprintf(fp, "\n");
 	}
-	fclose(fp);
 
 	return;
 }
 
 void copyConstraints(char *cons){
-	FILE *fs = NULL;
-	FILE *fd = NULL;
-	char c;
+	FILE *fs;
+	int i = 0;
+
+	codeConstraints.clear();
+	codeConstraints.resize(n);
 
 	fs = fopen(cons, "r");
-	fd = fopen(CODE_CONSTRAINTS, "w");
-	while( (c = fgetc(fs)) != EOF ){
-		fputc(c, fd);
+	for(int i = 0; i < n; i++){
+		char c;
+		codeConstraints[i].clear();
+		while( (c = fgetc(fs)) != '\n'){
+			codeConstraints[i].push_back(c);
+		}
 	}
 	fclose(fs);
-	fclose(fd);
+
 	return;
 }
 
