@@ -92,12 +92,12 @@ extern "C" {
 				copyConstraints(custom_file_name);
 			}
 
-			if(read_set_encoding(CODE_CONSTRAINTS,n,&bits) != 0){
+			if(read_set_encoding(n,&bits) != 0){
 				safe_exit("Error on reading encoding set.");
 				return -1;
 			}
 
-			if(check_correctness(CODE_CONSTRAINTS,n,tot_enc,bits) != 0){
+			if(check_correctness(n,tot_enc,bits) != 0){
 				safe_exit("Codes set by the user unfeasible.");
 				return -1;
 			}

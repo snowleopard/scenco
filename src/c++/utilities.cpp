@@ -74,15 +74,6 @@ void removeTempFiles(){
 		}
 		free(command);
 	}
-	if(FileExists(CODE_CONSTRAINTS)){
-		command = strdup("rm -f ");
-		command = catMem(command, CODE_CONSTRAINTS);
-		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", CODE_CONSTRAINTS);
-			return;
-		}
-		free(command);
-	}
 #else
 	if(FileExists(TMP_FILE)){
 	    	command = strdup("del ");
@@ -116,15 +107,6 @@ void removeTempFiles(){
 		command = catMem(command, BOOL_PATH);
 		if (system(command) == -1){
 			fprintf(stderr,"Error on removing %s.\n", BOOL_PATH);
-			return;
-		}
-		free(command);
-	}
-	if(FileExists(CODE_CONSTRAINTS)){
-		command = strdup("del ");
-		command = catMem(command, CODE_CONSTRAINTS);
-		if (system(command) == -1){
-			fprintf(stderr,"Error on removing %s.\n", CODE_CONSTRAINTS);
 			return;
 		}
 		free(command);
@@ -232,16 +214,11 @@ int temporary_files_creation(){
 		fprintf(stderr,"Error on opening temporary file: %s.\n", BOOL_PATH);
 		return -1;
 	}
-	if (mkstemp(CODE_CONSTRAINTS) == -1){
-		fprintf(stderr,"Error on opening temporary file: %s.\n", CODE_CONSTRAINTS);
-		return -1;
-	}
 #else
 	win_tempFileName(CONSTRAINTS_FILE);
 	win_tempFileName(TMP_FILE);
 	win_tempFileName(SCRIPT_TMP);
 	win_tempFileName(BOOL_PATH);
-	win_tempFileName(CODE_CONSTRAINTS);
 #endif
 	return 0;
 }
@@ -762,33 +739,38 @@ int encoding_memory_allocation(){
 }
 
 void writeDummyConstraints(){
-	FILE *fp = NULL;
 	int b = logarithm2 (n);
 
-	fp = fopen(CODE_CONSTRAINTS, "w");
+	codeConstraints.clear();
+	codeConstraints.resize(n);
 	for(int i = 0; i < n; i++){
+		codeConstraints[i].clear();
+		codeConstraints[i].resize(b);
 		for(int j = 0; j < b; j++){
-			fprintf(fp, "X");
+			codeConstraints[i][j] = 'X';
 		}
-		if (i != n-1) fprintf(fp, "\n");
 	}
-	fclose(fp);
 
 	return;
 }
 
 void copyConstraints(char *cons){
-	FILE *fs = NULL;
-	FILE *fd = NULL;
-	char c;
+	FILE *fs;
+	int i = 0;
+
+	codeConstraints.clear();
+	codeConstraints.resize(n);
 
 	fs = fopen(cons, "r");
-	fd = fopen(CODE_CONSTRAINTS, "w");
-	while( (c = fgetc(fs)) != EOF ){
-		fputc(c, fd);
+	for(int i = 0; i < n; i++){
+		char c;
+		codeConstraints[i].clear();
+		while( (c = fgetc(fs)) != '\n'){
+			codeConstraints[i].push_back(c);
+		}
 	}
 	fclose(fs);
-	fclose(fd);
+
 	return;
 }
 
